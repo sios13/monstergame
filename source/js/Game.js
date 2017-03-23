@@ -11,7 +11,7 @@ Game.prototype.startGame = function() {
 
     let Entity = require("./Entity.js");
 
-    let coolguy = new Entity(10, 10, 96, 96, 10);
+    let coolguy = new Entity(10, 10, 96, 96, 6);
 
     // Start game!
     setInterval(frame.bind(this), 1000/this.framerate);
