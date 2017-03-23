@@ -1,0 +1,22 @@
+{
+  "name": "so222et-project",
+  "version": "1.0.0",
+  "description": "Awesome game!",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1dv430/so222et-project.git"
+  },
+  "author": "Simon Österdahl",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/1dv430/so222et-project/issues"
+  },
+  "homepage": "https://github.com/1dv430/so222et-project#readme",
+  "devDependencies": {
+    "browserify": "^14.1.0"
+  }
+}
