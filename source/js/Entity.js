@@ -38,33 +38,105 @@ Entity.prototype.update = function(game) {
         let speedX = deltaX/distance*this.speed;
         let speedY = deltaY/distance*this.speed;
 
-        this.gridXBefore = Math.floor(this.x / 100);
-        this.gridYBefore = Math.floor(this.y / 100);
+        let topLeftColBefore = Math.floor(this.x / 100);
+        let topLeftRowBefore = Math.floor(this.y / 100);
+
+        let topRightColBefore = Math.floor((this.x+96) / 100);
+        let topRightRowBefore = Math.floor(this.y / 100);
+
+        let bottomLeftColBefore = Math.floor(this.x / 100);
+        let bottomLeftRowBefore = Math.floor((this.y+96) / 100);
+
+        let bottomRightColBefore = Math.floor((this.x+96) / 100);
+        let bottomRightRowBefore = Math.floor((this.y+96) / 100);
 
         this.x += speedX;
         this.y += speedY;
 
-        this.gridXAfter = Math.floor(this.x / 100);
-        this.gridYAfter = Math.floor(this.y / 100);
+        let topLeftColAfter = Math.floor(this.x / 100);
+        let topLeftRowAfter = Math.floor(this.y / 100);
 
-        console.log("gridXBefore: " + this.gridXBefore);
-        console.log("gridYBefore: " + this.gridYBefore);
-        console.log("gridXAfter: " + this.gridXAfter);
-        console.log("gridYAfter: " + this.gridYAfter);
+        let topRightColAfter = Math.floor((this.x+96) / 100);
+        let topRightRowAfter = Math.floor(this.y / 100);
+
+        let bottomLeftColAfter = Math.floor(this.x / 100);
+        let bottomLeftRowAfter = Math.floor((this.y+96) / 100);
+
+        let bottomRightColAfter = Math.floor((this.x+96) / 100);
+        let bottomRightRowAfter = Math.floor((this.y+96) / 100);
+
+        console.log("topLeftColBefore: " + this.topLeftColBefore);
+        console.log("topLeftRowBefore: " + this.topLeftRowBefore);
+        console.log("topLeftColAfter: " + this.topLeftColAfter);
+        console.log("topLeftRowAfter: " + this.topLeftRowAfter);
 
         // If entering a new column
-        if (this.gridXBefore !== this.gridXAfter) {
+        if (topLeftColBefore !== topLeftColAfter) {
             // If not allowed to enter new column
-            if (game.collisionMap[this.gridYAfter][this.gridXAfter] === 1) {
+            if (game.collisionMap[topLeftRowAfter][topLeftColAfter] === 1) {
                 // Go back
                 this.x -= speedX;
             }
         }
 
         // If entering a new row
-        if (this.gridYBefore !== this.gridYAfter) {
+        if (topLeftRowBefore !== topLeftRowAfter) {
             // If not allowed to enter new row
-            if (game.collisionMap[this.gridYAfter][this.gridXAfter] === 1) {
+            if (game.collisionMap[topLeftRowAfter][topLeftColAfter] === 1) {
+                // Go back
+                this.y -= speedY;
+            }
+        }
+
+        // If entering a new column
+        if (topRightColBefore !== topRightColAfter) {
+            // If not allowed to enter new column
+            if (game.collisionMap[topRightRowAfter][topRightColAfter] === 1) {
+                // Go back
+                this.x -= speedX;
+            }
+        }
+
+        // If entering a new row
+        if (topRightRowBefore !== topRightRowAfter) {
+            // If not allowed to enter new row
+            if (game.collisionMap[topRightRowAfter][topRightColAfter] === 1) {
+                // Go back
+                this.y -= speedY;
+            }
+        }
+
+        // If entering a new column
+        if (bottomLeftColBefore !== bottomLeftColAfter) {
+            // If not allowed to enter new column
+            if (game.collisionMap[bottomLeftRowAfter][bottomLeftColAfter] === 1) {
+                // Go back
+                this.x -= speedX;
+            }
+        }
+
+        // If entering a new row
+        if (bottomLeftRowBefore !== bottomLeftRowAfter) {
+            // If not allowed to enter new row
+            if (game.collisionMap[bottomLeftRowAfter][bottomLeftColAfter] === 1) {
+                // Go back
+                this.y -= speedY;
+            }
+        }
+
+        // If entering a new column
+        if (bottomRightColBefore !== bottomRightColAfter) {
+            // If not allowed to enter new column
+            if (game.collisionMap[bottomRightRowAfter][bottomRightColAfter] === 1) {
+                // Go back
+                this.x -= speedX;
+            }
+        }
+
+        // If entering a new row
+        if (bottomRightRowBefore !== bottomRightRowAfter) {
+            // If not allowed to enter new row
+            if (game.collisionMap[bottomRightRowAfter][bottomRightColAfter] === 1) {
                 // Go back
                 this.y -= speedY;
             }
@@ -85,8 +157,6 @@ Entity.prototype.update = function(game) {
         console.log("Delta Y: " + deltaY);
         console.log("Distance: " + distance);
         console.log("Speed: " + this.speed);
-        console.log("GridX: " + this.gridX);
-        console.log("GridY: " + this.gridY);
         console.log("-----------------");
 
         /**
@@ -106,6 +176,10 @@ Entity.prototype.update = function(game) {
 
 Entity.prototype.render = function(context) {
     context.drawImage(this.image, this.x, this.y);
+
+    context.beginPath();
+    context.rect(this.x, this.y, this.width, this.height);
+    context.stroke();
 }
 
 module.exports = Entity;
