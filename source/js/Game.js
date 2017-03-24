@@ -4,6 +4,12 @@ function Game() {
 
     this.canvas = document.querySelector("canvas");
     this.context = this.canvas.getContext("2d");
+
+    this.collisionMap = [
+        [0,0,0,0],
+        [0,1,0,1,1],
+        [0,0,0,0]
+    ];
 }
 
 Game.prototype.startGame = function() {
@@ -31,12 +37,15 @@ Game.prototype.startGame = function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         coolguy.render(this.context);
-/*        context.beginPath();
-        context.rect(x,y,50,50);
-        context.fillStyle = context.createPattern(imgObj, "repeat");
-        context.fill();
-        //context.stroke();
-        context.closePath();*/
+
+        for (let y = 0; y < this.collisionMap.length; y++) {
+            for (let x = 0; x < this.collisionMap[y].length; x++) {
+                if (this.collisionMap[y][x] === 1) {
+                    this.context.rect(x*100,y*100,100,100);
+                    this.context.stroke();
+                }
+            }
+        }
     }
 };
 
