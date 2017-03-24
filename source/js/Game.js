@@ -8,6 +8,7 @@ function Game() {
     this.collisionMap = [
         [0,0,0,0],
         [0,1,0,1,1],
+        [0,0,0,0],
         [0,0,0,0]
     ];
 }
@@ -41,6 +42,7 @@ Game.prototype.startGame = function() {
         for (let y = 0; y < this.collisionMap.length; y++) {
             for (let x = 0; x < this.collisionMap[y].length; x++) {
                 if (this.collisionMap[y][x] === 1) {
+                    this.context.beginPath();
                     this.context.rect(x*100, y*100, 100, 100);
                     this.context.stroke();
                 }

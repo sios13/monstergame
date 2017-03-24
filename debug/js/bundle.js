@@ -39,37 +39,14 @@ Entity.prototype.update = function(game) {
         let speedX = deltaX/distance*this.speed;
         let speedY = deltaY/distance*this.speed;
 
+        /**
+         * Top left
+         */
         let topLeftColBefore = Math.floor(this.x / 100);
+        let topLeftColAfter = Math.floor((this.x+speedX) / 100);
+
         let topLeftRowBefore = Math.floor(this.y / 100);
-
-        let topRightColBefore = Math.floor((this.x+96) / 100);
-        let topRightRowBefore = Math.floor(this.y / 100);
-
-        let bottomLeftColBefore = Math.floor(this.x / 100);
-        let bottomLeftRowBefore = Math.floor((this.y+96) / 100);
-
-        let bottomRightColBefore = Math.floor((this.x+96) / 100);
-        let bottomRightRowBefore = Math.floor((this.y+96) / 100);
-
-        this.x += speedX;
-        this.y += speedY;
-
-        let topLeftColAfter = Math.floor(this.x / 100);
-        let topLeftRowAfter = Math.floor(this.y / 100);
-
-        let topRightColAfter = Math.floor((this.x+96) / 100);
-        let topRightRowAfter = Math.floor(this.y / 100);
-
-        let bottomLeftColAfter = Math.floor(this.x / 100);
-        let bottomLeftRowAfter = Math.floor((this.y+96) / 100);
-
-        let bottomRightColAfter = Math.floor((this.x+96) / 100);
-        let bottomRightRowAfter = Math.floor((this.y+96) / 100);
-
-        console.log("topLeftColBefore: " + this.topLeftColBefore);
-        console.log("topLeftRowBefore: " + this.topLeftRowBefore);
-        console.log("topLeftColAfter: " + this.topLeftColAfter);
-        console.log("topLeftRowAfter: " + this.topLeftRowAfter);
+        let topLeftRowAfter = Math.floor((this.y+speedY) / 100);
 
         // If entering a new column
         if (topLeftColBefore !== topLeftColAfter) {
@@ -89,6 +66,15 @@ Entity.prototype.update = function(game) {
             }
         }
 
+        /**
+         * Top right
+         */
+        let topRightColBefore = Math.floor((this.x+96) / 100);
+        let topRightColAfter = Math.floor((this.x+96+speedX) / 100);
+
+        let topRightRowBefore = Math.floor(this.y / 100);
+        let topRightRowAfter = Math.floor((this.y+speedY) / 100);
+
         // If entering a new column
         if (topRightColBefore !== topRightColAfter) {
             // If not allowed to enter new column
@@ -107,6 +93,15 @@ Entity.prototype.update = function(game) {
             }
         }
 
+        /**
+         * Bottom left
+         */
+        let bottomLeftColAfter = Math.floor((this.x+speedX) / 100);
+        let bottomLeftColBefore = Math.floor(this.x / 100);
+
+        let bottomLeftRowAfter = Math.floor((this.y+96+speedY) / 100);
+        let bottomLeftRowBefore = Math.floor((this.y+96) / 100);
+
         // If entering a new column
         if (bottomLeftColBefore !== bottomLeftColAfter) {
             // If not allowed to enter new column
@@ -124,6 +119,15 @@ Entity.prototype.update = function(game) {
                 this.y -= speedY;
             }
         }
+
+        /**
+         * Bottom right
+         */
+        let bottomRightColBefore = Math.floor((this.x+96) / 100);
+        let bottomRightColAfter = Math.floor((this.x+96+speedX) / 100);
+
+        let bottomRightRowBefore = Math.floor((this.y+96) / 100);
+        let bottomRightRowAfter = Math.floor((this.y+96+speedY) / 100);
 
         // If entering a new column
         if (bottomRightColBefore !== bottomRightColAfter) {
@@ -153,6 +157,9 @@ Entity.prototype.update = function(game) {
                 console.log("It was Y fault!");
             }
         }*/
+
+        this.x += speedX;
+        this.y += speedY;
 
         console.log("Delta X: " + deltaX);
         console.log("Delta Y: " + deltaY);
@@ -196,6 +203,7 @@ function Game() {
     this.collisionMap = [
         [0,0,0,0],
         [0,1,0,1,1],
+        [0,0,0,0],
         [0,0,0,0]
     ];
 }
@@ -229,6 +237,7 @@ Game.prototype.startGame = function() {
         for (let y = 0; y < this.collisionMap.length; y++) {
             for (let x = 0; x < this.collisionMap[y].length; x++) {
                 if (this.collisionMap[y][x] === 1) {
+                    this.context.beginPath();
                     this.context.rect(x*100, y*100, 100, 100);
                     this.context.stroke();
                 }
