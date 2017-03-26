@@ -12,6 +12,8 @@ function Game() {
         [0,0,0,0],
         [0,0,0,0]
     ];
+
+    this.gridSize = 50;
 }
 
 Game.prototype.startGame = function() {
@@ -19,7 +21,7 @@ Game.prototype.startGame = function() {
 
     let Entity = require("./Entity.js");
 
-    let coolguy = new Entity(10, 10, 96, 96, 6);
+    let coolguy = new Entity(110, 110, 80, 80, 6);
 
     // Start game!
     setInterval(frame.bind(this), 1000/this.framerate);
@@ -44,7 +46,7 @@ Game.prototype.startGame = function() {
             for (let x = 0; x < this.collisionMap[y].length; x++) {
                 if (this.collisionMap[y][x] === 1) {
                     this.context.beginPath();
-                    this.context.rect(x*100, y*100, 100, 100);
+                    this.context.rect(x*this.gridSize, y*this.gridSize, this.gridSize, this.gridSize);
                     this.context.stroke();
                 }
             }
