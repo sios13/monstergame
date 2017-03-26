@@ -6,11 +6,16 @@ function Game() {
     this.context = this.canvas.getContext("2d");
 
     this.collisionMap = [
-        [0,0,0,0],
-        [0,1,0,1,1],
-        [0,1,0,0],
-        [0,0,0,0],
-        [0,0,0,0]
+        [1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,1,0,0,0,1],
+        [1,0,0,1,1,0,0,1,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
     this.gridSize = 50;
@@ -21,7 +26,7 @@ Game.prototype.startGame = function() {
 
     let Entity = require("./Entity.js");
 
-    let coolguy = new Entity(110, 110, 80, 80, 6);
+    let coolguy = new Entity(60, 60, 40, 40, 5);
 
     // Start game!
     setInterval(frame.bind(this), 1000/this.framerate);

@@ -13,7 +13,7 @@ function Entity(x, y, height, width, speed, direction) {
     this.direction = direction;
 
     this.idleImage = new Image();
-    this.idleImage.src = "img/idle001.png";
+    this.idleImage.src = "img/characters.png";
 
     this.runningImages = [];
     for (let i = 0; i < 8; i++) {
@@ -48,7 +48,7 @@ Entity.prototype._detectCollision = function(game) {
         let newColumn = Math.floor((x+this.speedX) / game.gridSize);
         let newRow = Math.floor((y+this.speedY) / game.gridSize);
 
-        // If collision point is not allowed to enter new grid
+        // If collision point is trying to enter a disallowed grid
         if (game.collisionMap[newRow][newColumn] === 1) {
             // If trying to enter new column and row at the same time
             if (oldColumn !== newColumn && oldRow !== newRow) {
@@ -56,16 +56,32 @@ Entity.prototype._detectCollision = function(game) {
                 continue;
             }
 
-            // If trying to enter new column
+            // If trying to enter a new column
             if (oldColumn !== newColumn) {
                 this.speedX = 0;
             }
 
-            // If trying to enter new row
+            // If trying to enter a new row
             if (oldRow !== newRow) {
                 this.speedY = 0;
             }
         }
+    }
+}
+
+Entity.prototype._setDirection = function() {
+    let radians = Math.atan2(this.speedY, this.speedX);
+
+    let degrees = radians * (180 / Math.PI);
+
+    if (degrees < -135 || degrees > 135) {
+        this.direction = "left";
+    } else if (degrees < -45) {
+        this.direction = "up";
+    } else if (degrees < 45) {
+        this.direction = "right";
+    } else {
+        this.direction = "down";
     }
 }
 
@@ -83,25 +99,21 @@ Entity.prototype.update = function(game) {
         this.speedX = deltaX/distance*this.speed;
         this.speedY = deltaY/distance*this.speed;
 
+        this._setDirection();
+
         this._detectCollision(game);
 
         this.x += this.speedX;
         this.y += this.speedY;
 
-        // console.log("Delta X: " + deltaX);
-        // console.log("Delta Y: " + deltaY);
-        // console.log("Distance: " + distance);
-        // console.log("Speed: " + this.speed);
-        // console.log("-----------------");
-
         /**
          * Animation
          */
-        if (game.frame % 3 === 0) {
-            this.moveAnimationCounter += 1;
-        }
+        // if (game.frame % 3 === 0) {
+        //     this.moveAnimationCounter += 1;
+        // }
 
-        this.image = this.runningImages[this.moveAnimationCounter % 8];
+        // this.image = this.runningImages[this.moveAnimationCounter % 8];
 
         return;
     }
@@ -110,7 +122,7 @@ Entity.prototype.update = function(game) {
 }
 
 Entity.prototype.render = function(context) {
-    context.drawImage(this.image, this.x, this.y);
+    context.drawImage(this.image, 4*16, 0, 16, 16, this.x, this.y, this.width, this.height);
 
     context.beginPath();
     context.rect(this.x, this.y, this.width, this.height);
