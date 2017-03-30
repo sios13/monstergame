@@ -1,6 +1,9 @@
-function Entity(x, y, width, height, speed, direction) {
+function Entity(x, y, mapX, mapY, width, height, speed, direction) {
     this.x = x;
     this.y = y;
+
+    this.mapX = mapX;
+    this.mapY = mapY;
 
     this.width = width;
     this.height = height;
@@ -9,6 +12,9 @@ function Entity(x, y, width, height, speed, direction) {
 
     this.speedX = null;
     this.speedY = null;
+
+    this.col = null;
+    this.row = null;
 
     this.direction = direction;
 
@@ -27,30 +33,33 @@ function Entity(x, y, width, height, speed, direction) {
 }
 
 Entity.prototype._detectCollision = function(game) {
+    let x = this.x;
+    let y = this.y;
+
     let collisionPoints = [
-        [this.x, this.y],                           // Top left
-        [this.x+this.width, this.y],                // Top right
-        [this.x, this.y+this.height],               // Bottom left
-        [this.x+this.width, this.y+this.height],    // Bottom right
-        [this.x+this.width/2, this.y],              // Top
-        [this.x+this.width, this.y+this.height/2],  // Right
-        [this.x+this.width/2, this.y+this.height],  // Bottom
-        [this.x, this.y+this.height/2]              // Left
+        [x, y],                           // Top left
+        [x+this.width, y],                // Top right
+        [x, y+this.height],               // Bottom left
+        [x+this.width, y+this.height],    // Bottom right
+        [x+this.width/2, y],              // Top
+        [x+this.width, y+this.height/2],  // Right
+        [x+this.width/2, y+this.height],  // Bottom
+        [x, y+this.height/2]              // Left
     ];
 
     // Iterate the collision points
     for (let i = 0; i < collisionPoints.length; i++) {
-        let x = collisionPoints[i][0];
-        let y = collisionPoints[i][1];
+        let pointX = collisionPoints[i][0];
+        let pointY = collisionPoints[i][1];
 
-        let oldColumn = Math.floor(x / game.gridSize);
-        let oldRow = Math.floor(y / game.gridSize);
+        let oldColumn = Math.floor(pointX / game.map.gridSize);
+        let oldRow = Math.floor(pointY / game.map.gridSize);
 
-        let newColumn = Math.floor((x+this.speedX) / game.gridSize);
-        let newRow = Math.floor((y+this.speedY) / game.gridSize);
+        let newColumn = Math.floor((pointX+this.speedX) / game.map.gridSize);
+        let newRow = Math.floor((pointY+this.speedY) / game.map.gridSize);
 
         // If collision point is trying to enter a disallowed grid
-        if (game.collisionMap[newRow][newColumn] === 1) {
+        if (game.map.collisionMap[newRow][newColumn] === 1) {
             // If trying to enter new column and row at the same time
             if (newColumn !== oldColumn && newRow !== oldRow) {
                 // Trust that another collision point will find the collision
@@ -88,8 +97,8 @@ Entity.prototype._setDirection = function() {
 
 Entity.prototype.update = function(game) {
     if (game.listeners.isMousedown) {
-        let deltaX = game.mousePositionX - this.x - this.width/2;
-        let deltaY = game.mousePositionY - this.y - this.height/2;
+        let deltaX = game.mousePositionX - this.mapX - this.width/2;
+        let deltaY = game.mousePositionY - this.mapY - this.height/2;
 
         let distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
 
@@ -103,6 +112,9 @@ Entity.prototype.update = function(game) {
         this._setDirection();
 
         this._detectCollision(game);
+
+        this.col = Math.floor((this.x+this.width/2) / game.map.gridSize);
+        this.row = Math.floor((this.y+this.height/2) / game.map.gridSize);
 
         this.x += this.speedX;
         this.y += this.speedY;
@@ -131,11 +143,11 @@ Entity.prototype.update = function(game) {
 }
 
 Entity.prototype.render = function(context) {
-    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, this.sprite.swidth, this.sprite.sheight, this.x, this.y, this.width, this.height);
+    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, this.sprite.swidth, this.sprite.sheight, this.mapX, this.mapY, this.width, this.height);
 
-    // context.beginPath();
-    // context.rect(this.x, this.y, this.width, this.height);
-    // context.stroke();
+    context.beginPath();
+    context.rect(this.mapX, this.mapY, this.width, this.height);
+    context.stroke();
 }
 
 module.exports = Entity;
