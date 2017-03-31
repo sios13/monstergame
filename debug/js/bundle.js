@@ -444,26 +444,26 @@ window.addEventListener("load", function() {
 function addListeners(game) {
     game.listeners = {};
 
-    game.canvas.addEventListener("mousedown", function(e) {
+    game.canvas.addEventListener("mousedown", function(event) {
         game.listeners.isMousedown = true;
 
-        game.listeners.mousePositionX = window.event.clientX;
-        game.listeners.mousePositionY = window.event.clientY;
+        game.listeners.mousePositionX = event.clientX;
+        game.listeners.mousePositionY = event.clientY;
     });
 
-    game.canvas.addEventListener("mousemove", function(e) {
+    game.canvas.addEventListener("mousemove", function(event) {
         game.listeners.isMousemove = true;
 
-        game.mousePositionX = window.event.clientX;
-        game.mousePositionY = window.event.clientY;
+        game.mousePositionX = event.clientX;
+        game.mousePositionY = event.clientY;
     });
 
-    game.canvas.addEventListener("mouseup", function(e) {
+    game.canvas.addEventListener("mouseup", function(event) {
         game.listeners.isMousedown = false;
         game.listeners.isMousemove = false;
     });
 
-    game.canvas.addEventListener("keydown", function(e) {
+    game.canvas.addEventListener("keydown", function(event) {
         console.log("keydown");
     });
 }
