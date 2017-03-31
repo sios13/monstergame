@@ -125,7 +125,7 @@ Entity.prototype.update = function(game) {
             this.moveAnimationCounter += 1;
         }
 
-        this.sprite.sx = (3 + this.moveAnimationCounter % 3) * 16;
+        this.sprite.sx = (3 + this.moveAnimationCounter % 3) * 16 + 3;
 
         if (this.direction === "up") {
             this.sprite.sy = 3*16;
@@ -140,15 +140,15 @@ Entity.prototype.update = function(game) {
         return;
     }
 
-    this.sprite.sx = 4 * 16;
+    this.sprite.sx = 4 * 16 + 3;
 }
 
 Entity.prototype.render = function(context) {
-    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, this.sprite.swidth, this.sprite.sheight, this.mapX, this.mapY, this.width, this.height);
+    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, this.sprite.swidth - 6, this.sprite.sheight, this.mapX, this.mapY-20, this.width, this.height+20);
 
-    context.beginPath();
-    context.rect(this.mapX, this.mapY, this.width, this.height);
-    context.stroke();
+    // context.beginPath();
+    // context.rect(this.mapX, this.mapY, this.width, this.height);
+    // context.stroke();
 }
 
 module.exports = Entity;
@@ -164,9 +164,9 @@ function Game() {
     this.canvas = document.querySelector("canvas");
     this.context = this.canvas.getContext("2d");
 
-    this.map = MapInitializer.startMap();
+    this.map = MapInitializer.getMap("startMap");
 
-    this.coolguy = new Entity(44, 44, this.canvas.width/2, this.canvas.height/2, 52, 52, 6);
+    this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 30, 30, 5);
 }
 
 Game.prototype.startGame = function() {
@@ -197,7 +197,11 @@ Game.prototype.startGame = function() {
     let render = () => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        this.map.renderLayer1(this.context);
+
         this.coolguy.render(this.context);
+
+        this.map.renderLayer2(this.context);
 
         this.map.render(this.context);
     }
@@ -214,7 +218,10 @@ Game.prototype._checkEvents = function() {
     let event = this.map.getEvent(col, row);
 
     if (typeof event === "object" && event.id === 2) {
-        this.map = MapInitializer.coolMap();
+        this.map.destroy();
+
+        // id:2 -> change map! teleport!
+        this.map = MapInitializer.getMap(event.data.mapName);
 
         this.coolguy.x = event.data.spawnX;
         this.coolguy.y = event.data.spawnY;
@@ -226,13 +233,23 @@ Game.prototype._checkEvents = function() {
 module.exports = Game;
 
 },{"./Entity.js":1,"./MapInitializer.js":4,"./listeners.js":6}],3:[function(require,module,exports){
-function Map(x, y, collisionMap, gridSize) {
+function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc) {
     this.x = x;
     this.y = y;
 
     this.collisionMap = collisionMap;
 
     this.gridSize = gridSize;
+
+    this.layer1Image = new Image();
+    this.layer1Image.src = layer1Src;
+
+    this.layer2Image = new Image();
+    this.layer2Image.src = layer2Src;
+
+    this.audio = new Audio(audioSrc);
+    this.audio.loop = true;
+    this.audio.play();
 }
 
 Map.prototype.attachEvent = function(col, row, event) {
@@ -247,12 +264,24 @@ Map.prototype.render = function(context) {
     for (let y = 0; y < this.collisionMap.length; y++) {
         for (let x = 0; x < this.collisionMap[y].length; x++) {
             if (this.collisionMap[y][x] === 1) {
-                context.beginPath();
-                context.rect(this.x + x*this.gridSize, this.y + y*this.gridSize, this.gridSize, this.gridSize);
-                context.stroke();
+                // context.beginPath();
+                // context.rect(this.x + x*this.gridSize, this.y + y*this.gridSize, this.gridSize, this.gridSize);
+                // context.stroke();
             }
         }
     }
+}
+
+Map.prototype.renderLayer1 = function(context) {
+    context.drawImage(this.layer1Image, this.x, this.y);
+}
+
+Map.prototype.renderLayer2 = function(context) {
+    context.drawImage(this.layer2Image, this.x, this.y);
+}
+
+Map.prototype.destroy = function() {
+    this.audio.pause();
 }
 
 module.exports = Map;
@@ -260,35 +289,75 @@ module.exports = Map;
 },{}],4:[function(require,module,exports){
 const Map = require("./Map.js");
 
+function getMap(mapName) {
+    if (mapName === "startMap") {
+        return startMap();
+    }
+
+    if (mapName === "house1Map") {
+        return house1Map();
+    }
+}
+
 function startMap() {
     let x = 0;
     let y = 0;
 
     let collisionMap = [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
+        [1,1,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,0,0,0,0,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,0,0,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1],
+        [1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1],
+        [1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,1,2,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1],
+        [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
     let gridSize = 32;
 
-    let map = new Map(x, y, collisionMap, gridSize);
+    let layer1Src = "img/map1layer1.png";
+    let layer2Src = "img/map1layer2.png";
+
+    let audioSrc = "audio/music1.mp3";
+
+    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc);
 
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {
@@ -296,8 +365,9 @@ function startMap() {
                 map.attachEvent(x, y, {
                     id: 2,
                     data: {
-                        spawnX: 600,
-                        spawnY: 500
+                        mapName: "house1Map",
+                        spawnX: 10*32,
+                        spawnY: 8*32
                     }
                 });
             }
@@ -307,40 +377,56 @@ function startMap() {
     return map;
 }
 
-function coolMap() {
+function house1Map() {
     let x = 0;
     let y = 0;
 
     let collisionMap = [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,1],
+        [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
     let gridSize = 32;
 
-    return new Map(x, y, collisionMap, gridSize);
+    let layer1Src = "img/house1layer1.png";
+    let layer2Src = "img/house1layer2.png";
+
+    let audioSrc = "audio/music2.mp3";
+
+    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc);
+
+    for (let y = 0; y < collisionMap.length; y++) {
+        for (let x = 0; x < collisionMap[y].length; x++) {
+            if (collisionMap[y][x] === 2) {
+                map.attachEvent(x, y, {
+                    id: 2,
+                    data: {
+                        mapName: "startMap",
+                        spawnX: 6*32,
+                        spawnY: 39*32
+                    }
+                });
+            }
+        }
+    }
+
+    return map;
 }
 
 module.exports = {
-    startMap: startMap,
-    coolMap: coolMap
+    getMap: getMap
 };
 
 },{"./Map.js":3}],5:[function(require,module,exports){

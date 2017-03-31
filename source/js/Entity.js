@@ -124,7 +124,7 @@ Entity.prototype.update = function(game) {
             this.moveAnimationCounter += 1;
         }
 
-        this.sprite.sx = (3 + this.moveAnimationCounter % 3) * 16;
+        this.sprite.sx = (3 + this.moveAnimationCounter % 3) * 16 + 3;
 
         if (this.direction === "up") {
             this.sprite.sy = 3*16;
@@ -139,15 +139,15 @@ Entity.prototype.update = function(game) {
         return;
     }
 
-    this.sprite.sx = 4 * 16;
+    this.sprite.sx = 4 * 16 + 3;
 }
 
 Entity.prototype.render = function(context) {
-    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, this.sprite.swidth, this.sprite.sheight, this.mapX, this.mapY, this.width, this.height);
+    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, this.sprite.swidth - 6, this.sprite.sheight, this.mapX, this.mapY-20, this.width, this.height+20);
 
-    context.beginPath();
-    context.rect(this.mapX, this.mapY, this.width, this.height);
-    context.stroke();
+    // context.beginPath();
+    // context.rect(this.mapX, this.mapY, this.width, this.height);
+    // context.stroke();
 }
 
 module.exports = Entity;

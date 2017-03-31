@@ -8,9 +8,9 @@ function Game() {
     this.canvas = document.querySelector("canvas");
     this.context = this.canvas.getContext("2d");
 
-    this.map = MapInitializer.startMap();
+    this.map = MapInitializer.getMap("startMap");
 
-    this.coolguy = new Entity(44, 44, this.canvas.width/2, this.canvas.height/2, 52, 52, 6);
+    this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 30, 30, 5);
 }
 
 Game.prototype.startGame = function() {
@@ -41,7 +41,11 @@ Game.prototype.startGame = function() {
     let render = () => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        this.map.renderLayer1(this.context);
+
         this.coolguy.render(this.context);
+
+        this.map.renderLayer2(this.context);
 
         this.map.render(this.context);
     }
@@ -58,7 +62,10 @@ Game.prototype._checkEvents = function() {
     let event = this.map.getEvent(col, row);
 
     if (typeof event === "object" && event.id === 2) {
-        this.map = MapInitializer.coolMap();
+        this.map.destroy();
+
+        // id:2 -> change map! teleport!
+        this.map = MapInitializer.getMap(event.data.mapName);
 
         this.coolguy.x = event.data.spawnX;
         this.coolguy.y = event.data.spawnY;
