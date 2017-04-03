@@ -38,14 +38,20 @@ Game.prototype.startGame = function() {
         // Update map
         this.map.update(this);
 
-        // Check for events (depending on where coolguy is standing)
-        this._checkEvents(this.coolguy.col, this.coolguy.row);
+        // if cool guy has entered a new grid -> check for events on that grid
+        if (this.coolguy.newGrid) {
+            this._checkEvents(Math.floor(this.coolguy.x/32), Math.floor(this.coolguy.y/32));
+
+            this.coolguy.newGrid = false;
+        }
     }
 
     let render = () => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.map.renderLayer1(this.context);
+
+        this.map.renderTiles(this.context);
 
         this.coolguy.render(this.context);
 
@@ -55,17 +61,11 @@ Game.prototype.startGame = function() {
     }
 };
 
-Game.prototype._checkEvents = function() {
-    let col = this.coolguy.col;
-    let row = this.coolguy.row;
-
-    // if col or row is not set -> exit
-    if (col === null || row === null) {
-        return;
-    }
-
+Game.prototype._checkEvents = function(col, row) {
+    // get event on position
     let event = this.map.getEvent(col, row);
 
+    // if there is no event -> exit
     if (typeof event !== "object") {
         return;
     }
@@ -78,6 +78,18 @@ Game.prototype._checkEvents = function() {
 
         this.coolguy.x = event.data.spawnX;
         this.coolguy.y = event.data.spawnY;
+
+        return;
+    }
+
+    // if event id is 3 -> grass!
+    if (event.id === 3) {
+        // let image = new Image();
+        // image.src = "img/grass.png";
+        // this.context.drawImage(image, col*32, row*32);
+        // this.map.renderTile(this.context, col*32, row*32);
+        this.coolguy.isInGrass = true;
+        console.log("hej!");
 
         return;
     }

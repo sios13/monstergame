@@ -14,8 +14,7 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
     this.speedX = null;
     this.speedY = null;
 
-    this.col = null;
-    this.row = null;
+    this.newGrid = false;
 
     this.direction = direction;
 
@@ -26,7 +25,7 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
 
     this.sprite = {
         img: sprites,   // Specifies the image, canvas, or video element to use
-        sx: 4*16,       // Optional. The x coordinate where to start clipping
+        sx: 4*16 + 3,   // Optional. The x coordinate where to start clipping
         sy: 0,          // Optional. The y coordinate where to start clipping
         swidth: 16,     // Optional. The width of the clipped image
         sheight: 16,    // Optional. The height of the clipped image
@@ -115,8 +114,15 @@ Entity.prototype.update = function(game) {
 
         this._detectCollision(game);
 
-        this.col = Math.floor((this.x+this.width/2) / game.map.gridSize);
-        this.row = Math.floor((this.y+this.height/2) / game.map.gridSize);
+        let oldColumn = Math.floor((this.x+this.width/2) / game.map.gridSize);
+        let oldRow = Math.floor((this.y+this.height/2) / game.map.gridSize);
+
+        let newColumn = Math.floor((this.x+this.width/2+this.speedX) / game.map.gridSize);
+        let newRow = Math.floor((this.y+this.height/2+this.speedY) / game.map.gridSize);
+
+        if (oldColumn !== newColumn || oldRow !== newRow) {
+            this.newGrid = true;
+        }
 
         this.x += this.speedX;
         this.y += this.speedY;
@@ -126,7 +132,7 @@ Entity.prototype.update = function(game) {
             this.moveAnimationCounter += 1;
         }
 
-        this.sprite.sx = (3 + this.moveAnimationCounter % 3) * 16 + 3;
+        this.sprite.sx = (3 + this.moveAnimationCounter%3) * 16 + 3;
 
         if (this.direction === "up") {
             this.sprite.sy = 3*16;
@@ -136,6 +142,13 @@ Entity.prototype.update = function(game) {
             this.sprite.sy = 0*16;
         } else if (this.direction === "left") {
             this.sprite.sy = 1*16;
+        }
+
+        // 
+        if (this.isInGrass) {
+            console.log("HEHE :)");
+
+            this.isInGrass = false;
         }
 
         return;
@@ -195,14 +208,20 @@ Game.prototype.startGame = function() {
         // Update map
         this.map.update(this);
 
-        // Check for events (depending on where coolguy is standing)
-        this._checkEvents(this.coolguy.col, this.coolguy.row);
+        // if cool guy has entered a new grid -> check for events on that grid
+        if (this.coolguy.newGrid) {
+            this._checkEvents(Math.floor(this.coolguy.x/32), Math.floor(this.coolguy.y/32));
+
+            this.coolguy.newGrid = false;
+        }
     }
 
     let render = () => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.map.renderLayer1(this.context);
+
+        this.map.renderTiles(this.context);
 
         this.coolguy.render(this.context);
 
@@ -212,17 +231,11 @@ Game.prototype.startGame = function() {
     }
 };
 
-Game.prototype._checkEvents = function() {
-    let col = this.coolguy.col;
-    let row = this.coolguy.row;
-
-    // if col or row is not set -> exit
-    if (col === null || row === null) {
-        return;
-    }
-
+Game.prototype._checkEvents = function(col, row) {
+    // get event on position
     let event = this.map.getEvent(col, row);
 
+    // if there is no event -> exit
     if (typeof event !== "object") {
         return;
     }
@@ -238,12 +251,24 @@ Game.prototype._checkEvents = function() {
 
         return;
     }
+
+    // if event id is 3 -> grass!
+    if (event.id === 3) {
+        // let image = new Image();
+        // image.src = "img/grass.png";
+        // this.context.drawImage(image, col*32, row*32);
+        // this.map.renderTile(this.context, col*32, row*32);
+        this.coolguy.isInGrass = true;
+        console.log("hej!");
+
+        return;
+    }
 }
 
 module.exports = Game;
 
 },{"./Entity.js":1,"./MapInitializer.js":4,"./listeners.js":6}],3:[function(require,module,exports){
-function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc) {
+function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles) {
     this.x = x;
     this.y = y;
 
@@ -256,6 +281,8 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc) {
     this.tickCounter = 0;
 
     this.loadCounter = 0;
+
+    this.loadCounterFinish = 3;
 
     function loadEvent() {
         this.loadCounter += 1;
@@ -272,10 +299,17 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc) {
     this.audio = new Audio(audioSrc);
     this.audio.addEventListener("loadeddata", loadEvent.bind(this));
     this.audio.loop = true;
-    this.audio.play();
 
-    // The tick at which this map was born and fully loaded
-    // this.spawnTick = null;
+    this.tiles = tiles;
+    for (let i = 0; i < this.tiles.length; i++) {
+        let src = this.tiles[i].img;
+
+        this.tiles[i].img = new Image();
+        this.tiles[i].img.addEventListener("load", loadEvent.bind(this));
+        this.tiles[i].img.src = src;
+
+        this.loadCounterFinish += 1;
+    }
 }
 
 Map.prototype.attachEvent = function(col, row, event) {
@@ -287,26 +321,51 @@ Map.prototype.getEvent = function(col, row) {
 }
 
 Map.prototype.update = function(game) {
-    if (this.loadCounter === 3) {
+    if (this.loadCounter === this.loadCounterFinish) {
         this.isLoading = false;
+
+        this.audio.play();
     }
 
-    if (!this.isLoading) {
-        this.tickCounter += 1;
+    if (this.isLoading) {
+        return;
+    }
 
-        // Update map position
-        this.x = game.coolguy.mapX - game.coolguy.x;
-        this.y = game.coolguy.mapY - game.coolguy.y;
+    this.tickCounter += 1;
+
+    // Update map position
+    this.x = game.coolguy.mapX - game.coolguy.x;
+    this.y = game.coolguy.mapY - game.coolguy.y;
+}
+
+Map.prototype.renderTile = function(context, x, y) {
+    for (let i = 0; i < this.tiles.length; i++) {
+        if (this.tiles.x === x && this.tiles.y === y) {
+            let tile = this.tiles[i];
+
+            context.drawImage(tile.img, 0, 0, 16, 16, this.x + tile.x, this.y + tile.y, tile.width, tile.height);
+        }
+    }
+}
+
+Map.prototype.renderTiles = function(context) {
+    for (let i = 0; i < this.tiles.length; i++) {
+        let tile = this.tiles[i];
+
+        context.beginPath();
+        context.drawImage(tile.img, 0, 0, 16, 16, this.x + tile.x, this.y + tile.y, tile.width, tile.height);
+        // context.rect(this.x + tile.x, this.y + tile.y, 32, 32);
+        context.stroke();
     }
 }
 
 Map.prototype.render = function(context) {
     for (let y = 0; y < this.collisionMap.length; y++) {
         for (let x = 0; x < this.collisionMap[y].length; x++) {
-            if (this.collisionMap[y][x] === 1) {
-                // context.beginPath();
-                // context.rect(this.x + x*this.gridSize, this.y + y*this.gridSize, this.gridSize, this.gridSize);
-                // context.stroke();
+            if (this.collisionMap[y][x] !== 0) {
+                context.beginPath();
+                context.rect(this.x + x*this.gridSize, this.y + y*this.gridSize, this.gridSize, this.gridSize);
+                context.stroke();
             }
         }
     }
@@ -378,14 +437,14 @@ function startMap() {
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1],
         [1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1],
-        [1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1],
+        [1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,2,1,1,0,0,0,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
-        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
-        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,3,3,0,0,0,1,1],
+        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,3,3,0,0,0,1,1],
         [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,0,1,2,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
@@ -402,7 +461,14 @@ function startMap() {
 
     let audioSrc = "audio/music1.mp3";
 
-    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc);
+    let tiles = [
+        {x: 17*32, y: 35*32, width:32, height:32, img:"img/grass.png"},
+        {x: 18*32, y: 35*32, width:32, height:32, img:"img/grass.png"},
+        {x: 17*32, y: 36*32, width:32, height:32, img:"img/grass.png"},
+        {x: 18*32, y: 36*32, width:32, height:32, img:"img/grass.png"}
+    ];
+
+    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
 
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {
@@ -414,6 +480,13 @@ function startMap() {
                         spawnX: 10*32,
                         spawnY: 8*32
                     }
+                });
+            }
+
+            if (collisionMap[y][x] === 3) {
+                map.attachEvent(x, y, {
+                    id: 3,
+                    data: {}
                 });
             }
         }

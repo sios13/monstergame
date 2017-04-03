@@ -13,8 +13,7 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
     this.speedX = null;
     this.speedY = null;
 
-    this.col = null;
-    this.row = null;
+    this.newGrid = false;
 
     this.direction = direction;
 
@@ -25,7 +24,7 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
 
     this.sprite = {
         img: sprites,   // Specifies the image, canvas, or video element to use
-        sx: 4*16,       // Optional. The x coordinate where to start clipping
+        sx: 4*16 + 3,   // Optional. The x coordinate where to start clipping
         sy: 0,          // Optional. The y coordinate where to start clipping
         swidth: 16,     // Optional. The width of the clipped image
         sheight: 16,    // Optional. The height of the clipped image
@@ -114,8 +113,15 @@ Entity.prototype.update = function(game) {
 
         this._detectCollision(game);
 
-        this.col = Math.floor((this.x+this.width/2) / game.map.gridSize);
-        this.row = Math.floor((this.y+this.height/2) / game.map.gridSize);
+        let oldColumn = Math.floor((this.x+this.width/2) / game.map.gridSize);
+        let oldRow = Math.floor((this.y+this.height/2) / game.map.gridSize);
+
+        let newColumn = Math.floor((this.x+this.width/2+this.speedX) / game.map.gridSize);
+        let newRow = Math.floor((this.y+this.height/2+this.speedY) / game.map.gridSize);
+
+        if (oldColumn !== newColumn || oldRow !== newRow) {
+            this.newGrid = true;
+        }
 
         this.x += this.speedX;
         this.y += this.speedY;
@@ -125,7 +131,7 @@ Entity.prototype.update = function(game) {
             this.moveAnimationCounter += 1;
         }
 
-        this.sprite.sx = (3 + this.moveAnimationCounter % 3) * 16 + 3;
+        this.sprite.sx = (3 + this.moveAnimationCounter%3) * 16 + 3;
 
         if (this.direction === "up") {
             this.sprite.sy = 3*16;
@@ -135,6 +141,13 @@ Entity.prototype.update = function(game) {
             this.sprite.sy = 0*16;
         } else if (this.direction === "left") {
             this.sprite.sy = 1*16;
+        }
+
+        // 
+        if (this.isInGrass) {
+            console.log("HEHE :)");
+
+            this.isInGrass = false;
         }
 
         return;
