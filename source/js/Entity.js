@@ -97,6 +97,7 @@ Entity.prototype._setDirection = function() {
 
 Entity.prototype.update = function(game) {
     if (game.listeners.isMousedown) {
+        // Position
         let deltaX = game.mousePositionX - this.mapX - this.width/2;
         let deltaY = game.mousePositionY - this.mapY - this.height/2;
 
@@ -120,7 +121,7 @@ Entity.prototype.update = function(game) {
         this.y += this.speedY;
 
         // Animation
-        if (game.frame % 5 === 0) {
+        if (game.tickCounter % 5 === 0) {
             this.moveAnimationCounter += 1;
         }
 

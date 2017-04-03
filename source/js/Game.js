@@ -2,7 +2,7 @@ const Entity = require("./Entity.js");
 const MapInitializer = require("./MapInitializer.js");
 
 function Game() {
-    this.frame = 0;
+    this.tickCounter = 0;
     this.framerate = 30;
 
     this.canvas = document.querySelector("canvas");
@@ -13,6 +13,11 @@ function Game() {
     this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 30, 30, 5);
 }
 
+Game.prototype.isLoading = function() {
+
+    return false;
+}
+
 Game.prototype.startGame = function() {
     require("./listeners.js").addListeners(this);
 
@@ -20,22 +25,21 @@ Game.prototype.startGame = function() {
     setInterval(frame.bind(this), 1000/this.framerate);
 
     function frame() {
-        this.frame += 1;
+        this.tickCounter += 1;
 
         update();
         render();
     }
 
     let update = () => {
-        // Update position and animation
+        // Update coolguy
         this.coolguy.update(this);
 
-        // Check for events (depending on block)
-        this._checkEvents();
+        // Update map
+        this.map.update(this);
 
-        // Update map position
-        this.map.x = this.coolguy.mapX - this.coolguy.x;
-        this.map.y = this.coolguy.mapY - this.coolguy.y;
+        // Check for events (depending on where coolguy is standing)
+        this._checkEvents(this.coolguy.col, this.coolguy.row);
     }
 
     let render = () => {
@@ -55,16 +59,21 @@ Game.prototype._checkEvents = function() {
     let col = this.coolguy.col;
     let row = this.coolguy.row;
 
+    // if col or row is not set -> exit
     if (col === null || row === null) {
         return;
     }
 
     let event = this.map.getEvent(col, row);
 
-    if (typeof event === "object" && event.id === 2) {
+    if (typeof event !== "object") {
+        return;
+    }
+
+    // if event id is 2 -> change map! teleport!
+    if (event.id === 2) {
         this.map.destroy();
 
-        // id:2 -> change map! teleport!
         this.map = MapInitializer.getMap(event.data.mapName);
 
         this.coolguy.x = event.data.spawnX;

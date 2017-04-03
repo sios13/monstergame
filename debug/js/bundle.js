@@ -98,6 +98,7 @@ Entity.prototype._setDirection = function() {
 
 Entity.prototype.update = function(game) {
     if (game.listeners.isMousedown) {
+        // Position
         let deltaX = game.mousePositionX - this.mapX - this.width/2;
         let deltaY = game.mousePositionY - this.mapY - this.height/2;
 
@@ -121,7 +122,7 @@ Entity.prototype.update = function(game) {
         this.y += this.speedY;
 
         // Animation
-        if (game.frame % 5 === 0) {
+        if (game.tickCounter % 5 === 0) {
             this.moveAnimationCounter += 1;
         }
 
@@ -158,7 +159,7 @@ const Entity = require("./Entity.js");
 const MapInitializer = require("./MapInitializer.js");
 
 function Game() {
-    this.frame = 0;
+    this.tickCounter = 0;
     this.framerate = 30;
 
     this.canvas = document.querySelector("canvas");
@@ -169,6 +170,11 @@ function Game() {
     this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 30, 30, 5);
 }
 
+Game.prototype.isLoading = function() {
+
+    return false;
+}
+
 Game.prototype.startGame = function() {
     require("./listeners.js").addListeners(this);
 
@@ -176,22 +182,21 @@ Game.prototype.startGame = function() {
     setInterval(frame.bind(this), 1000/this.framerate);
 
     function frame() {
-        this.frame += 1;
+        this.tickCounter += 1;
 
         update();
         render();
     }
 
     let update = () => {
-        // Update position and animation
+        // Update coolguy
         this.coolguy.update(this);
 
-        // Check for events (depending on block)
-        this._checkEvents();
+        // Update map
+        this.map.update(this);
 
-        // Update map position
-        this.map.x = this.coolguy.mapX - this.coolguy.x;
-        this.map.y = this.coolguy.mapY - this.coolguy.y;
+        // Check for events (depending on where coolguy is standing)
+        this._checkEvents(this.coolguy.col, this.coolguy.row);
     }
 
     let render = () => {
@@ -211,16 +216,21 @@ Game.prototype._checkEvents = function() {
     let col = this.coolguy.col;
     let row = this.coolguy.row;
 
+    // if col or row is not set -> exit
     if (col === null || row === null) {
         return;
     }
 
     let event = this.map.getEvent(col, row);
 
-    if (typeof event === "object" && event.id === 2) {
+    if (typeof event !== "object") {
+        return;
+    }
+
+    // if event id is 2 -> change map! teleport!
+    if (event.id === 2) {
         this.map.destroy();
 
-        // id:2 -> change map! teleport!
         this.map = MapInitializer.getMap(event.data.mapName);
 
         this.coolguy.x = event.data.spawnX;
@@ -241,15 +251,31 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc) {
 
     this.gridSize = gridSize;
 
+    this.isLoading = true;
+
+    this.tickCounter = 0;
+
+    this.loadCounter = 0;
+
+    function loadEvent() {
+        this.loadCounter += 1;
+    }
+
     this.layer1Image = new Image();
+    this.layer1Image.addEventListener("load", loadEvent.bind(this));
     this.layer1Image.src = layer1Src;
 
     this.layer2Image = new Image();
+    this.layer2Image.addEventListener("load", loadEvent.bind(this));
     this.layer2Image.src = layer2Src;
 
     this.audio = new Audio(audioSrc);
+    this.audio.addEventListener("loadeddata", loadEvent.bind(this));
     this.audio.loop = true;
     this.audio.play();
+
+    // The tick at which this map was born and fully loaded
+    // this.spawnTick = null;
 }
 
 Map.prototype.attachEvent = function(col, row, event) {
@@ -258,6 +284,20 @@ Map.prototype.attachEvent = function(col, row, event) {
 
 Map.prototype.getEvent = function(col, row) {
     return this.collisionMap[row][col];
+}
+
+Map.prototype.update = function(game) {
+    if (this.loadCounter === 3) {
+        this.isLoading = false;
+    }
+
+    if (!this.isLoading) {
+        this.tickCounter += 1;
+
+        // Update map position
+        this.x = game.coolguy.mapX - game.coolguy.x;
+        this.y = game.coolguy.mapY - game.coolguy.y;
+    }
 }
 
 Map.prototype.render = function(context) {
@@ -270,6 +310,11 @@ Map.prototype.render = function(context) {
             }
         }
     }
+
+    context.beginPath();
+    context.fillStyle = "rgba(0, 0, 0, " + (1 - this.tickCounter/20) + ")";
+    context.fillRect(0, 0, 10000, 10000);
+    context.stroke();
 }
 
 Map.prototype.renderLayer1 = function(context) {
