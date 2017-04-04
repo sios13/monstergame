@@ -10,7 +10,7 @@ function Game() {
 
     this.map = MapInitializer.getMap("startMap");
 
-    this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 30, 30, 5);
+    this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 30, 38, 5);
 
     // The tick when system was loaded
     this.loadedTick = null;
@@ -21,7 +21,7 @@ function Game() {
  */
 Game.prototype.isLoaded = function() {
     if (this.map.isLoaded() && this.coolguy.isLoaded()) {
-        if (this.loadedTick !== null) {
+        if (this.loadedTick === null) {
             this.loadedTick = this.tickCounter;
         }
 
@@ -45,6 +45,7 @@ Game.prototype.startGame = function() {
     }
 
     let update = () => {
+        // Do not update while system is loading
         if (!this.isLoaded()) {
             return;
         }
@@ -66,7 +67,7 @@ Game.prototype.startGame = function() {
     let render = () => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Render black screen while loading
+        // Render black screen while system is loading
         if (!this.isLoaded()) {
             this.context.beginPath();
             this.context.fillStyle = "rgb(0, 0, 0)";
@@ -107,6 +108,8 @@ Game.prototype._checkEvents = function(col, row) {
 
     // if event id is 2 -> change map! teleport!
     if (event.id === 2) {
+        this.loadedTick = null;
+
         this.map.destroy();
 
         this.map = MapInitializer.getMap(event.data.mapName);

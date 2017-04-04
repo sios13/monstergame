@@ -30,7 +30,7 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
 
     let sprites = new Image();
     sprites.addEventListener("load", loadEvent.bind(this));
-    sprites.src = "img/characters.png";
+    sprites.src = "img/character1.png";
 
     this.sprite = {
         img: sprites,   // Specifies the image, canvas, or video element to use
@@ -39,9 +39,6 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
         swidth: 16,     // Optional. The width of the clipped image
         sheight: 16,    // Optional. The height of the clipped image
     }
-
-    // front, back, left, right
-    // move down 1, move down 2, move up 1, move up 2, move left 1, move left 2, move right 1, move right 2
 }
 
 /**
@@ -89,15 +86,17 @@ Entity.prototype._detectCollision = function(game) {
     let x = this.x;
     let y = this.y;
 
+    let squareLength = 30;
+
     let collisionPoints = [
-        [x, y],                           // Top left
-        [x+this.width, y],                // Top right
-        [x, y+this.height],               // Bottom left
-        [x+this.width, y+this.height],    // Bottom right
-        [x+this.width/2, y],              // Top
-        [x+this.width, y+this.height/2],  // Right
-        [x+this.width/2, y+this.height],  // Bottom
-        [x, y+this.height/2]              // Left
+        [x, y],                             // Top left
+        [x+squareLength, y],                // Top right
+        [x, y+squareLength],                // Bottom left
+        [x+squareLength, y+squareLength],   // Bottom right
+        [x+squareLength/2, y],              // Top
+        [x+squareLength, y+squareLength/2], // Right
+        [x+squareLength/2, y+squareLength], // Bottom
+        [x, y+squareLength/2]               // Left
     ];
 
     // Iterate the collision points
@@ -171,34 +170,29 @@ Entity.prototype.update = function(game) {
             this.moveAnimationCounter += 1;
         }
 
-        this.sprite.sx = (3 + this.moveAnimationCounter%3) * 16 + 3;
+        this.sprite.sx = this.moveAnimationCounter % 4 * 16;
 
         if (this.direction === "up") {
-            this.sprite.sy = 3*16;
+            this.sprite.sy = 1*19;
         } else if (this.direction === "right") {
-            this.sprite.sy = 2*16;
+            this.sprite.sy = 3*19;
         } else if (this.direction === "down") {
-            this.sprite.sy = 0*16;
+            this.sprite.sy = 0*19;
         } else if (this.direction === "left") {
-            this.sprite.sy = 1*16;
-        }
-
-        // 
-        if (this.isInGrass) {
-            this.isInGrass = false;
+            this.sprite.sy = 2*19;
         }
 
         return;
     }
 
-    this.sprite.sx = 4 * 16 + 3;
+    this.sprite.sx = 0;
 }
 
 Entity.prototype.render = function(context) {
-    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, this.sprite.swidth - 6, this.sprite.sheight, this.mapX, this.mapY-20, this.width, this.height+20);
+    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, 16, 19, this.mapX, this.mapY-8, this.width, this.height);
 
     context.beginPath();
-    context.rect(this.mapX, this.mapY, this.width, this.height);
+    context.rect(this.mapX, this.mapY, 30, 30);
     context.stroke();
 }
 

@@ -31,7 +31,7 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
 
     let sprites = new Image();
     sprites.addEventListener("load", loadEvent.bind(this));
-    sprites.src = "img/characters.png";
+    sprites.src = "img/character1.png";
 
     this.sprite = {
         img: sprites,   // Specifies the image, canvas, or video element to use
@@ -87,15 +87,17 @@ Entity.prototype._detectCollision = function(game) {
     let x = this.x;
     let y = this.y;
 
+    let squareLength = 30;
+
     let collisionPoints = [
-        [x, y],                           // Top left
-        [x+this.width, y],                // Top right
-        [x, y+this.height],               // Bottom left
-        [x+this.width, y+this.height],    // Bottom right
-        [x+this.width/2, y],              // Top
-        [x+this.width, y+this.height/2],  // Right
-        [x+this.width/2, y+this.height],  // Bottom
-        [x, y+this.height/2]              // Left
+        [x, y],                             // Top left
+        [x+squareLength, y],                // Top right
+        [x, y+squareLength],                // Bottom left
+        [x+squareLength, y+squareLength],   // Bottom right
+        [x+squareLength/2, y],              // Top
+        [x+squareLength, y+squareLength/2], // Right
+        [x+squareLength/2, y+squareLength], // Bottom
+        [x, y+squareLength/2]               // Left
     ];
 
     // Iterate the collision points
@@ -169,34 +171,29 @@ Entity.prototype.update = function(game) {
             this.moveAnimationCounter += 1;
         }
 
-        this.sprite.sx = (3 + this.moveAnimationCounter%3) * 16 + 3;
+        this.sprite.sx = this.moveAnimationCounter % 4 * 16;
 
         if (this.direction === "up") {
-            this.sprite.sy = 3*16;
+            this.sprite.sy = 1*19;
         } else if (this.direction === "right") {
-            this.sprite.sy = 2*16;
+            this.sprite.sy = 3*19;
         } else if (this.direction === "down") {
-            this.sprite.sy = 0*16;
+            this.sprite.sy = 0*19;
         } else if (this.direction === "left") {
-            this.sprite.sy = 1*16;
-        }
-
-        // 
-        if (this.isInGrass) {
-            this.isInGrass = false;
+            this.sprite.sy = 2*19;
         }
 
         return;
     }
 
-    this.sprite.sx = 4 * 16 + 3;
+    this.sprite.sx = 0;
 }
 
 Entity.prototype.render = function(context) {
-    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, this.sprite.swidth - 6, this.sprite.sheight, this.mapX, this.mapY-20, this.width, this.height+20);
+    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, 16, 19, this.mapX, this.mapY-8, this.width, this.height);
 
     context.beginPath();
-    context.rect(this.mapX, this.mapY, this.width, this.height);
+    context.rect(this.mapX, this.mapY, 30, 30);
     context.stroke();
 }
 
@@ -215,7 +212,7 @@ function Game() {
 
     this.map = MapInitializer.getMap("startMap");
 
-    this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 30, 30, 5);
+    this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 30, 38, 5);
 
     // The tick when system was loaded
     this.loadedTick = null;
@@ -226,12 +223,13 @@ function Game() {
  */
 Game.prototype.isLoaded = function() {
     if (this.map.isLoaded() && this.coolguy.isLoaded()) {
-        if (this.loadedTick !== null) {
+        if (this.loadedTick === null) {
             this.loadedTick = this.tickCounter;
         }
 
         return true;
     }
+    console.log("not loaded tick!");
 
     return false;
 }
@@ -250,6 +248,7 @@ Game.prototype.startGame = function() {
     }
 
     let update = () => {
+        // Do not update while system is loading
         if (!this.isLoaded()) {
             return;
         }
@@ -271,7 +270,7 @@ Game.prototype.startGame = function() {
     let render = () => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Render black screen while loading
+        // Render black screen while system is loading
         if (!this.isLoaded()) {
             this.context.beginPath();
             this.context.fillStyle = "rgb(0, 0, 0)";
@@ -312,6 +311,8 @@ Game.prototype._checkEvents = function(col, row) {
 
     // if event id is 2 -> change map! teleport!
     if (event.id === 2) {
+        this.loadedTick = null;
+
         this.map.destroy();
 
         this.map = MapInitializer.getMap(event.data.mapName);
