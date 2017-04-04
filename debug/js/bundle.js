@@ -9,6 +9,9 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
     this.width = width;
     this.height = height;
 
+    this.col = null;
+    this.row = null;
+
     this.speed = speed;
 
     this.speedX = null;
@@ -20,7 +23,14 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
 
     this.moveAnimationCounter = 0;
 
+    this.loadCounter = 0;
+
+    this.loadCounterFinish = 1;
+
+    function loadEvent() {this.loadCounter += 1;}
+
     let sprites = new Image();
+    sprites.addEventListener("load", loadEvent.bind(this));
     sprites.src = "img/characters.png";
 
     this.sprite = {
@@ -29,6 +39,47 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
         sy: 0,          // Optional. The y coordinate where to start clipping
         swidth: 16,     // Optional. The width of the clipped image
         sheight: 16,    // Optional. The height of the clipped image
+    }
+}
+
+/**
+ * Returns true if entity has been loaded
+ */
+Entity.prototype.isLoaded = function() {
+    if (this.loadCounter === this.loadCounterFinish) {
+        return true;
+    }
+
+    return false;
+}
+
+Entity.prototype._setSpeed = function(game) {
+    let deltaX = game.mousePositionX - this.mapX - this.width/2;
+    let deltaY = game.mousePositionY - this.mapY - this.height/2;
+
+    let distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
+
+    if (distance < 5) {
+        return;
+    }
+
+    this.speedX = deltaX/distance*this.speed;
+    this.speedY = deltaY/distance*this.speed;
+}
+
+Entity.prototype._setDirection = function() {
+    let radians = Math.atan2(this.speedY, this.speedX);
+
+    let degrees = radians * (180 / Math.PI);
+
+    if (degrees < -135 || degrees > 135) {
+        this.direction = "left";
+    } else if (degrees < -45) {
+        this.direction = "up";
+    } else if (degrees < 45) {
+        this.direction = "right";
+    } else if (degrees < 135) {
+        this.direction = "down";
     }
 }
 
@@ -79,51 +130,37 @@ Entity.prototype._detectCollision = function(game) {
     }
 }
 
-Entity.prototype._setDirection = function() {
-    let radians = Math.atan2(this.speedY, this.speedX);
+Entity.prototype._checkGrid = function(game) {
+    let oldColumn = Math.floor((this.x+this.width/2) / game.map.gridSize);
+    let oldRow = Math.floor((this.y+this.height/2) / game.map.gridSize);
 
-    let degrees = radians * (180 / Math.PI);
+    let newColumn = Math.floor((this.x+this.width/2+this.speedX) / game.map.gridSize);
+    let newRow = Math.floor((this.y+this.height/2+this.speedY) / game.map.gridSize);
 
-    if (degrees < -135 || degrees > 135) {
-        this.direction = "left";
-    } else if (degrees < -45) {
-        this.direction = "up";
-    } else if (degrees < 45) {
-        this.direction = "right";
-    } else if (degrees < 135) {
-        this.direction = "down";
+    if (oldColumn !== newColumn || oldRow !== newRow) {
+        this.newGrid = true;
     }
+
+    this.col = newColumn;
+    this.row = newRow;
 }
 
 Entity.prototype.update = function(game) {
     if (game.listeners.isMousedown) {
-        // Position
-        let deltaX = game.mousePositionX - this.mapX - this.width/2;
-        let deltaY = game.mousePositionY - this.mapY - this.height/2;
+        // Use the mouse position to determine the entity speed
+        this._setSpeed(game);
 
-        let distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
-
-        if (distance < 5) {
-            return;
-        }
-
-        this.speedX = deltaX/distance*this.speed;
-        this.speedY = deltaY/distance*this.speed;
-
+        // Use the speed to determine the direction
         this._setDirection();
 
+        // Detect collision.
+        // If collision is detected -> set the speed to 0
         this._detectCollision(game);
 
-        let oldColumn = Math.floor((this.x+this.width/2) / game.map.gridSize);
-        let oldRow = Math.floor((this.y+this.height/2) / game.map.gridSize);
+        // Determine if entity is entering a new grid
+        this._checkGrid(game);
 
-        let newColumn = Math.floor((this.x+this.width/2+this.speedX) / game.map.gridSize);
-        let newRow = Math.floor((this.y+this.height/2+this.speedY) / game.map.gridSize);
-
-        if (oldColumn !== newColumn || oldRow !== newRow) {
-            this.newGrid = true;
-        }
-
+        // Finally, add the speed to the position
         this.x += this.speedX;
         this.y += this.speedY;
 
@@ -146,8 +183,6 @@ Entity.prototype.update = function(game) {
 
         // 
         if (this.isInGrass) {
-            console.log("HEHE :)");
-
             this.isInGrass = false;
         }
 
@@ -160,9 +195,9 @@ Entity.prototype.update = function(game) {
 Entity.prototype.render = function(context) {
     context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, this.sprite.swidth - 6, this.sprite.sheight, this.mapX, this.mapY-20, this.width, this.height+20);
 
-    // context.beginPath();
-    // context.rect(this.mapX, this.mapY, this.width, this.height);
-    // context.stroke();
+    context.beginPath();
+    context.rect(this.mapX, this.mapY, this.width, this.height);
+    context.stroke();
 }
 
 module.exports = Entity;
@@ -181,9 +216,22 @@ function Game() {
     this.map = MapInitializer.getMap("startMap");
 
     this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 30, 30, 5);
+
+    // The tick when system was loaded
+    this.loadedTick = null;
 }
 
-Game.prototype.isLoading = function() {
+/**
+ * Returns true if system is loaded
+ */
+Game.prototype.isLoaded = function() {
+    if (this.map.isLoaded() && this.coolguy.isLoaded()) {
+        if (this.loadedTick !== null) {
+            this.loadedTick = this.tickCounter;
+        }
+
+        return true;
+    }
 
     return false;
 }
@@ -202,6 +250,10 @@ Game.prototype.startGame = function() {
     }
 
     let update = () => {
+        if (!this.isLoaded()) {
+            return;
+        }
+
         // Update coolguy
         this.coolguy.update(this);
 
@@ -210,7 +262,7 @@ Game.prototype.startGame = function() {
 
         // if cool guy has entered a new grid -> check for events on that grid
         if (this.coolguy.newGrid) {
-            this._checkEvents(Math.floor(this.coolguy.x/32), Math.floor(this.coolguy.y/32));
+            this._checkEvents(this.coolguy.col, this.coolguy.row);
 
             this.coolguy.newGrid = false;
         }
@@ -218,6 +270,16 @@ Game.prototype.startGame = function() {
 
     let render = () => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Render black screen while loading
+        if (!this.isLoaded()) {
+            this.context.beginPath();
+            this.context.fillStyle = "rgb(0, 0, 0)";
+            this.context.fillRect(0, 0, 10000, 10000);
+            this.context.stroke();
+
+            return;
+        }
 
         this.map.renderLayer1(this.context);
 
@@ -228,6 +290,14 @@ Game.prototype.startGame = function() {
         this.map.renderLayer2(this.context);
 
         this.map.render(this.context);
+
+        // If system was recently loaded -> tone black screen
+        if (this.tickCounter - this.loadedTick < 30) {
+            this.context.beginPath();
+            this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/30) + ")";
+            this.context.fillRect(0, 0, 10000, 10000);
+            this.context.stroke();
+        }
     }
 };
 
@@ -259,7 +329,8 @@ Game.prototype._checkEvents = function(col, row) {
         // this.context.drawImage(image, col*32, row*32);
         // this.map.renderTile(this.context, col*32, row*32);
         this.coolguy.isInGrass = true;
-        console.log("hej!");
+
+        console.log("grass!");
 
         return;
     }
@@ -276,7 +347,7 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
 
     this.gridSize = gridSize;
 
-    this.isLoading = true;
+    // this.isLoading = true;
 
     this.tickCounter = 0;
 
@@ -284,9 +355,7 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
 
     this.loadCounterFinish = 3;
 
-    function loadEvent() {
-        this.loadCounter += 1;
-    }
+    function loadEvent() {this.loadCounter += 1;}
 
     this.layer1Image = new Image();
     this.layer1Image.addEventListener("load", loadEvent.bind(this));
@@ -299,6 +368,7 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
     this.audio = new Audio(audioSrc);
     this.audio.addEventListener("loadeddata", loadEvent.bind(this));
     this.audio.loop = true;
+    this.audio.play();
 
     this.tiles = tiles;
     for (let i = 0; i < this.tiles.length; i++) {
@@ -312,6 +382,17 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
     }
 }
 
+/**
+ * Returns true if map has been loaded
+ */
+Map.prototype.isLoaded = function() {
+    if (this.loadCounter === this.loadCounterFinish) {
+        return true;
+    }
+
+    return false;
+}
+
 Map.prototype.attachEvent = function(col, row, event) {
     this.collisionMap[row][col] = event;
 }
@@ -321,15 +402,15 @@ Map.prototype.getEvent = function(col, row) {
 }
 
 Map.prototype.update = function(game) {
-    if (this.loadCounter === this.loadCounterFinish) {
-        this.isLoading = false;
+    // if (this.loadCounter === this.loadCounterFinish) {
+    //     this.isLoading = false;
 
-        this.audio.play();
-    }
+    //     this.audio.play();
+    // }
 
-    if (this.isLoading) {
-        return;
-    }
+    // if (this.isLoading) {
+    //     return;
+    // }
 
     this.tickCounter += 1;
 
@@ -363,20 +444,20 @@ Map.prototype.render = function(context) {
     for (let y = 0; y < this.collisionMap.length; y++) {
         for (let x = 0; x < this.collisionMap[y].length; x++) {
             if (this.collisionMap[y][x] !== 0) {
-                context.beginPath();
-                context.rect(this.x + x*this.gridSize, this.y + y*this.gridSize, this.gridSize, this.gridSize);
-                context.stroke();
+                // context.beginPath();
+                // context.rect(this.x + x*this.gridSize, this.y + y*this.gridSize, this.gridSize, this.gridSize);
+                // context.stroke();
             }
         }
     }
-
-    context.beginPath();
-    context.fillStyle = "rgba(0, 0, 0, " + (1 - this.tickCounter/20) + ")";
-    context.fillRect(0, 0, 10000, 10000);
-    context.stroke();
 }
 
 Map.prototype.renderLayer1 = function(context) {
+    context.beginPath();
+    context.fillStyle = "rgb(255, 255, 255)";
+    context.fillRect(this.x, this.y, 580, 450);
+    context.stroke();
+
     context.drawImage(this.layer1Image, this.x, this.y);
 }
 
@@ -523,7 +604,9 @@ function house1Map() {
 
     let audioSrc = "audio/music2.mp3";
 
-    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc);
+    let tiles = [];
+
+    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
 
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {

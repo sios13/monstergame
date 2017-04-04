@@ -6,7 +6,7 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
 
     this.gridSize = gridSize;
 
-    this.isLoading = true;
+    // this.isLoading = true;
 
     this.tickCounter = 0;
 
@@ -14,9 +14,7 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
 
     this.loadCounterFinish = 3;
 
-    function loadEvent() {
-        this.loadCounter += 1;
-    }
+    function loadEvent() {this.loadCounter += 1;}
 
     this.layer1Image = new Image();
     this.layer1Image.addEventListener("load", loadEvent.bind(this));
@@ -29,6 +27,7 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
     this.audio = new Audio(audioSrc);
     this.audio.addEventListener("loadeddata", loadEvent.bind(this));
     this.audio.loop = true;
+    this.audio.play();
 
     this.tiles = tiles;
     for (let i = 0; i < this.tiles.length; i++) {
@@ -42,6 +41,17 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
     }
 }
 
+/**
+ * Returns true if map has been loaded
+ */
+Map.prototype.isLoaded = function() {
+    if (this.loadCounter === this.loadCounterFinish) {
+        return true;
+    }
+
+    return false;
+}
+
 Map.prototype.attachEvent = function(col, row, event) {
     this.collisionMap[row][col] = event;
 }
@@ -51,15 +61,15 @@ Map.prototype.getEvent = function(col, row) {
 }
 
 Map.prototype.update = function(game) {
-    if (this.loadCounter === this.loadCounterFinish) {
-        this.isLoading = false;
+    // if (this.loadCounter === this.loadCounterFinish) {
+    //     this.isLoading = false;
 
-        this.audio.play();
-    }
+    //     this.audio.play();
+    // }
 
-    if (this.isLoading) {
-        return;
-    }
+    // if (this.isLoading) {
+    //     return;
+    // }
 
     this.tickCounter += 1;
 
@@ -93,20 +103,20 @@ Map.prototype.render = function(context) {
     for (let y = 0; y < this.collisionMap.length; y++) {
         for (let x = 0; x < this.collisionMap[y].length; x++) {
             if (this.collisionMap[y][x] !== 0) {
-                context.beginPath();
-                context.rect(this.x + x*this.gridSize, this.y + y*this.gridSize, this.gridSize, this.gridSize);
-                context.stroke();
+                // context.beginPath();
+                // context.rect(this.x + x*this.gridSize, this.y + y*this.gridSize, this.gridSize, this.gridSize);
+                // context.stroke();
             }
         }
     }
-
-    context.beginPath();
-    context.fillStyle = "rgba(0, 0, 0, " + (1 - this.tickCounter/20) + ")";
-    context.fillRect(0, 0, 10000, 10000);
-    context.stroke();
 }
 
 Map.prototype.renderLayer1 = function(context) {
+    context.beginPath();
+    context.fillStyle = "rgb(255, 255, 255)";
+    context.fillRect(this.x, this.y, 580, 450);
+    context.stroke();
+
     context.drawImage(this.layer1Image, this.x, this.y);
 }
 

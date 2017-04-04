@@ -8,6 +8,9 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
     this.width = width;
     this.height = height;
 
+    this.col = null;
+    this.row = null;
+
     this.speed = speed;
 
     this.speedX = null;
@@ -19,7 +22,14 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
 
     this.moveAnimationCounter = 0;
 
+    this.loadCounter = 0;
+
+    this.loadCounterFinish = 1;
+
+    function loadEvent() {this.loadCounter += 1;}
+
     let sprites = new Image();
+    sprites.addEventListener("load", loadEvent.bind(this));
     sprites.src = "img/characters.png";
 
     this.sprite = {
@@ -28,6 +38,50 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
         sy: 0,          // Optional. The y coordinate where to start clipping
         swidth: 16,     // Optional. The width of the clipped image
         sheight: 16,    // Optional. The height of the clipped image
+    }
+
+    // front, back, left, right
+    // move down 1, move down 2, move up 1, move up 2, move left 1, move left 2, move right 1, move right 2
+}
+
+/**
+ * Returns true if entity has been loaded
+ */
+Entity.prototype.isLoaded = function() {
+    if (this.loadCounter === this.loadCounterFinish) {
+        return true;
+    }
+
+    return false;
+}
+
+Entity.prototype._setSpeed = function(game) {
+    let deltaX = game.mousePositionX - this.mapX - this.width/2;
+    let deltaY = game.mousePositionY - this.mapY - this.height/2;
+
+    let distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
+
+    if (distance < 5) {
+        return;
+    }
+
+    this.speedX = deltaX/distance*this.speed;
+    this.speedY = deltaY/distance*this.speed;
+}
+
+Entity.prototype._setDirection = function() {
+    let radians = Math.atan2(this.speedY, this.speedX);
+
+    let degrees = radians * (180 / Math.PI);
+
+    if (degrees < -135 || degrees > 135) {
+        this.direction = "left";
+    } else if (degrees < -45) {
+        this.direction = "up";
+    } else if (degrees < 45) {
+        this.direction = "right";
+    } else if (degrees < 135) {
+        this.direction = "down";
     }
 }
 
@@ -78,51 +132,37 @@ Entity.prototype._detectCollision = function(game) {
     }
 }
 
-Entity.prototype._setDirection = function() {
-    let radians = Math.atan2(this.speedY, this.speedX);
+Entity.prototype._checkGrid = function(game) {
+    let oldColumn = Math.floor((this.x+this.width/2) / game.map.gridSize);
+    let oldRow = Math.floor((this.y+this.height/2) / game.map.gridSize);
 
-    let degrees = radians * (180 / Math.PI);
+    let newColumn = Math.floor((this.x+this.width/2+this.speedX) / game.map.gridSize);
+    let newRow = Math.floor((this.y+this.height/2+this.speedY) / game.map.gridSize);
 
-    if (degrees < -135 || degrees > 135) {
-        this.direction = "left";
-    } else if (degrees < -45) {
-        this.direction = "up";
-    } else if (degrees < 45) {
-        this.direction = "right";
-    } else if (degrees < 135) {
-        this.direction = "down";
+    if (oldColumn !== newColumn || oldRow !== newRow) {
+        this.newGrid = true;
     }
+
+    this.col = newColumn;
+    this.row = newRow;
 }
 
 Entity.prototype.update = function(game) {
     if (game.listeners.isMousedown) {
-        // Position
-        let deltaX = game.mousePositionX - this.mapX - this.width/2;
-        let deltaY = game.mousePositionY - this.mapY - this.height/2;
+        // Use the mouse position to determine the entity speed
+        this._setSpeed(game);
 
-        let distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
-
-        if (distance < 5) {
-            return;
-        }
-
-        this.speedX = deltaX/distance*this.speed;
-        this.speedY = deltaY/distance*this.speed;
-
+        // Use the speed to determine the direction
         this._setDirection();
 
+        // Detect collision.
+        // If collision is detected -> set the speed to 0
         this._detectCollision(game);
 
-        let oldColumn = Math.floor((this.x+this.width/2) / game.map.gridSize);
-        let oldRow = Math.floor((this.y+this.height/2) / game.map.gridSize);
+        // Determine if entity is entering a new grid
+        this._checkGrid(game);
 
-        let newColumn = Math.floor((this.x+this.width/2+this.speedX) / game.map.gridSize);
-        let newRow = Math.floor((this.y+this.height/2+this.speedY) / game.map.gridSize);
-
-        if (oldColumn !== newColumn || oldRow !== newRow) {
-            this.newGrid = true;
-        }
-
+        // Finally, add the speed to the position
         this.x += this.speedX;
         this.y += this.speedY;
 
@@ -145,8 +185,6 @@ Entity.prototype.update = function(game) {
 
         // 
         if (this.isInGrass) {
-            console.log("HEHE :)");
-
             this.isInGrass = false;
         }
 
@@ -159,9 +197,9 @@ Entity.prototype.update = function(game) {
 Entity.prototype.render = function(context) {
     context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, this.sprite.swidth - 6, this.sprite.sheight, this.mapX, this.mapY-20, this.width, this.height+20);
 
-    // context.beginPath();
-    // context.rect(this.mapX, this.mapY, this.width, this.height);
-    // context.stroke();
+    context.beginPath();
+    context.rect(this.mapX, this.mapY, this.width, this.height);
+    context.stroke();
 }
 
 module.exports = Entity;

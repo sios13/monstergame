@@ -130,7 +130,9 @@ function house1Map() {
 
     let audioSrc = "audio/music2.mp3";
 
-    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc);
+    let tiles = [];
+
+    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
 
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {

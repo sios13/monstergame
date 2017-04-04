@@ -11,9 +11,22 @@ function Game() {
     this.map = MapInitializer.getMap("startMap");
 
     this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 30, 30, 5);
+
+    // The tick when system was loaded
+    this.loadedTick = null;
 }
 
-Game.prototype.isLoading = function() {
+/**
+ * Returns true if system is loaded
+ */
+Game.prototype.isLoaded = function() {
+    if (this.map.isLoaded() && this.coolguy.isLoaded()) {
+        if (this.loadedTick !== null) {
+            this.loadedTick = this.tickCounter;
+        }
+
+        return true;
+    }
 
     return false;
 }
@@ -32,6 +45,10 @@ Game.prototype.startGame = function() {
     }
 
     let update = () => {
+        if (!this.isLoaded()) {
+            return;
+        }
+
         // Update coolguy
         this.coolguy.update(this);
 
@@ -40,7 +57,7 @@ Game.prototype.startGame = function() {
 
         // if cool guy has entered a new grid -> check for events on that grid
         if (this.coolguy.newGrid) {
-            this._checkEvents(Math.floor(this.coolguy.x/32), Math.floor(this.coolguy.y/32));
+            this._checkEvents(this.coolguy.col, this.coolguy.row);
 
             this.coolguy.newGrid = false;
         }
@@ -48,6 +65,16 @@ Game.prototype.startGame = function() {
 
     let render = () => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Render black screen while loading
+        if (!this.isLoaded()) {
+            this.context.beginPath();
+            this.context.fillStyle = "rgb(0, 0, 0)";
+            this.context.fillRect(0, 0, 10000, 10000);
+            this.context.stroke();
+
+            return;
+        }
 
         this.map.renderLayer1(this.context);
 
@@ -58,6 +85,14 @@ Game.prototype.startGame = function() {
         this.map.renderLayer2(this.context);
 
         this.map.render(this.context);
+
+        // If system was recently loaded -> tone black screen
+        if (this.tickCounter - this.loadedTick < 30) {
+            this.context.beginPath();
+            this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/30) + ")";
+            this.context.fillRect(0, 0, 10000, 10000);
+            this.context.stroke();
+        }
     }
 };
 
@@ -89,7 +124,8 @@ Game.prototype._checkEvents = function(col, row) {
         // this.context.drawImage(image, col*32, row*32);
         // this.map.renderTile(this.context, col*32, row*32);
         this.coolguy.isInGrass = true;
-        console.log("hej!");
+
+        console.log("grass!");
 
         return;
     }
