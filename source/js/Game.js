@@ -10,7 +10,7 @@ function Game() {
 
     this.map = MapInitializer.getMap("startMap");
 
-    this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 30, 38, 5);
+    this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 32, 32, 5);
 
     // The tick when system was loaded
     this.loadedTick = null;
@@ -79,13 +79,13 @@ Game.prototype.startGame = function() {
 
         this.map.renderLayer1(this.context);
 
-        this.map.renderTiles(this.context);
-
         this.coolguy.render(this.context);
 
         this.map.renderLayer2(this.context);
 
         this.map.render(this.context);
+
+        this.map.renderTiles(this.context);
 
         // If system was recently loaded -> tone black screen
         if (this.tickCounter - this.loadedTick < 30) {

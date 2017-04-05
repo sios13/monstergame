@@ -31,13 +31,13 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
 
     this.tiles = tiles;
     for (let i = 0; i < this.tiles.length; i++) {
-        let src = this.tiles[i].img;
+        // let src = this.tiles[i].img;
 
-        this.tiles[i].img = new Image();
-        this.tiles[i].img.addEventListener("load", loadEvent.bind(this));
-        this.tiles[i].img.src = src;
+        // this.tiles[i].img = new Image();
+        // this.tiles[i].img.addEventListener("load", loadEvent.bind(this));
+        // this.tiles[i].img.src = src;
 
-        this.loadCounterFinish += 1;
+        // this.loadCounterFinish += 1;
     }
 }
 
@@ -90,12 +90,13 @@ Map.prototype.renderTile = function(context, x, y) {
 
 Map.prototype.renderTiles = function(context) {
     for (let i = 0; i < this.tiles.length; i++) {
-        let tile = this.tiles[i];
+        this.tiles[i].render(context, this.x, this.y);
+        // let tile = this.tiles[i];
 
-        context.beginPath();
-        context.drawImage(tile.img, 0, 0, 16, 16, this.x + tile.x, this.y + tile.y, tile.width, tile.height);
-        // context.rect(this.x + tile.x, this.y + tile.y, 32, 32);
-        context.stroke();
+        // context.beginPath();
+        // context.drawImage(tile.img, 0, 0, 16, 16, this.x + tile.x, this.y + tile.y, tile.width, tile.height);
+        // // context.rect(this.x + tile.x, this.y + tile.y, 32, 32);
+        // context.stroke();
     }
 }
 

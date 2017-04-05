@@ -30,7 +30,7 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
 
     let sprites = new Image();
     sprites.addEventListener("load", loadEvent.bind(this));
-    sprites.src = "img/character1.png";
+    sprites.src = "img/character3.png";
 
     this.sprite = {
         img: sprites,   // Specifies the image, canvas, or video element to use
@@ -170,16 +170,16 @@ Entity.prototype.update = function(game) {
             this.moveAnimationCounter += 1;
         }
 
-        this.sprite.sx = this.moveAnimationCounter % 4 * 16;
+        this.sprite.sx = this.moveAnimationCounter % 4 * 64;
 
         if (this.direction === "up") {
-            this.sprite.sy = 1*19;
+            this.sprite.sy = 3*64;
         } else if (this.direction === "right") {
-            this.sprite.sy = 3*19;
+            this.sprite.sy = 2*64;
         } else if (this.direction === "down") {
-            this.sprite.sy = 0*19;
+            this.sprite.sy = 0*64;
         } else if (this.direction === "left") {
-            this.sprite.sy = 2*19;
+            this.sprite.sy = 1*64;
         }
 
         return;
@@ -189,10 +189,10 @@ Entity.prototype.update = function(game) {
 }
 
 Entity.prototype.render = function(context) {
-    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, 16, 19, this.mapX, this.mapY-8, this.width, this.height);
+    context.drawImage(this.sprite.img, this.sprite.sx, this.sprite.sy, 64, 64, this.mapX - this.width/4, this.mapY - 17, 48, 48);
 
     context.beginPath();
-    context.rect(this.mapX, this.mapY, 30, 30);
+    // context.rect(this.mapX, this.mapY, this.width, this.height);
     context.stroke();
 }
 

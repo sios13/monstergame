@@ -1,4 +1,5 @@
 const Map = require("./Map.js");
+const Tile = require("./Tile.js");
 
 function getMap(mapName) {
     if (mapName === "startMap") {
@@ -69,10 +70,11 @@ function startMap() {
     let audioSrc = "audio/music1.mp3";
 
     let tiles = [
-        {x: 17*32, y: 35*32, width:32, height:32, img:"img/grass.png"},
-        {x: 18*32, y: 35*32, width:32, height:32, img:"img/grass.png"},
-        {x: 17*32, y: 36*32, width:32, height:32, img:"img/grass.png"},
-        {x: 18*32, y: 36*32, width:32, height:32, img:"img/grass.png"}
+        new Tile(15*32, 30*32, 32, 32)
+        // {x: 17*32, y: 35*32, width:32, height:32, img:"img/grass.png"},
+        // {x: 18*32, y: 35*32, width:32, height:32, img:"img/grass.png"},
+        // {x: 17*32, y: 36*32, width:32, height:32, img:"img/grass.png"},
+        // {x: 18*32, y: 36*32, width:32, height:32, img:"img/grass.png"}
     ];
 
     let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
