@@ -70,7 +70,7 @@ function startMap() {
     let audioSrc = "audio/music1.mp3";
 
     let tiles = [
-        new Tile(15*32, 30*32, 32, 32)
+        new Tile(15*32, 30*32, 32, 32, "img/Flowers2.png")
         // {x: 17*32, y: 35*32, width:32, height:32, img:"img/grass.png"},
         // {x: 18*32, y: 35*32, width:32, height:32, img:"img/grass.png"},
         // {x: 17*32, y: 36*32, width:32, height:32, img:"img/grass.png"},

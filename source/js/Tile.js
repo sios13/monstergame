@@ -1,25 +1,26 @@
-function Tile(x, y, width, height, images) {
+function Tile(x, y, width, height, image) {
     this.x = x;
     this.y = y;
 
     this.width = width;
     this.height = height;
 
-    this.images = images;
+    this.image = image;
 
     this.animationCounter = 0;
 
-    this.loadCoutner = 0;
-
     function loadEvent() {this.loadCounter += 1;}
 
-    // for (let i = 0; i < this.images.length; i++) {
-    //     let src = this.images[i];
+    this.loadCoutner = 0;
 
-    //     this.images[i] = new Image();
-    //     this.images[i].addEventListener("load", loadEvent);
-    //     this.images[i].src = src;
-    // }
+    this.loadCounterFinish = 1;
+
+    let src = image;
+    this.image = new Image();
+    this.image.addEventListener("load", loadEvent.bind(this));
+    this.image.src = src;
+
+    this.imageIndex = 0;
 }
 
 /**
@@ -34,18 +35,15 @@ Map.prototype.isLoaded = function() {
 }
 
 Tile.prototype.update = function(game) {
-    if (game.tickCounter % 3 === 0) {
+    if (game.tickCounter % 15 === 0) {
         this.animationCounter += 1;
+
+        this.imageIndex = this.animationCounter % 4;
     }
-
-
 }
 
 Tile.prototype.render = function(context, mapX, mapY) {
-    // console.log(this.x + ":" + this.y + ":" + this.width + ":" + this.height);
-    let imageIndex = this.animationCounter % 2;
-
-    // context.drawImage(this.images[imageIndex], 0, 0, 16, 16, maxX + this.x, maxY + this.y, this.width, this.height);
+    context.drawImage(this.image, this.imageIndex*32, 0, 32, 32, mapX + this.x, mapY + this.y, this.width, this.height);
 
     // context.beginPath();
     // context.rect(mapX + this.x, mapY + this.y, this.width, this.height);

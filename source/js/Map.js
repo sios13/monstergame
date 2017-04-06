@@ -30,15 +30,6 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
     this.audio.play();
 
     this.tiles = tiles;
-    for (let i = 0; i < this.tiles.length; i++) {
-        // let src = this.tiles[i].img;
-
-        // this.tiles[i].img = new Image();
-        // this.tiles[i].img.addEventListener("load", loadEvent.bind(this));
-        // this.tiles[i].img.src = src;
-
-        // this.loadCounterFinish += 1;
-    }
 }
 
 /**
@@ -61,42 +52,20 @@ Map.prototype.getEvent = function(col, row) {
 }
 
 Map.prototype.update = function(game) {
-    // if (this.loadCounter === this.loadCounterFinish) {
-    //     this.isLoading = false;
-
-    //     this.audio.play();
-    // }
-
-    // if (this.isLoading) {
-    //     return;
-    // }
-
     this.tickCounter += 1;
 
     // Update map position
     this.x = game.coolguy.mapX - game.coolguy.x;
     this.y = game.coolguy.mapY - game.coolguy.y;
-}
 
-Map.prototype.renderTile = function(context, x, y) {
     for (let i = 0; i < this.tiles.length; i++) {
-        if (this.tiles.x === x && this.tiles.y === y) {
-            let tile = this.tiles[i];
-
-            context.drawImage(tile.img, 0, 0, 16, 16, this.x + tile.x, this.y + tile.y, tile.width, tile.height);
-        }
+        this.tiles[i].update(game);
     }
 }
 
 Map.prototype.renderTiles = function(context) {
     for (let i = 0; i < this.tiles.length; i++) {
         this.tiles[i].render(context, this.x, this.y);
-        // let tile = this.tiles[i];
-
-        // context.beginPath();
-        // context.drawImage(tile.img, 0, 0, 16, 16, this.x + tile.x, this.y + tile.y, tile.width, tile.height);
-        // // context.rect(this.x + tile.x, this.y + tile.y, 32, 32);
-        // context.stroke();
     }
 }
 

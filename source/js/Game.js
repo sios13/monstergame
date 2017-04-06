@@ -79,13 +79,13 @@ Game.prototype.startGame = function() {
 
         this.map.renderLayer1(this.context);
 
+        this.map.renderTiles(this.context);
+
         this.coolguy.render(this.context);
 
         this.map.renderLayer2(this.context);
 
         this.map.render(this.context);
-
-        this.map.renderTiles(this.context);
 
         // If system was recently loaded -> tone black screen
         if (this.tickCounter - this.loadedTick < 30) {
