@@ -1,33 +1,55 @@
-function Tile(x, y, width, height, image) {
-    this.x = x;
-    this.y = y;
+function Tile(renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, imageSrc) {
+    // new Tile(
+    //     14, // column where to render
+    //     30, // row where to render
+    //     32, // render width
+    //     32, // render height
+    //     1,  // col of tile in spirte
+    //     3,  // row of tile in sprite
+    //     16, // width of tile in sprite
+    //     16, // height of tile in sprite
+    //     96, // width of a sprite
+    //     128,// height of a sprite
+    //     "img/Sea.png" // sprite or sprites src
+    // )
+    this.renderCol = renderCol;
+    this.renderRow = renderRow;
 
-    this.width = width;
-    this.height = height;
+    this.renderWidth = renderWidth;
+    this.renderHeight = renderHeight;
 
-    this.image = image;
+    this.spriteCol = spriteCol;
+    this.spriteRow = spriteRow;
 
-    this.animationCounter = 0;
+    this.tileWidth = tileWidth;
+    this.tileHeight = tileHeight;
+    
+    this.offset = offset;
 
+    this.numberOfFrames = numberOfFrames;
+
+    // Initialize sprite
     function loadEvent() {this.loadCounter += 1;}
 
     this.loadCoutner = 0;
 
     this.loadCounterFinish = 1;
 
-    let src = image;
     this.image = new Image();
     this.image.addEventListener("load", loadEvent.bind(this));
-    this.image.src = src;
+    this.image.src = imageSrc;
 
-    this.imageIndex = 0;
+    // Animation
+    this.animationCounter = 0;
+
+    this.spriteOffset = 0;
 }
 
 /**
  * Returns true if tile has been loaded
  */
 Map.prototype.isLoaded = function() {
-    if (this.loadCounter === this.images.length) {
+    if (this.loadCounter === this.loadCounterFinish) {
         return true;
     }
 
@@ -35,19 +57,21 @@ Map.prototype.isLoaded = function() {
 }
 
 Tile.prototype.update = function(game) {
-    if (game.tickCounter % 15 === 0) {
+    if (game.tickCounter % 7 === 0) {
         this.animationCounter += 1;
 
-        this.imageIndex = this.animationCounter % 4;
+        this.spriteOffset = this.offset * (this.animationCounter % this.numberOfFrames);
     }
 }
 
 Tile.prototype.render = function(context, mapX, mapY) {
-    context.drawImage(this.image, this.imageIndex*32, 0, 32, 32, mapX + this.x, mapY + this.y, this.width, this.height);
+    let xInImage = this.spriteCol * this.tileWidth + this.spriteOffset;
+    let yInImage = this.spriteRow * this.tileHeight;
 
-    // context.beginPath();
-    // context.rect(mapX + this.x, mapY + this.y, this.width, this.height);
-    // context.stroke();
+    let renderX = this.renderCol * 32; // Assuming game tile width is 32
+    let renderY = this.renderRow * 32; // Assuming game tile height is 32
+
+    context.drawImage(this.image, xInImage, yInImage, this.tileWidth, this.tileHeight, mapX + renderX, mapY + renderY, this.renderWidth, this.renderHeight);
 }
 
 module.exports = Tile;

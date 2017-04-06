@@ -28,6 +28,8 @@ Game.prototype.isLoaded = function() {
         return true;
     }
 
+    console.log("Not loaded tick!");
+
     return false;
 }
 

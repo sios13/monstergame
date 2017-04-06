@@ -31,7 +31,7 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
 
     let sprites = new Image();
     sprites.addEventListener("load", loadEvent.bind(this));
-    sprites.src = "img/character3.png";
+    sprites.src = "img/character2.png";
 
     this.sprite = {
         img: sprites,   // Specifies the image, canvas, or video element to use
@@ -230,6 +230,8 @@ Game.prototype.isLoaded = function() {
         return true;
     }
 
+    console.log("Not loaded tick!");
+
     return false;
 }
 
@@ -393,16 +395,6 @@ Map.prototype.getEvent = function(col, row) {
 }
 
 Map.prototype.update = function(game) {
-    // if (this.loadCounter === this.loadCounterFinish) {
-    //     this.isLoading = false;
-
-    //     this.audio.play();
-    // }
-
-    // if (this.isLoading) {
-    //     return;
-    // }
-
     this.tickCounter += 1;
 
     // Update map position
@@ -414,25 +406,9 @@ Map.prototype.update = function(game) {
     }
 }
 
-Map.prototype.renderTile = function(context, x, y) {
-    for (let i = 0; i < this.tiles.length; i++) {
-        if (this.tiles.x === x && this.tiles.y === y) {
-            let tile = this.tiles[i];
-
-            context.drawImage(tile.img, 0, 0, 16, 16, this.x + tile.x, this.y + tile.y, tile.width, tile.height);
-        }
-    }
-}
-
 Map.prototype.renderTiles = function(context) {
     for (let i = 0; i < this.tiles.length; i++) {
         this.tiles[i].render(context, this.x, this.y);
-        // let tile = this.tiles[i];
-
-        // context.beginPath();
-        // context.drawImage(tile.img, 0, 0, 16, 16, this.x + tile.x, this.y + tile.y, tile.width, tile.height);
-        // // context.rect(this.x + tile.x, this.y + tile.y, 32, 32);
-        // context.stroke();
     }
 }
 
@@ -540,7 +516,487 @@ function startMap() {
     let audioSrc = "audio/music1.mp3";
 
     let tiles = [
-        new Tile(15*32, 30*32, 32, 32, "img/Flowers2.png")
+        new Tile(
+            15,
+            30,
+            32,
+            32,
+            0,
+            0,
+            32,
+            32,
+            32,
+            4,
+            "img/Flowers2.png"
+        ),
+        new Tile(
+            15, // column where to render
+            32, // row where to render
+            32, // render width
+            32, // render height
+            0,  // col of tile in spirte
+            2,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            16, // column where to render
+            32, // row where to render
+            32, // render width
+            32, // render height
+            1,  // col of tile in spirte
+            2,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            17, // column where to render
+            32, // row where to render
+            32, // render width
+            32, // render height
+            2,  // col of tile in spirte
+            2,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            18, // column where to render
+            32, // row where to render
+            32, // render width
+            32, // render height
+            3,  // col of tile in spirte
+            2,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            19, // column where to render
+            32, // row where to render
+            32, // render width
+            32, // render height
+            4,  // col of tile in spirte
+            2,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            20, // column where to render
+            32, // row where to render
+            32, // render width
+            32, // render height
+            5,  // col of tile in spirte
+            2,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            15, // column where to render
+            33, // row where to render
+            32, // render width
+            32, // render height
+            0,  // col of tile in spirte
+            3,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            16, // column where to render
+            33, // row where to render
+            32, // render width
+            32, // render height
+            1,  // col of tile in spirte
+            3,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            17, // column where to render
+            33, // row where to render
+            32, // render width
+            32, // render height
+            2,  // col of tile in spirte
+            3,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            18, // column where to render
+            33, // row where to render
+            32, // render width
+            32, // render height
+            3,  // col of tile in spirte
+            3,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            19, // column where to render
+            33, // row where to render
+            32, // render width
+            32, // render height
+            4,  // col of tile in spirte
+            3,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            20, // column where to render
+            33, // row where to render
+            32, // render width
+            32, // render height
+            5,  // col of tile in spirte
+            3,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            15, // column where to render
+            34, // row where to render
+            32, // render width
+            32, // render height
+            0,  // col of tile in spirte
+            4,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            16, // column where to render
+            34, // row where to render
+            32, // render width
+            32, // render height
+            1,  // col of tile in spirte
+            4,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            17, // column where to render
+            34, // row where to render
+            32, // render width
+            32, // render height
+            2,  // col of tile in spirte
+            4,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            18, // column where to render
+            34, // row where to render
+            32, // render width
+            32, // render height
+            3,  // col of tile in spirte
+            4,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            19, // column where to render
+            34, // row where to render
+            32, // render width
+            32, // render height
+            4,  // col of tile in spirte
+            4,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            20, // column where to render
+            34, // row where to render
+            32, // render width
+            32, // render height
+            5,  // col of tile in spirte
+            4,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            15, // column where to render
+            35, // row where to render
+            32, // render width
+            32, // render height
+            0,  // col of tile in spirte
+            5,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            16, // column where to render
+            35, // row where to render
+            32, // render width
+            32, // render height
+            1,  // col of tile in spirte
+            5,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            17, // column where to render
+            35, // row where to render
+            32, // render width
+            32, // render height
+            2,  // col of tile in spirte
+            5,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            18, // column where to render
+            35, // row where to render
+            32, // render width
+            32, // render height
+            3,  // col of tile in spirte
+            5,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            19, // column where to render
+            35, // row where to render
+            32, // render width
+            32, // render height
+            4,  // col of tile in spirte
+            5,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            20, // column where to render
+            35, // row where to render
+            32, // render width
+            32, // render height
+            5,  // col of tile in spirte
+            5,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            15, // column where to render
+            36, // row where to render
+            32, // render width
+            32, // render height
+            0,  // col of tile in spirte
+            6,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            16, // column where to render
+            36, // row where to render
+            32, // render width
+            32, // render height
+            1,  // col of tile in spirte
+            6,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            17, // column where to render
+            36, // row where to render
+            32, // render width
+            32, // render height
+            2,  // col of tile in spirte
+            6,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            18, // column where to render
+            36, // row where to render
+            32, // render width
+            32, // render height
+            3,  // col of tile in spirte
+            6,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            19, // column where to render
+            36, // row where to render
+            32, // render width
+            32, // render height
+            4,  // col of tile in spirte
+            6,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            20, // column where to render
+            36, // row where to render
+            32, // render width
+            32, // render height
+            5,  // col of tile in spirte
+            6,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            15, // column where to render
+            37, // row where to render
+            32, // render width
+            32, // render height
+            0,  // col of tile in spirte
+            7,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            16, // column where to render
+            37, // row where to render
+            32, // render width
+            32, // render height
+            1,  // col of tile in spirte
+            7,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            17, // column where to render
+            37, // row where to render
+            32, // render width
+            32, // render height
+            2,  // col of tile in spirte
+            7,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            18, // column where to render
+            37, // row where to render
+            32, // render width
+            32, // render height
+            3,  // col of tile in spirte
+            7,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            19, // column where to render
+            37, // row where to render
+            32, // render width
+            32, // render height
+            4,  // col of tile in spirte
+            7,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        ),
+        new Tile(
+            20, // column where to render
+            37, // row where to render
+            32, // render width
+            32, // render height
+            5,  // col of tile in spirte
+            7,  // row of tile in sprite
+            16, // width of tile in sprite
+            16, // height of tile in sprite
+            96, // offset length
+            8,  // number of frames
+            "img/Sea.png" // sprite or sprites src
+        )
         // {x: 17*32, y: 35*32, width:32, height:32, img:"img/grass.png"},
         // {x: 18*32, y: 35*32, width:32, height:32, img:"img/grass.png"},
         // {x: 17*32, y: 36*32, width:32, height:32, img:"img/grass.png"},
@@ -629,36 +1085,58 @@ module.exports = {
 };
 
 },{"./Map.js":3,"./Tile.js":5}],5:[function(require,module,exports){
-function Tile(x, y, width, height, image) {
-    this.x = x;
-    this.y = y;
+function Tile(renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, imageSrc) {
+    // new Tile(
+    //     14, // column where to render
+    //     30, // row where to render
+    //     32, // render width
+    //     32, // render height
+    //     1,  // col of tile in spirte
+    //     3,  // row of tile in sprite
+    //     16, // width of tile in sprite
+    //     16, // height of tile in sprite
+    //     96, // width of a sprite
+    //     128,// height of a sprite
+    //     "img/Sea.png" // sprite or sprites src
+    // )
+    this.renderCol = renderCol;
+    this.renderRow = renderRow;
 
-    this.width = width;
-    this.height = height;
+    this.renderWidth = renderWidth;
+    this.renderHeight = renderHeight;
 
-    this.image = image;
+    this.spriteCol = spriteCol;
+    this.spriteRow = spriteRow;
 
-    this.animationCounter = 0;
+    this.tileWidth = tileWidth;
+    this.tileHeight = tileHeight;
+    
+    this.offset = offset;
 
+    this.numberOfFrames = numberOfFrames;
+
+    // Initialize sprite
     function loadEvent() {this.loadCounter += 1;}
 
     this.loadCoutner = 0;
 
     this.loadCounterFinish = 1;
 
-    let src = image;
     this.image = new Image();
     this.image.addEventListener("load", loadEvent.bind(this));
-    this.image.src = src;
+    this.image.src = imageSrc;
 
-    this.imageIndex = 0;
+    // Animation
+    this.animationCounter = 0;
+
+    this.spriteOffset = 0;
 }
 
 /**
  * Returns true if tile has been loaded
  */
 Map.prototype.isLoaded = function() {
-    if (this.loadCounter === this.images.length) {
+    if (this.loadCounter === this.loadCounterFinish) {
         return true;
     }
 
@@ -666,19 +1144,21 @@ Map.prototype.isLoaded = function() {
 }
 
 Tile.prototype.update = function(game) {
-    if (game.tickCounter % 15 === 0) {
+    if (game.tickCounter % 7 === 0) {
         this.animationCounter += 1;
 
-        this.imageIndex = this.animationCounter % 4;
+        this.spriteOffset = this.offset * (this.animationCounter % this.numberOfFrames);
     }
 }
 
 Tile.prototype.render = function(context, mapX, mapY) {
-    context.drawImage(this.image, this.imageIndex*32, 0, 32, 32, mapX + this.x, mapY + this.y, this.width, this.height);
+    let xInImage = this.spriteCol * this.tileWidth + this.spriteOffset;
+    let yInImage = this.spriteRow * this.tileHeight;
 
-    // context.beginPath();
-    // context.rect(mapX + this.x, mapY + this.y, this.width, this.height);
-    // context.stroke();
+    let renderX = this.renderCol * 32; // Assuming game tile width is 32
+    let renderY = this.renderRow * 32; // Assuming game tile height is 32
+
+    context.drawImage(this.image, xInImage, yInImage, this.tileWidth, this.tileHeight, mapX + renderX, mapY + renderY, this.renderWidth, this.renderHeight);
 }
 
 module.exports = Tile;
