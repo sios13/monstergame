@@ -30,7 +30,7 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
 
     let sprites = new Image();
     sprites.addEventListener("load", loadEvent.bind(this));
-    sprites.src = "img/character2.png";
+    sprites.src = "img/character7.png";
 
     this.sprite = {
         img: sprites,   // Specifies the image, canvas, or video element to use

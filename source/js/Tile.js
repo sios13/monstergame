@@ -1,4 +1,4 @@
-function Tile(renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, image) {
+function Tile(renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, updateFrequency, image) {
     // new Tile(
     //     14, // column where to render
     //     30, // row where to render
@@ -27,6 +27,8 @@ function Tile(renderCol, renderRow, renderWidth, renderHeight, spriteCol, sprite
     this.offset = offset;
 
     this.numberOfFrames = numberOfFrames;
+
+    this.updateFrequency = updateFrequency;
 
     this.image = image;
 
@@ -59,7 +61,7 @@ Map.prototype.isLoaded = function() {
 }
 
 Tile.prototype.update = function(game) {
-    if (game.tickCounter % 5 === 0) {
+    if (game.tickCounter % this.updateFrequency === 0) {
         this.animationCounter += 1;
 
         this.spriteOffset = this.offset * (this.animationCounter % this.numberOfFrames);

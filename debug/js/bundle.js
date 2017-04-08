@@ -31,7 +31,7 @@ function Entity(x, y, mapX, mapY, width, height, speed, direction) {
 
     let sprites = new Image();
     sprites.addEventListener("load", loadEvent.bind(this));
-    sprites.src = "img/character2.png";
+    sprites.src = "img/character7.png";
 
     this.sprite = {
         img: sprites,   // Specifies the image, canvas, or video element to use
@@ -212,7 +212,7 @@ function Game() {
 
     this.map = MapInitializer.getMap("startMap");
 
-    this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 32, 32, 5);
+    this.coolguy = new Entity(14*32, 5*32, this.canvas.width/2, this.canvas.height/2, 32, 32, 5);
 
     // The tick when system was loaded
     this.loadedTick = null;
@@ -524,7 +524,8 @@ function startMap() {
             tileWidth: 16,      // width of tile in image
             tileHeight: 16,     // height of tile in image
             offset: 96,         // offset for every tick
-            ticks: 8            // number of ticks
+            numberOfFrames: 8,  // number of frames/ticks
+            updateFrequency: 7, // specifies how often to update (5 is every fifth tick, 2 is every other tick, 1 is every tick etc...)
         },
         {
             identifier: "nice",
@@ -534,7 +535,8 @@ function startMap() {
             tileWidth: 42,
             tileHeight: 42,
             offset: 43,
-            ticks: 51
+            numberOfFrames: 51,
+            updateFrequency: 2
         },
         {
             identifier: "flower",
@@ -544,7 +546,19 @@ function startMap() {
             tileWidth: 32,
             tileHeight: 32,
             offset: 32,
-            ticks: 4
+            numberOfFrames: 4,
+            updateFrequency: 10
+        },
+        {
+            identifier: "seashore",
+            src: "img/seashore.png",
+            renderWidth: 32,
+            renderHeight: 32,
+            tileWidth: 16,
+            tileHeight: 16,
+            offset: 96,
+            numberOfFrames: 8,
+            updateFrequency: 7
         }
     ]);
 
@@ -591,8 +605,12 @@ function startMap() {
         tileManager.getTile("sea", 18, 37, 3, 7),
         tileManager.getTile("sea", 19, 37, 4, 7),
         tileManager.getTile("sea", 20, 37, 5, 7),
+
         tileManager.getTile("flower", 15, 30, 0, 0),
-        tileManager.getTile("nice", 12, 31, 0, 0)
+        tileManager.getTile("nice", 12, 31, 0, 0),
+
+        tileManager.getTile("sea", 0, 4, 1, 2),
+        tileManager.getTile("seashore", 0, 5, 1, 2)
     ];
 
     let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
@@ -677,7 +695,7 @@ module.exports = {
 };
 
 },{"./Map.js":3,"./TileManager.js":6}],5:[function(require,module,exports){
-function Tile(renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, image) {
+function Tile(renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, updateFrequency, image) {
     // new Tile(
     //     14, // column where to render
     //     30, // row where to render
@@ -706,6 +724,8 @@ function Tile(renderCol, renderRow, renderWidth, renderHeight, spriteCol, sprite
     this.offset = offset;
 
     this.numberOfFrames = numberOfFrames;
+
+    this.updateFrequency = updateFrequency;
 
     this.image = image;
 
@@ -738,7 +758,7 @@ Map.prototype.isLoaded = function() {
 }
 
 Tile.prototype.update = function(game) {
-    if (game.tickCounter % 5 === 0) {
+    if (game.tickCounter % this.updateFrequency === 0) {
         this.animationCounter += 1;
 
         this.spriteOffset = this.offset * (this.animationCounter % this.numberOfFrames);
@@ -781,7 +801,8 @@ TileManager.prototype.getTile = function(identifier, renderCol, renderRow, sprit
         settings.tileWidth,     // width of tile in sprite
         settings.tileHeight,    // height of tile in sprite
         settings.offset,        // offset length
-        settings.ticks,         // number of frames
+        settings.numberOfFrames,// number of frames
+        settings.updateFrequency,
         settings.image          // sprite or sprites src
     );
 
@@ -808,18 +829,18 @@ function addListeners(game) {
     game.canvas.addEventListener("mousedown", function(event) {
         game.listeners.isMousedown = true;
 
-        game.listeners.mousePositionX = event.clientX;
-        game.listeners.mousePositionY = event.clientY;
+        game.listeners.mousePositionX = event.pageX;
+        game.listeners.mousePositionY = event.pageY;
     });
 
     game.canvas.addEventListener("mousemove", function(event) {
         game.listeners.isMousemove = true;
 
-        game.mousePositionX = event.clientX;
-        game.mousePositionY = event.clientY;
+        game.mousePositionX = event.pageX;
+        game.mousePositionY = event.pageY;
     });
 
-    game.canvas.addEventListener("mouseup", function(event) {
+    window.addEventListener("mouseup", function(event) {
         game.listeners.isMousedown = false;
         game.listeners.isMousemove = false;
     });

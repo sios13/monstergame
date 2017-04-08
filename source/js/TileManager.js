@@ -21,7 +21,8 @@ TileManager.prototype.getTile = function(identifier, renderCol, renderRow, sprit
         settings.tileWidth,     // width of tile in sprite
         settings.tileHeight,    // height of tile in sprite
         settings.offset,        // offset length
-        settings.ticks,         // number of frames
+        settings.numberOfFrames,// number of frames
+        settings.updateFrequency,
         settings.image          // sprite or sprites src
     );
 
