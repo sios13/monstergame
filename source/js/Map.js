@@ -55,8 +55,8 @@ Map.prototype.update = function(game) {
     this.tickCounter += 1;
 
     // Update map position
-    this.x = game.coolguy.mapX - game.coolguy.x;
-    this.y = game.coolguy.mapY - game.coolguy.y;
+    this.x = game.coolguy.canvasX - game.coolguy.x;
+    this.y = game.coolguy.canvasY - game.coolguy.y;
 
     for (let i = 0; i < this.tiles.length; i++) {
         this.tiles[i].update(game);

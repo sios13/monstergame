@@ -10,7 +10,18 @@ function Game() {
 
     this.map = MapInitializer.getMap("startMap");
 
-    this.coolguy = new Entity(14*32, 5*32, this.canvas.width/2, this.canvas.height/2, 32, 32, 5);
+    // this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 32, 32, 4);
+
+    this.coolguy = new Entity({
+        x: 14*32,                       // x position on map
+        y: 35*32,                       // y position on map
+        canvasX: this.canvas.width/2,   // x position on canvas
+        canvasY: this.canvas.height/2,  // y position on canvas
+        collisionSquare: 30,            // width and height of collision square
+        renderWidth: 32,                // render width
+        renderHeight: 48,               // render height
+        speed: 4                        // speed
+    });
 
     // The tick when system was loaded
     this.loadedTick = null;
@@ -59,11 +70,11 @@ Game.prototype.startGame = function() {
         this.map.update(this);
 
         // if cool guy has entered a new grid -> check for events on that grid
-        if (this.coolguy.newGrid) {
-            this._checkEvents(this.coolguy.col, this.coolguy.row);
+        // if (this.coolguy.newGrid) {
+        //     this._checkEvents(this.coolguy.col, this.coolguy.row);
 
-            this.coolguy.newGrid = false;
-        }
+        //     this.coolguy.newGrid = false;
+        // }
     }
 
     let render = () => {
@@ -99,41 +110,15 @@ Game.prototype.startGame = function() {
     }
 };
 
-Game.prototype._checkEvents = function(col, row) {
-    // get event on position
-    let event = this.map.getEvent(col, row);
+Game.prototype.changeMap = function(event) {
+    this.loadedTick = null;
 
-    // if there is no event -> exit
-    if (typeof event !== "object") {
-        return;
-    }
+    this.map.destroy();
 
-    // if event id is 2 -> change map! teleport!
-    if (event.id === 2) {
-        this.loadedTick = null;
+    this.map = MapInitializer.getMap(event.data.mapName);
 
-        this.map.destroy();
-
-        this.map = MapInitializer.getMap(event.data.mapName);
-
-        this.coolguy.x = event.data.spawnX;
-        this.coolguy.y = event.data.spawnY;
-
-        return;
-    }
-
-    // if event id is 3 -> grass!
-    if (event.id === 3) {
-        // let image = new Image();
-        // image.src = "img/grass.png";
-        // this.context.drawImage(image, col*32, row*32);
-        // this.map.renderTile(this.context, col*32, row*32);
-        this.coolguy.isInGrass = true;
-
-        console.log("grass!");
-
-        return;
-    }
+    this.coolguy.x = event.data.spawnX;
+    this.coolguy.y = event.data.spawnY;
 }
 
 module.exports = Game;

@@ -49,12 +49,12 @@ function startMap() {
         [1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,2,1,1,0,0,0,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
-        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
-        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
-        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
-        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,3,3,0,0,0,1,1],
-        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,3,3,0,0,0,1,1],
-        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,4,4,0,1,1],
+        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,4,4,0,1,1],
+        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,4,4,4,4,4,4,0,1,1],
+        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,4,4,4,4,4,4,0,1,1],
+        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,4,4,4,4,4,4,0,1,1],
+        [1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,4,4,4,4,4,4,0,1,1],
         [1,1,0,0,0,1,2,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1],
@@ -84,24 +84,13 @@ function startMap() {
         {
             identifier: "nice",
             src: "img/007.png",
-            renderWidth: 60,
-            renderHeight: 60,
+            renderWidth: 48,
+            renderHeight: 48,
             tileWidth: 42,
             tileHeight: 42,
             offset: 43,
             numberOfFrames: 51,
             updateFrequency: 2
-        },
-        {
-            identifier: "flower",
-            src: "img/Flowers2.png",
-            renderWidth: 32,
-            renderHeight: 32,
-            tileWidth: 32,
-            tileHeight: 32,
-            offset: 32,
-            numberOfFrames: 4,
-            updateFrequency: 10
         },
         {
             identifier: "seashore",
@@ -115,6 +104,18 @@ function startMap() {
             updateFrequency: 7
         }
     ]);
+
+    tileManager.addSettings({
+        identifier: "flower",
+        src: "img/Flowers2.png",
+        renderWidth: 32,
+        renderHeight: 32,
+        tileWidth: 32,
+        tileHeight: 32,
+        offset: 32,
+        numberOfFrames: 4,
+        updateFrequency: 10
+    });
 
     let tiles = [
         tileManager.getTile(
@@ -185,6 +186,13 @@ function startMap() {
             if (collisionMap[y][x] === 3) {
                 map.attachEvent(x, y, {
                     id: 3,
+                    data: {}
+                });
+            }
+
+            if (collisionMap[y][x] === 4) {
+                map.attachEvent(x, y, {
+                    id: 4,
                     data: {}
                 });
             }
