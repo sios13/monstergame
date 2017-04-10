@@ -4,6 +4,12 @@ function TileManager(settings) {
     this.tilesSettings = [];
 
     this.addSettings(settings);
+
+    this.tiles = [];
+}
+
+TileManager.prototype.getAllTiles = function() {
+    return this.tiles
 }
 
 TileManager.prototype.addSettings = function(settings) {
@@ -16,19 +22,10 @@ TileManager.prototype.addSettings = function(settings) {
      */
     if (Array.isArray(settings))
     {
-        let temp = settings.filter(function(s) {
-            s.image = new Image();
-            s.image.src = s.src;
-            return s;
-        });
-
-        this.tilesSettings = this.tilesSettings.concat(temp);
+        this.tilesSettings = this.tilesSettings.concat(settings);
     }
     else
     {
-        settings.image = new Image();
-        settings.image.src = settings.src;
-
         this.tilesSettings.push(settings);
     }
 }
@@ -36,20 +33,23 @@ TileManager.prototype.addSettings = function(settings) {
 TileManager.prototype.getTile = function(identifier, renderCol, renderRow, spriteCol, spriteRow) {
     let settings = this.tilesSettings.find(x => x.identifier === identifier);
 
-    let tile = new Tile(
-        renderCol,                  // col where to render
-        renderRow,                  // row where to render
-        settings.renderWidth,       // render width
-        settings.renderHeight,      // render height
-        spriteCol,                  // col of tile in spirte
-        spriteRow,                  // row of tile in sprite
-        settings.tileWidth,         // width of tile in sprite
-        settings.tileHeight,        // height of tile in sprite
-        settings.offset,            // offset length
-        settings.numberOfFrames,    // number of frames
-        settings.updateFrequency,   // specifies how often to update (5 is every fifth tick, 2 is every other tick, 1 is every tick etc...)
-        settings.image              // sprite or sprites src
-    );
+    let tile = new Tile({
+        renderCol: renderCol,                  // col where to render
+        renderRow: renderRow,                  // row where to render
+        renderWidth: settings.renderWidth,       // render width
+        renderHeight: settings.renderHeight,      // render height
+        spriteCol: spriteCol,                  // col of tile in spirte
+        spriteRow: spriteRow,                  // row of tile in sprite
+        tileWidth: settings.tileWidth,         // width of tile in sprite
+        tileHeight: settings.tileHeight,        // height of tile in sprite
+        offset: settings.offset,            // offset length
+        numberOfFrames: settings.numberOfFrames,    // number of frames
+        updateFrequency: settings.updateFrequency,   // specifies how often to update (5 is every fifth tick, 2 is every other tick, 1 is every tick etc...)
+        src: settings.src              // sprite or sprites src
+    });
+
+    // All initialized tiles are also saved in the tile manager
+    this.tiles.push(tile);
 
     return tile;
 }

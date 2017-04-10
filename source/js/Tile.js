@@ -1,47 +1,25 @@
-function Tile(renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, updateFrequency, image) {
-    // new Tile(
-    //     14, // column where to render
-    //     30, // row where to render
-    //     32, // render width
-    //     32, // render height
-    //     1,  // col of tile in spirte
-    //     3,  // row of tile in sprite
-    //     16, // width of tile in sprite
-    //     16, // height of tile in sprite
-    //     96, // width of a sprite
-    //     128,// height of a sprite
-    //     "img/Sea.png" // sprite or sprites src
-    // )
-    this.renderCol = renderCol;
-    this.renderRow = renderRow;
+function Tile(settings) {
+    // renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, updateFrequency, image
+    this.renderCol = settings.renderCol;
+    this.renderRow = settings.renderRow;
 
-    this.renderWidth = renderWidth;
-    this.renderHeight = renderHeight;
+    this.renderWidth = settings.renderWidth;
+    this.renderHeight = settings.renderHeight;
 
-    this.spriteCol = spriteCol;
-    this.spriteRow = spriteRow;
+    this.spriteCol = settings.spriteCol;
+    this.spriteRow = settings.spriteRow;
 
-    this.tileWidth = tileWidth;
-    this.tileHeight = tileHeight;
+    this.tileWidth = settings.tileWidth;
+    this.tileHeight = settings.tileHeight;
     
-    this.offset = offset;
+    this.offset = settings.offset ? settings.offset : 0;
 
-    this.numberOfFrames = numberOfFrames;
+    this.numberOfFrames = settings.numberOfFrames;
 
-    this.updateFrequency = updateFrequency;
+    this.updateFrequency = settings.updateFrequency ? settings.updateFrequency : 0;
 
-    this.image = image;
-
-    // Initialize sprite
-    // function loadEvent() {this.loadCounter += 1;}
-
-    // this.loadCoutner = 0;
-
-    // this.loadCounterFinish = 1;
-
-    // this.image = new Image();
-    // this.image.addEventListener("load", loadEvent.bind(this));
-    // this.image.src = imageSrc;
+    this.image = new Image();
+    this.image.src = settings.src;
 
     // Animation
     this.animationCounter = 0;
@@ -52,7 +30,7 @@ function Tile(renderCol, renderRow, renderWidth, renderHeight, spriteCol, sprite
 /**
  * Returns true if tile has been loaded
  */
-Map.prototype.isLoaded = function() {
+Tile.prototype.isLoaded = function() {
     if (this.loadCounter === this.loadCounterFinish) {
         return true;
     }
@@ -61,6 +39,11 @@ Map.prototype.isLoaded = function() {
 }
 
 Tile.prototype.update = function(game) {
+    // No need to update if only one frame!
+    if (this.numberOfFrames === 1) {
+        return;
+    }
+
     if (game.tickCounter % this.updateFrequency === 0) {
         this.animationCounter += 1;
 

@@ -1,5 +1,4 @@
 const Map = require("./Map.js");
-// const Tile = require("./Tile.js");
 const TileManager = require("./TileManager.js");
 
 function getMap(mapName) {
@@ -44,10 +43,10 @@ function startMap() {
         [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
-        [1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1],
-        [1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1],
-        [1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,2,1,1,0,0,0,0,1,1],
-        [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+        [1,1,0,0,1,1,1,1,3,3,3,3,0,0,1,1,1,1,0,0,0,0,1,1],
+        [1,1,0,0,1,1,1,1,3,3,3,3,0,0,1,1,1,1,0,0,0,0,1,1],
+        [1,1,0,0,1,1,1,1,3,3,3,3,0,0,1,2,1,1,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,4,4,0,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,4,4,0,1,1],
@@ -102,6 +101,15 @@ function startMap() {
             offset: 96,
             numberOfFrames: 8,
             updateFrequency: 7
+        },
+        {
+            identifier: "grass",
+            src: "img/grass.png",
+            renderWidth: 32,
+            renderHeight: 32,
+            tileWidth: 16,
+            tileHeight: 16,
+            numberOfFrames: 1
         }
     ]);
 
@@ -165,7 +173,23 @@ function startMap() {
         tileManager.getTile("nice", 12, 31, 0, 0),
 
         tileManager.getTile("sea", 0, 4, 1, 2),
-        tileManager.getTile("seashore", 0, 5, 1, 2)
+        tileManager.getTile("seashore", 0, 5, 1, 2),
+
+        tileManager.getTile("grass", 8, 27, 0, 0),
+        tileManager.getTile("grass", 9, 27, 0, 0),
+        tileManager.getTile("grass", 10, 27, 0, 0),
+        tileManager.getTile("grass", 11, 27, 0, 0),
+        tileManager.getTile("grass", 8, 28, 0, 0),
+        tileManager.getTile("grass", 9, 28, 0, 0),
+        tileManager.getTile("grass", 10, 28, 0, 0),
+        tileManager.getTile("grass", 11, 28, 0, 0),
+        tileManager.getTile("grass", 8, 29, 0, 0),
+        tileManager.getTile("grass", 9, 29, 0, 0),
+        tileManager.getTile("grass", 10, 29, 0, 0),
+        tileManager.getTile("grass", 11, 29, 0, 0),
+        tileManager.getTile("grass", 9, 30, 0, 0),
+        tileManager.getTile("grass", 10, 30, 0, 0),
+        tileManager.getTile("grass", 11, 30, 0, 0),
     ];
 
     let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);

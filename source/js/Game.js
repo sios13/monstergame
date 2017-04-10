@@ -10,14 +10,12 @@ function Game() {
 
     this.map = MapInitializer.getMap("startMap");
 
-    // this.coolguy = new Entity(14*32, 35*32, this.canvas.width/2, this.canvas.height/2, 32, 32, 4);
-
     this.coolguy = new Entity({
         x: 14*32,                       // x position on map
         y: 35*32,                       // y position on map
         canvasX: this.canvas.width/2,   // x position on canvas
         canvasY: this.canvas.height/2,  // y position on canvas
-        collisionSquare: 30,            // width and height of collision square
+        collisionSquare: 20,            // width and height of collision square
         renderWidth: 32,                // render width
         renderHeight: 48,               // render height
         speed: 4                        // speed

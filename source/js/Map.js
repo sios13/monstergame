@@ -6,8 +6,6 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
 
     this.gridSize = gridSize;
 
-    // this.isLoading = true;
-
     this.tickCounter = 0;
 
     this.loadCounter = 0;
@@ -36,7 +34,17 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
  * Returns true if map has been loaded
  */
 Map.prototype.isLoaded = function() {
+    // If the two map layers and audio has been loaded
     if (this.loadCounter === this.loadCounterFinish) {
+        for (let i = 0; i < this.tiles.length; i++) {
+
+            // Return false if a tile has not been loaded
+            if (this.tiles[i].image.complete === false) {
+                return false;
+            }
+        }
+
+        // If all tiles also has been loaded
         return true;
     }
 
