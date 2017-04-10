@@ -302,6 +302,10 @@ Entity.prototype._setActiveTile = function() {
 
 Entity.prototype.update = function(game) {
     if (game.listeners.isMousedown) {
+        if (this.state === "grass") {
+            game.startBattle("xD");
+        }
+
         // Use the mouse position to determine the entity speed
         this._setSpeed(game);
 

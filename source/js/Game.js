@@ -1,5 +1,6 @@
 const Entity = require("./Entity.js");
 const MapInitializer = require("./MapInitializer.js");
+const Battle = require("./Battle.js");
 
 function Game() {
     this.tickCounter = 0;
@@ -23,6 +24,8 @@ function Game() {
 
     // The tick when system was loaded
     this.loadedTick = null;
+
+    this.battle = null;
 }
 
 /**
@@ -56,6 +59,10 @@ Game.prototype.startGame = function() {
     }
 
     let update = () => {
+        if (this.battle !== null) {
+            return this.battle.update(this);
+        }
+
         // Do not update while system is loading
         if (!this.isLoaded()) {
             return;
@@ -66,17 +73,14 @@ Game.prototype.startGame = function() {
 
         // Update map
         this.map.update(this);
-
-        // if cool guy has entered a new grid -> check for events on that grid
-        // if (this.coolguy.newGrid) {
-        //     this._checkEvents(this.coolguy.col, this.coolguy.row);
-
-        //     this.coolguy.newGrid = false;
-        // }
     }
 
     let render = () => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        if (this.battle !== null) {
+            return this.battle.update(this.context);
+        }
 
         // Render black screen while system is loading
         if (!this.isLoaded()) {
@@ -117,6 +121,14 @@ Game.prototype.changeMap = function(event) {
 
     this.coolguy.x = event.data.spawnX;
     this.coolguy.y = event.data.spawnY;
+}
+
+Game.prototype.startBattle = function(settings) {
+    this.battle = new Battle(settings);
+}
+
+Game.prototype.endBattle = function() {
+    this.battle = null;
 }
 
 module.exports = Game;

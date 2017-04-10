@@ -1,4 +1,30 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+const Scenario = require("./Scenario.js");
+
+function Battle(settings) {
+    this.tick = 0;
+
+    this.enemy = {
+        name: "HEJ",
+        image: "src/hej.png"
+    };
+}
+
+Battle.prototype.update = function(game) {
+    this.tick += 1;
+
+    if (this.tick === 30) {
+        game.endBattle();
+    }
+}
+
+Battle.prototype.render = function() {
+
+}
+
+module.exports = Battle;
+
+},{"./Scenario.js":6}],2:[function(require,module,exports){
 const TileManager = require("./TileManager.js");
 
 function Entity(settings) {
@@ -303,6 +329,10 @@ Entity.prototype._setActiveTile = function() {
 
 Entity.prototype.update = function(game) {
     if (game.listeners.isMousedown) {
+        if (this.state === "grass") {
+            game.startBattle("xD");
+        }
+
         // Use the mouse position to determine the entity speed
         this._setSpeed(game);
 
@@ -352,9 +382,10 @@ Entity.prototype.render = function(context) {
 
 module.exports = Entity;
 
-},{"./TileManager.js":6}],2:[function(require,module,exports){
+},{"./TileManager.js":8}],3:[function(require,module,exports){
 const Entity = require("./Entity.js");
 const MapInitializer = require("./MapInitializer.js");
+const Battle = require("./Battle.js");
 
 function Game() {
     this.tickCounter = 0;
@@ -378,6 +409,8 @@ function Game() {
 
     // The tick when system was loaded
     this.loadedTick = null;
+
+    this.battle = null;
 }
 
 /**
@@ -411,6 +444,10 @@ Game.prototype.startGame = function() {
     }
 
     let update = () => {
+        if (this.battle !== null) {
+            return this.battle.update(this);
+        }
+
         // Do not update while system is loading
         if (!this.isLoaded()) {
             return;
@@ -421,17 +458,14 @@ Game.prototype.startGame = function() {
 
         // Update map
         this.map.update(this);
-
-        // if cool guy has entered a new grid -> check for events on that grid
-        // if (this.coolguy.newGrid) {
-        //     this._checkEvents(this.coolguy.col, this.coolguy.row);
-
-        //     this.coolguy.newGrid = false;
-        // }
     }
 
     let render = () => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        if (this.battle !== null) {
+            return this.battle.update(this.context);
+        }
 
         // Render black screen while system is loading
         if (!this.isLoaded()) {
@@ -474,9 +508,17 @@ Game.prototype.changeMap = function(event) {
     this.coolguy.y = event.data.spawnY;
 }
 
+Game.prototype.startBattle = function(settings) {
+    this.battle = new Battle(settings);
+}
+
+Game.prototype.endBattle = function() {
+    this.battle = null;
+}
+
 module.exports = Game;
 
-},{"./Entity.js":1,"./MapInitializer.js":4,"./listeners.js":8}],3:[function(require,module,exports){
+},{"./Battle.js":1,"./Entity.js":2,"./MapInitializer.js":5,"./listeners.js":10}],4:[function(require,module,exports){
 function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles) {
     this.x = x;
     this.y = y;
@@ -587,7 +629,7 @@ Map.prototype.destroy = function() {
 
 module.exports = Map;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 const Map = require("./Map.js");
 const TileManager = require("./TileManager.js");
 
@@ -870,7 +912,14 @@ module.exports = {
     getMap: getMap
 };
 
-},{"./Map.js":3,"./TileManager.js":6}],5:[function(require,module,exports){
+},{"./Map.js":4,"./TileManager.js":8}],6:[function(require,module,exports){
+function Scenario() {
+
+}
+
+module.exports = Scenario;
+
+},{}],7:[function(require,module,exports){
 function Tile(settings) {
     // renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, updateFrequency, image
     this.renderCol = settings.renderCol;
@@ -936,7 +985,7 @@ Tile.prototype.render = function(context, mapX, mapY) {
 
 module.exports = Tile;
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 const Tile = require("./Tile.js");
 
 function TileManager(settings) {
@@ -995,7 +1044,7 @@ TileManager.prototype.getTile = function(identifier, renderCol, renderRow, sprit
 
 module.exports = TileManager;
 
-},{"./Tile.js":5}],7:[function(require,module,exports){
+},{"./Tile.js":7}],9:[function(require,module,exports){
 let Game = require("./Game.js");
 
 // node_modules/.bin/browserify source/js/app.js > debug/js/bundle.js
@@ -1006,7 +1055,7 @@ window.addEventListener("load", function() {
     game.startGame();
 });
 
-},{"./Game.js":2}],8:[function(require,module,exports){
+},{"./Game.js":3}],10:[function(require,module,exports){
 function addListeners(game) {
     game.listeners = {};
 
@@ -1038,4 +1087,4 @@ module.exports = {
     addListeners: addListeners
 }
 
-},{}]},{},[7]);
+},{}]},{},[9]);
