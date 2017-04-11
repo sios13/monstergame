@@ -1,22 +1,24 @@
 function Tile(settings) {
     // renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, updateFrequency, image
-    this.renderCol = settings.renderCol;
-    this.renderRow = settings.renderRow;
+    this.renderCol = settings.renderCol ? settings.renderCol : 0;
+    this.renderRow = settings.renderRow ? settings.renderRow : 0;
 
     this.renderWidth = settings.renderWidth;
     this.renderHeight = settings.renderHeight;
 
-    this.spriteCol = settings.spriteCol;
-    this.spriteRow = settings.spriteRow;
+    this.spriteCol = settings.spriteCol ? settings.spriteCol : 0;
+    this.spriteRow = settings.spriteRow ? settings.spriteRow : 0;
 
     this.tileWidth = settings.tileWidth;
     this.tileHeight = settings.tileHeight;
     
     this.offset = settings.offset ? settings.offset : 0;
 
-    this.numberOfFrames = settings.numberOfFrames;
+    this.numberOfFrames = settings.numberOfFrames ? settings.numberOfFrames : 1;
 
     this.updateFrequency = settings.updateFrequency ? settings.updateFrequency : 0;
+
+    this.loop = settings.loop === undefined ? true : settings.loop;
 
     this.image = new Image();
     this.image.src = settings.src;
@@ -25,6 +27,9 @@ function Tile(settings) {
     this.animationCounter = 0;
 
     this.spriteOffset = 0;
+
+    // 
+    this.pause = false;
 }
 
 /**
@@ -39,6 +44,11 @@ Tile.prototype.isLoaded = function() {
 }
 
 Tile.prototype.update = function(game) {
+    // Dont update if animation is paused
+    if (this.pause) {
+        return;
+    }
+
     // No need to update if only one frame!
     if (this.numberOfFrames === 1) {
         return;
@@ -49,9 +59,18 @@ Tile.prototype.update = function(game) {
 
         this.spriteOffset = this.offset * (this.animationCounter % this.numberOfFrames);
     }
+
+    if (this.loop === false) {
+        if (this.animationCounter % this.numberOfFrames === 0) {
+            this.pause = true;
+        }
+    }
 }
 
 Tile.prototype.render = function(context, mapX, mapY) {
+    mapX = mapX ? mapX : 0;
+    mapY = mapY ? mapY : 0;
+
     let xInImage = this.spriteCol * this.tileWidth + this.spriteOffset;
     let yInImage = this.spriteRow * this.tileHeight;
 

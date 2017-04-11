@@ -1,30 +1,94 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 const Scenario = require("./Scenario.js");
+const Tile = require("./Tile.js");
 
 function Battle(settings) {
     this.tick = 0;
 
+    this.screenWidth = 1024;
+    this.screenHeight = 768;
+
+    this.background = new Tile({
+        renderWidth: this.screenWidth,
+        renderHeight: this.screenHeight,
+        tileWidth: 512,
+        tileHeight: 288,
+        src: "img/battle/battlebgForestEve.png"
+    });
+
+    this.player = {
+        name: "player",
+        x: 0,
+        y: 100,
+        image: new Tile({
+            renderCol: 0,
+            renderRow: 7,
+            renderWidth: 350,
+            renderHeight: 350,
+            spriteCol: 0,
+            spriteRow: 0,
+            tileWidth: 108,
+            tileHeight: 108,
+            offset: 108,
+            numberOfFrames: 87,
+            updateFrequency: 1,
+            src: "img/battle/player_monster.png",
+            loop: false
+        }),
+        base_image: new Tile({
+            renderWidth: 512,
+            renderHeight: 64,
+            tileWidth: 512,
+            tileHeight: 64,
+            src: "img/battle/playerbaseFieldGrassEve.png"
+        })
+    };
+
     this.enemy = {
         name: "HEJ",
-        image: "src/hej.png"
+        image: "img/battle/enemy.png",
+        base_image: "img/battle/enemybaseField.png"
     };
+
+    // this.scenario = new Scenario();
+}
+
+Battle.prototype._load = function() {
+
 }
 
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
-    if (this.tick === 30) {
+    this.player.image.update(game);
+
+    if (this.tick === 200) {
+        this.player.image.pause = false;
+    }
+
+    if (this.tick === 400) {
         game.endBattle();
     }
 }
 
-Battle.prototype.render = function() {
+Battle.prototype.render = function(context) {
+    this.background.render(context);
 
+    this.player.base_image.render(context, this.player.x, this.screenHeight - 175 - 64);
+    this.player.image.render(context, this.player.x + 512/2 - this.player.image.renderWidth/2, this.player.y);
+
+    // context.drawImage(this.image, xInImage, yInImage, this.tileWidth, this.tileHeight, mapX + renderX, mapY + renderY, this.renderWidth, this.renderHeight);
+
+    // Draw white box at bottom
+    context.beginPath();
+    context.fillStyle = "rgba(255, 255, 255, 0.7)";
+    context.fillRect(0, this.screenHeight - 175, this.screenWidth, 175);
+    context.stroke();
 }
 
 module.exports = Battle;
 
-},{"./Scenario.js":6}],2:[function(require,module,exports){
+},{"./Scenario.js":6,"./Tile.js":7}],2:[function(require,module,exports){
 const TileManager = require("./TileManager.js");
 
 function Entity(settings) {
@@ -464,14 +528,20 @@ Game.prototype.startGame = function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         if (this.battle !== null) {
-            return this.battle.update(this.context);
+            return this.battle.render(this.context);
         }
 
-        // Render black screen while system is loading
+        // Render 'loading screen' while system is loading
         if (!this.isLoaded()) {
             this.context.beginPath();
+
             this.context.fillStyle = "rgb(0, 0, 0)";
             this.context.fillRect(0, 0, 10000, 10000);
+
+            this.context.font = "26px Georgia";
+            this.context.fillStyle = "#DDDDDD";
+            this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
+
             this.context.stroke();
 
             return;
@@ -487,10 +557,10 @@ Game.prototype.startGame = function() {
 
         this.map.render(this.context);
 
-        // If system was recently loaded -> tone black screen
-        if (this.tickCounter - this.loadedTick < 30) {
+        // If system was recently loaded -> tone from black screen to game
+        if (this.tickCounter - this.loadedTick < 20) {
             this.context.beginPath();
-            this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/30) + ")";
+            this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
             this.context.fillRect(0, 0, 10000, 10000);
             this.context.stroke();
         }
@@ -922,23 +992,25 @@ module.exports = Scenario;
 },{}],7:[function(require,module,exports){
 function Tile(settings) {
     // renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, updateFrequency, image
-    this.renderCol = settings.renderCol;
-    this.renderRow = settings.renderRow;
+    this.renderCol = settings.renderCol ? settings.renderCol : 0;
+    this.renderRow = settings.renderRow ? settings.renderRow : 0;
 
     this.renderWidth = settings.renderWidth;
     this.renderHeight = settings.renderHeight;
 
-    this.spriteCol = settings.spriteCol;
-    this.spriteRow = settings.spriteRow;
+    this.spriteCol = settings.spriteCol ? settings.spriteCol : 0;
+    this.spriteRow = settings.spriteRow ? settings.spriteRow : 0;
 
     this.tileWidth = settings.tileWidth;
     this.tileHeight = settings.tileHeight;
     
     this.offset = settings.offset ? settings.offset : 0;
 
-    this.numberOfFrames = settings.numberOfFrames;
+    this.numberOfFrames = settings.numberOfFrames ? settings.numberOfFrames : 1;
 
     this.updateFrequency = settings.updateFrequency ? settings.updateFrequency : 0;
+
+    this.loop = settings.loop === undefined ? true : settings.loop;
 
     this.image = new Image();
     this.image.src = settings.src;
@@ -947,6 +1019,9 @@ function Tile(settings) {
     this.animationCounter = 0;
 
     this.spriteOffset = 0;
+
+    // 
+    this.pause = false;
 }
 
 /**
@@ -961,6 +1036,11 @@ Tile.prototype.isLoaded = function() {
 }
 
 Tile.prototype.update = function(game) {
+    // Dont update if animation is paused
+    if (this.pause) {
+        return;
+    }
+
     // No need to update if only one frame!
     if (this.numberOfFrames === 1) {
         return;
@@ -971,9 +1051,18 @@ Tile.prototype.update = function(game) {
 
         this.spriteOffset = this.offset * (this.animationCounter % this.numberOfFrames);
     }
+
+    if (this.loop === false) {
+        if (this.animationCounter % this.numberOfFrames === 0) {
+            this.pause = true;
+        }
+    }
 }
 
 Tile.prototype.render = function(context, mapX, mapY) {
+    mapX = mapX ? mapX : 0;
+    mapY = mapY ? mapY : 0;
+
     let xInImage = this.spriteCol * this.tileWidth + this.spriteOffset;
     let yInImage = this.spriteRow * this.tileHeight;
 

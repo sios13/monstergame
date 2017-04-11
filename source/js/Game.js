@@ -79,14 +79,20 @@ Game.prototype.startGame = function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         if (this.battle !== null) {
-            return this.battle.update(this.context);
+            return this.battle.render(this.context);
         }
 
-        // Render black screen while system is loading
+        // Render 'loading screen' while system is loading
         if (!this.isLoaded()) {
             this.context.beginPath();
+
             this.context.fillStyle = "rgb(0, 0, 0)";
             this.context.fillRect(0, 0, 10000, 10000);
+
+            this.context.font = "26px Georgia";
+            this.context.fillStyle = "#DDDDDD";
+            this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
+
             this.context.stroke();
 
             return;
@@ -102,10 +108,10 @@ Game.prototype.startGame = function() {
 
         this.map.render(this.context);
 
-        // If system was recently loaded -> tone black screen
-        if (this.tickCounter - this.loadedTick < 30) {
+        // If system was recently loaded -> tone from black screen to game
+        if (this.tickCounter - this.loadedTick < 20) {
             this.context.beginPath();
-            this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/30) + ")";
+            this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
             this.context.fillRect(0, 0, 10000, 10000);
             this.context.stroke();
         }
