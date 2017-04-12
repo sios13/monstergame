@@ -1,6 +1,10 @@
 function addListeners(game) {
     game.listeners = {};
 
+    game.canvas.addEventListener("click", function(event) {
+        game.listeners.click = true;
+    });
+
     game.canvas.addEventListener("mousedown", function(event) {
         game.listeners.isMousedown = true;
 
@@ -11,8 +15,8 @@ function addListeners(game) {
     game.canvas.addEventListener("mousemove", function(event) {
         game.listeners.isMousemove = true;
 
-        game.mousePositionX = event.pageX;
-        game.mousePositionY = event.pageY;
+        game.listeners.mousePositionX = event.pageX;
+        game.listeners.mousePositionY = event.pageY;
     });
 
     window.addEventListener("mouseup", function(event) {

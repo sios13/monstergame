@@ -66,7 +66,7 @@ Battle.prototype._load = function() {
 
 }
 
-Battle.prototype.intro = function() {
+Battle.prototype._intro = function() {
     // if intro is over -> exit
     if (this.tick > 500) {
         return;
@@ -88,12 +88,23 @@ Battle.prototype.intro = function() {
     }
 }
 
+Battle.prototype._mouseEvents = function(game) {
+    let x = game.listeners.mousePositionX;
+    let y = game.listeners.mousePositionY;
+
+    if (game.listeners.click === true && y > 600 && x > 600) {
+        console.log("HEJ123");
+    }
+}
+
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
-    this.intro();
+    this._intro();
 
     this.player.image.update(game);
+
+    this._mouseEvents(game);
 }
 
 Battle.prototype.render = function(context) {

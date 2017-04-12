@@ -67,7 +67,7 @@ Battle.prototype._load = function() {
 
 }
 
-Battle.prototype.intro = function() {
+Battle.prototype._intro = function() {
     // if intro is over -> exit
     if (this.tick > 500) {
         return;
@@ -89,12 +89,23 @@ Battle.prototype.intro = function() {
     }
 }
 
+Battle.prototype._mouseEvents = function(game) {
+    let x = game.listeners.mousePositionX;
+    let y = game.listeners.mousePositionY;
+
+    if (game.listeners.click === true && y > 600 && x > 600) {
+        console.log("HEJ123");
+    }
+}
+
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
-    this.intro();
+    this._intro();
 
     this.player.image.update(game);
+
+    this._mouseEvents(game);
 }
 
 Battle.prototype.render = function(context) {
@@ -232,8 +243,8 @@ Entity.prototype.isLoaded = function() {
 }
 
 Entity.prototype._setSpeed = function(game) {
-    let deltaX = game.mousePositionX - (this.canvasX + this.activeTile.renderWidth / 2);
-    let deltaY = game.mousePositionY - (this.canvasY + this.activeTile.renderHeight / 2);
+    let deltaX = game.listeners.mousePositionX - (this.canvasX + this.activeTile.renderWidth / 2);
+    let deltaY = game.listeners.mousePositionY - (this.canvasY + this.activeTile.renderHeight / 2);
 
     let distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
 
@@ -544,19 +555,21 @@ Game.prototype.startGame = function() {
 
     let update = () => {
         if (this.battle !== null) {
-            return this.battle.update(this);
+            this.battle.update(this);
+        } else {
+            // Do not update while system is loading
+            if (!this.isLoaded()) {
+                return;
+            }
+
+            // Update coolguy
+            this.coolguy.update(this);
+
+            // Update map
+            this.map.update(this);
         }
 
-        // Do not update while system is loading
-        if (!this.isLoaded()) {
-            return;
-        }
-
-        // Update coolguy
-        this.coolguy.update(this);
-
-        // Update map
-        this.map.update(this);
+        this.listeners.click = false;
     }
 
     let render = () => {
@@ -1197,6 +1210,10 @@ window.addEventListener("load", function() {
 function addListeners(game) {
     game.listeners = {};
 
+    game.canvas.addEventListener("click", function(event) {
+        game.listeners.click = true;
+    });
+
     game.canvas.addEventListener("mousedown", function(event) {
         game.listeners.isMousedown = true;
 
@@ -1207,8 +1224,8 @@ function addListeners(game) {
     game.canvas.addEventListener("mousemove", function(event) {
         game.listeners.isMousemove = true;
 
-        game.mousePositionX = event.pageX;
-        game.mousePositionY = event.pageY;
+        game.listeners.mousePositionX = event.pageX;
+        game.listeners.mousePositionY = event.pageY;
     });
 
     window.addEventListener("mouseup", function(event) {

@@ -112,8 +112,8 @@ Entity.prototype.isLoaded = function() {
 }
 
 Entity.prototype._setSpeed = function(game) {
-    let deltaX = game.mousePositionX - (this.canvasX + this.activeTile.renderWidth / 2);
-    let deltaY = game.mousePositionY - (this.canvasY + this.activeTile.renderHeight / 2);
+    let deltaX = game.listeners.mousePositionX - (this.canvasX + this.activeTile.renderWidth / 2);
+    let deltaY = game.listeners.mousePositionY - (this.canvasY + this.activeTile.renderHeight / 2);
 
     let distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
 

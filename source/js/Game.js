@@ -60,19 +60,21 @@ Game.prototype.startGame = function() {
 
     let update = () => {
         if (this.battle !== null) {
-            return this.battle.update(this);
+            this.battle.update(this);
+        } else {
+            // Do not update while system is loading
+            if (!this.isLoaded()) {
+                return;
+            }
+
+            // Update coolguy
+            this.coolguy.update(this);
+
+            // Update map
+            this.map.update(this);
         }
 
-        // Do not update while system is loading
-        if (!this.isLoaded()) {
-            return;
-        }
-
-        // Update coolguy
-        this.coolguy.update(this);
-
-        // Update map
-        this.map.update(this);
+        this.listeners.click = false;
     }
 
     let render = () => {
