@@ -6,9 +6,7 @@ function Game() {
     this.tickCounter = 0;
     this.framerate = 30;
 
-    this.bufferCanvas = document.querySelectorAll("canvas");
-
-    this.canvas = this.bufferCanvas[0];
+    this.canvas = document.querySelector("canvas");
     this.context = this.canvas.getContext("2d");
 
     this.map = MapInitializer.getMap("startMap");
@@ -75,12 +73,6 @@ Game.prototype.startGame = function() {
 
         // Update map
         this.map.update(this);
-
-        // Change buffer!
-        this.canvas.style.visibility = "hidden";
-        this.canvas = this.bufferCanvas[this.tickCounter % 2];
-        this.canvas.style.visibility = "visible";
-        this.context = this.canvas.getContext("2d");
     }
 
     let render = () => {
@@ -125,6 +117,12 @@ Game.prototype.startGame = function() {
         }
     }
 };
+
+Game.prototype.event = function(eventname) {
+    if (eventname === "grass") {
+        this.startBattle("xD");
+    }
+}
 
 Game.prototype.changeMap = function(event) {
     this.loadedTick = null;

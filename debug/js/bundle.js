@@ -17,7 +17,7 @@ function Battle(settings) {
 
     this.player = {
         name: "player",
-        x: 0,
+        x: 1024,
         y: 100,
         image: new Tile({
             renderCol: 0,
@@ -32,7 +32,8 @@ function Battle(settings) {
             numberOfFrames: 87,
             updateFrequency: 1,
             src: "img/battle/player_monster.png",
-            loop: false
+            loop: false,
+            pause: true
         }),
         base_image: new Tile({
             renderWidth: 512,
@@ -51,43 +52,67 @@ function Battle(settings) {
 
     this.bottombar = new Tile({renderWidth: 1028, renderHeight: 192, tileWidth: 512, tileHeight: 96, src: "img/battle/bottombar.png"});
 
-    this.fightbtn = new Tile({});
+    this.textbox = new Tile({renderWidth: 481, renderHeight: 176, tileWidth: 244, tileHeight: 88, src: "img/battle/textbox.png"});
+
+    this.fightbtn = new Tile({renderWidth: 256, renderHeight: 92, tileWidth: 130, tileHeight: 46, src: "img/battle/fightbtn.png"});
+
+    this.bagbtn = new Tile({renderWidth: 256, renderHeight: 92, tileWidth: 130, tileHeight: 46, src: "img/battle/bagbtn.png"});
+
+    this.pokemonbtn = new Tile({renderWidth: 256, renderHeight: 92, tileWidth: 130, tileHeight: 46, src: "img/battle/pokemonbtn.png"});
+
+    this.runbtn = new Tile({renderWidth: 256, renderHeight: 92, tileWidth: 130, tileHeight: 46, src: "img/battle/runbtn.png"});
 }
 
 Battle.prototype._load = function() {
 
 }
 
-Battle.prototype.update = function(game) {
-    this.tick += 1;
+Battle.prototype.intro = function() {
+    // if intro is over -> exit
+    if (this.tick > 500) {
+        return;
+    }
 
-    this.player.image.update(game);
+    if (this.tick < 75) {
+        this.player.x -= 14;
+    }
 
-    if (this.tick === 200) {
+    if (this.tick === 75) {
         this.player.image.pause = false;
     }
 
-    if (this.tick === 400) {
-        game.endBattle();
+    if (this.tick === 200) {
     }
+
+    if (this.tick === 300) {
+        // game.endBattle();
+    }
+}
+
+Battle.prototype.update = function(game) {
+    this.tick += 1;
+
+    this.intro();
+
+    this.player.image.update(game);
 }
 
 Battle.prototype.render = function(context) {
     this.background.render(context);
 
+    // Player
     this.player.base_image.render(context, this.player.x, this.screenHeight - 192 - 64);
     this.player.image.render(context, this.player.x + 512/2 - this.player.image.renderWidth/2, this.player.y);
 
-    // context.drawImage(this.image, xInImage, yInImage, this.tileWidth, this.tileHeight, mapX + renderX, mapY + renderY, this.renderWidth, this.renderHeight);
-
-    // Draw white box at bottom
-    // context.beginPath();
-    // context.fillStyle = "rgba(255, 255, 255, 0.7)";
-    // context.fillRect(0, this.screenHeight - 175, this.screenWidth, 175);
-    // context.stroke();
-
     // Bottom bar
     this.bottombar.render(context, 0, this.screenHeight - 192);
+
+    this.textbox.render(context, 10, this.screenHeight - 192 + 10);
+
+    this.fightbtn.render(context, this.screenWidth*0.5 - 10, this.screenHeight - 192 + 10);
+    this.bagbtn.render(context, this.screenWidth*0.5 - 10 + 256, this.screenHeight - 192 + 10);
+    this.pokemonbtn.render(context, this.screenWidth*0.5 - 10, this.screenHeight - 192 + 10 + 92 - 8);
+    this.runbtn.render(context, this.screenWidth*0.5 - 10 + 256, this.screenHeight - 192 + 10 + 92 - 8);
 }
 
 module.exports = Battle;
@@ -404,7 +429,7 @@ Entity.prototype._setActiveTile = function() {
 Entity.prototype.update = function(game) {
     if (game.listeners.isMousedown) {
         if (this.state === "grass") {
-            game.startBattle("xD");
+            game.event("grass");
         }
 
         // Use the mouse position to determine the entity speed
@@ -465,9 +490,7 @@ function Game() {
     this.tickCounter = 0;
     this.framerate = 30;
 
-    this.bufferCanvas = document.querySelectorAll("canvas");
-
-    this.canvas = this.bufferCanvas[0];
+    this.canvas = document.querySelector("canvas");
     this.context = this.canvas.getContext("2d");
 
     this.map = MapInitializer.getMap("startMap");
@@ -534,12 +557,6 @@ Game.prototype.startGame = function() {
 
         // Update map
         this.map.update(this);
-
-        // Change buffer!
-        this.canvas.style.visibility = "hidden";
-        this.canvas = this.bufferCanvas[this.tickCounter % 2];
-        this.canvas.style.visibility = "visible";
-        this.context = this.canvas.getContext("2d");
     }
 
     let render = () => {
@@ -584,6 +601,12 @@ Game.prototype.startGame = function() {
         }
     }
 };
+
+Game.prototype.event = function(eventname) {
+    if (eventname === "grass") {
+        this.startBattle("xD");
+    }
+}
 
 Game.prototype.changeMap = function(event) {
     this.loadedTick = null;
