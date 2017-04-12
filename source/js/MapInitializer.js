@@ -109,7 +109,11 @@ function startMap() {
             renderHeight: 32,
             tileWidth: 16,
             tileHeight: 16,
-            numberOfFrames: 1
+            offset: 16,
+            numberOfFrames: 4,
+            updateFrequency: 2,
+            loop: false,
+            pause: true
         }
     ]);
 
@@ -189,7 +193,7 @@ function startMap() {
         tileManager.getTile("grass", 11, 29, 0, 0),
         tileManager.getTile("grass", 9, 30, 0, 0),
         tileManager.getTile("grass", 10, 30, 0, 0),
-        tileManager.getTile("grass", 11, 30, 0, 0),
+        tileManager.getTile("grass", 11, 30, 0, 0)
     ];
 
     let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
@@ -208,9 +212,12 @@ function startMap() {
             }
 
             if (collisionMap[y][x] === 3) {
+                // Find the tile associated to the grid
+                let tile = tileManager.tiles.find(tile => tile.renderCol === x && tile.renderRow === y);
+
                 map.attachEvent(x, y, {
                     id: 3,
-                    data: {}
+                    data: {tile: tile}
                 });
             }
 

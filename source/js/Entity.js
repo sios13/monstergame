@@ -231,7 +231,13 @@ Entity.prototype._checkEvents = function(game) {
     if (event.id === 2) {return game.changeMap(event);}
 
     // Grass!
-    if (event.id === 3) {return this.state = "grass"}
+    if (event.id === 3) {
+        event.data.tile.pause = false;
+
+        this.state = "grass";
+
+        return;
+    }
 
     // Water!
     if (event.id === 4) {return this.state = "water";}

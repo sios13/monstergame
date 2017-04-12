@@ -1,4 +1,3 @@
-const Scenario = require("./Scenario.js");
 const Tile = require("./Tile.js");
 
 function Battle(settings) {
@@ -49,7 +48,9 @@ function Battle(settings) {
         base_image: "img/battle/enemybaseField.png"
     };
 
-    // this.scenario = new Scenario();
+    this.bottombar = new Tile({renderWidth: 1028, renderHeight: 192, tileWidth: 512, tileHeight: 96, src: "img/battle/bottombar.png"});
+
+    this.fightbtn = new Tile({});
 }
 
 Battle.prototype._load = function() {
@@ -73,16 +74,19 @@ Battle.prototype.update = function(game) {
 Battle.prototype.render = function(context) {
     this.background.render(context);
 
-    this.player.base_image.render(context, this.player.x, this.screenHeight - 175 - 64);
+    this.player.base_image.render(context, this.player.x, this.screenHeight - 192 - 64);
     this.player.image.render(context, this.player.x + 512/2 - this.player.image.renderWidth/2, this.player.y);
 
     // context.drawImage(this.image, xInImage, yInImage, this.tileWidth, this.tileHeight, mapX + renderX, mapY + renderY, this.renderWidth, this.renderHeight);
 
     // Draw white box at bottom
-    context.beginPath();
-    context.fillStyle = "rgba(255, 255, 255, 0.7)";
-    context.fillRect(0, this.screenHeight - 175, this.screenWidth, 175);
-    context.stroke();
+    // context.beginPath();
+    // context.fillStyle = "rgba(255, 255, 255, 0.7)";
+    // context.fillRect(0, this.screenHeight - 175, this.screenWidth, 175);
+    // context.stroke();
+
+    // Bottom bar
+    this.bottombar.render(context, 0, this.screenHeight - 192);
 }
 
 module.exports = Battle;

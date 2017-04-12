@@ -11,25 +11,25 @@ function Tile(settings) {
 
     this.tileWidth = settings.tileWidth;
     this.tileHeight = settings.tileHeight;
-    
+
     this.offset = settings.offset ? settings.offset : 0;
 
     this.numberOfFrames = settings.numberOfFrames ? settings.numberOfFrames : 1;
 
     this.updateFrequency = settings.updateFrequency ? settings.updateFrequency : 0;
 
-    this.loop = settings.loop === undefined ? true : settings.loop;
-
     this.image = new Image();
     this.image.src = settings.src;
+
+    this.loop = settings.loop === undefined ? true : settings.loop;
+
+    this.pause = settings.pause === undefined ? false : settings.pause;
+    // this.pause = false;
 
     // Animation
     this.animationCounter = 0;
 
     this.spriteOffset = 0;
-
-    // 
-    this.pause = false;
 }
 
 /**
@@ -45,7 +45,7 @@ Tile.prototype.isLoaded = function() {
 
 Tile.prototype.update = function(game) {
     // Dont update if animation is paused
-    if (this.pause) {
+    if (this.pause === true) {
         return;
     }
 
@@ -58,10 +58,9 @@ Tile.prototype.update = function(game) {
         this.animationCounter += 1;
 
         this.spriteOffset = this.offset * (this.animationCounter % this.numberOfFrames);
-    }
 
-    if (this.loop === false) {
-        if (this.animationCounter % this.numberOfFrames === 0) {
+        // If no looping and at the first frame of the animation -> pause animation
+        if (this.loop === false && this.animationCounter % this.numberOfFrames === 0) {
             this.pause = true;
         }
     }
