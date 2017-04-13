@@ -75,6 +75,7 @@ Game.prototype.startGame = function() {
         }
 
         this.listeners.click = false;
+        this.listeners.mouseup = false;
     }
 
     let render = () => {

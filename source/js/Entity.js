@@ -307,7 +307,7 @@ Entity.prototype._setActiveTile = function() {
 }
 
 Entity.prototype.update = function(game) {
-    if (game.listeners.isMousedown) {
+    if (game.listeners.mousedown) {
         if (this.state === "grass") {
             game.event("grass");
         }
@@ -342,8 +342,7 @@ Entity.prototype.update = function(game) {
     }
 
     // Reset the animation of the tile
-    this.activeTile.animationCounter = 0;
-    this.activeTile.spriteOffset = 0;
+    this.activeTile.setFrame(0);
 }
 
 Entity.prototype.render = function(context) {
@@ -354,9 +353,9 @@ Entity.prototype.render = function(context) {
 
     this.activeTile.render(context, 0 - renderOffsetX, 0 - renderOffsetY);
 
-    context.beginPath();
-    context.rect(this.canvasX, this.canvasY, this.collisionSquare, this.collisionSquare);
-    context.stroke();
+    // context.beginPath();
+    // context.rect(this.canvasX, this.canvasY, this.collisionSquare, this.collisionSquare);
+    // context.stroke();
 }
 
 module.exports = Entity;

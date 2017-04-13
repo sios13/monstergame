@@ -6,7 +6,7 @@ function addListeners(game) {
     });
 
     game.canvas.addEventListener("mousedown", function(event) {
-        game.listeners.isMousedown = true;
+        game.listeners.mousedown = true;
 
         let canvasRect = game.canvas.getBoundingClientRect();
 
@@ -15,7 +15,7 @@ function addListeners(game) {
     });
 
     game.canvas.addEventListener("mousemove", function(event) {
-        game.listeners.isMousemove = true;
+        game.listeners.mousemove = true;
 
         let canvasRect = game.canvas.getBoundingClientRect();
 
@@ -24,8 +24,10 @@ function addListeners(game) {
     });
 
     window.addEventListener("mouseup", function(event) {
-        game.listeners.isMousedown = false;
-        game.listeners.isMousemove = false;
+        game.listeners.mouseup = true;
+
+        game.listeners.mousedown = false;
+        game.listeners.mousemove = false;
     });
 
     game.canvas.addEventListener("keydown", function(event) {

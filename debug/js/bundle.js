@@ -38,7 +38,7 @@ function Battle(settings) {
             renderY: this.screenHeight - 192 - 64,
             renderWidth: 512,
             renderHeight: 64,
-            tileWidth: 512,
+            tileWidth: 408,
             tileHeight: 64,
             src: "img/battle/playerbaseFieldGrassEve.png"
         })
@@ -46,21 +46,92 @@ function Battle(settings) {
 
     this.enemy = {
         name: "HEJ",
-        image: "img/battle/enemy.png",
-        base_image: "img/battle/enemybaseField.png"
+        image: new Tile({
+            renderX: 0 - 512/2 - 350/2,
+            renderY: 75,
+            renderWidth: 350,
+            renderHeight: 350,
+            spriteCol: 0,
+            spriteRow: 0,
+            tileWidth: 85,
+            tileHeight: 85,
+            offset: 85,
+            numberOfFrames: 25,
+            updateFrequency: 1,
+            src: "img/battle/enemy_monster.png",
+            loop: false,
+            pause: true
+        }),
+        base_image: new Tile({
+            renderX: 0 - 512,
+            renderY: 200,
+            renderWidth: 512,
+            renderHeight: 256,
+            tileWidth: 256,
+            tileHeight: 128,
+            src: "img/battle/enemybaseFieldGrassEve.png"
+        })
     };
 
     this.bottombar = new Tile({renderX: 0, renderY: this.screenHeight - 192, renderWidth: 1028, renderHeight: 192, tileWidth: 512, tileHeight: 96, src: "img/battle/bottombar.png"});
 
     this.textbox = new Tile({renderX: 10, renderY: this.screenHeight - 192 + 10, renderWidth: 481, renderHeight: 176, tileWidth: 244, tileHeight: 88, src: "img/battle/textbox.png"});
 
-    this.fightbtn = new Tile({renderX: this.screenWidth/2 - 10, renderY: this.screenHeight - 192 + 10, renderWidth: 256, renderHeight: 92, tileWidth: 130, tileHeight: 46, src: "img/battle/fightbtn.png"});
+    this.fightbtn = new Tile({
+        renderX: this.screenWidth/2 - 10,
+        renderY: this.screenHeight - 192 + 10,
+        renderWidth: 256,
+        renderHeight: 92,
+        tileWidth: 130,
+        tileHeight: 46,
+        offset: 130,
+        numberOfFrames: 2,
+        src: "img/battle/fightbtn.png",
+        loop: false,
+        pause: true
+    });
 
-    this.bagbtn = new Tile({renderX: this.screenWidth/2 - 10 + 256, renderY: this.screenHeight - 192 + 10, renderWidth: 256, renderHeight: 92, tileWidth: 130, tileHeight: 46, src: "img/battle/bagbtn.png"});
+    this.bagbtn = new Tile({
+        renderX: this.screenWidth/2 - 10 + 256,
+        renderY: this.screenHeight - 192 + 10,
+        renderWidth: 256,
+        renderHeight: 92,
+        tileWidth: 130,
+        tileHeight: 46,
+        offset: 130,
+        numberOfFrames: 2,
+        src: "img/battle/bagbtn.png",
+        loop: false,
+        pause: true
+    });
 
-    this.pokemonbtn = new Tile({renderX: this.screenWidth/2 - 10, renderY: this.screenHeight - 192 + 10 + 92 - 8, renderWidth: 256, renderHeight: 92, tileWidth: 130, tileHeight: 46, src: "img/battle/pokemonbtn.png"});
+    this.pokemonbtn = new Tile({
+        renderX: this.screenWidth/2 - 10,
+        renderY: this.screenHeight - 192 + 10 + 92 - 8,
+        renderWidth: 256,
+        renderHeight: 92,
+        tileWidth: 130,
+        tileHeight: 46,
+        offset: 130,
+        numberOfFrames: 2,
+        src: "img/battle/pokemonbtn.png",
+        loop: false,
+        pause: true
+    });
 
-    this.runbtn = new Tile({renderX: this.screenWidth/2 - 10 + 256, renderY: this.screenHeight - 192 + 10 + 92 - 8, renderWidth: 256, renderHeight: 92, tileWidth: 130, tileHeight: 46, src: "img/battle/runbtn.png"});
+    this.runbtn = new Tile({
+        renderX: this.screenWidth/2 - 10 + 256,
+        renderY: this.screenHeight - 192 + 10 + 92 - 8,
+        renderWidth: 256,
+        renderHeight: 92,
+        tileWidth: 130,
+        tileHeight: 46,
+        offset: 130,
+        numberOfFrames: 2,
+        src: "img/battle/runbtn.png",
+        loop: false,
+        pause: true
+    });
 }
 
 Battle.prototype._intro = function() {
@@ -69,13 +140,17 @@ Battle.prototype._intro = function() {
         return;
     }
 
-    if (this.tick < 75) {
-        this.player.image.renderX -= 14;
-        this.player.base_image.renderX -= 14;
+    if (this.tick < 70) {
+        this.player.image.renderX -= 15;
+        this.player.base_image.renderX -= 15;
+
+        this.enemy.image.renderX += 15;
+        this.enemy.base_image.renderX += 15;
     }
 
     if (this.tick === 75) {
         this.player.image.pause = false;
+        this.enemy.image.pause = false;
     }
 
     if (this.tick === 200) {
@@ -98,9 +173,42 @@ Battle.prototype._mouseEvents = function(game) {
         return false;
     }
 
-    if (game.listeners.click === true) {
-        if (isInsideBox(this.fightbtn.renderX, this.fightbtn.renderY, this.fightbtn.renderX + this.fightbtn.renderWidth, this.fightbtn.renderY + this.fightbtn.renderHeight)) {
+    this.fightbtn.setFrame(0);
+    this.bagbtn.setFrame(0);
+    this.pokemonbtn.setFrame(0);
+    this.runbtn.setFrame(0);
+
+    if (isInsideBox(this.fightbtn.renderX, this.fightbtn.renderY, this.fightbtn.renderX + this.fightbtn.renderWidth, this.fightbtn.renderY + this.fightbtn.renderHeight)) {
+        this.fightbtn.setFrame(1);
+
+        if (game.listeners.click === true) {
             console.log("fight");
+        }
+    }
+
+    if (isInsideBox(this.bagbtn.renderX, this.bagbtn.renderY, this.bagbtn.renderX + this.bagbtn.renderWidth, this.bagbtn.renderY + this.bagbtn.renderHeight)) {
+        this.bagbtn.setFrame(1);
+
+        if (game.listeners.click === true) {
+            console.log("bag");
+        }
+    }
+
+    if (isInsideBox(this.pokemonbtn.renderX, this.pokemonbtn.renderY, this.pokemonbtn.renderX + this.pokemonbtn.renderWidth, this.pokemonbtn.renderY + this.pokemonbtn.renderHeight)) {
+        this.pokemonbtn.setFrame(1);
+
+        if (game.listeners.click === true) {
+            console.log("pokemon");
+        }
+    }
+
+    if (isInsideBox(this.runbtn.renderX, this.runbtn.renderY, this.runbtn.renderX + this.runbtn.renderWidth, this.runbtn.renderY + this.runbtn.renderHeight)) {
+        this.runbtn.setFrame(1);
+
+        if (game.listeners.click === true) {
+            console.log("run");
+
+            game.endBattle();
         }
     }
 }
@@ -111,12 +219,17 @@ Battle.prototype.update = function(game) {
     this._intro();
 
     this.player.image.update(game);
+    this.enemy.image.update(game);
 
     this._mouseEvents(game);
 }
 
 Battle.prototype.render = function(context) {
     this.background.render(context);
+
+    // Enemy
+    this.enemy.base_image.render(context);
+    this.enemy.image.render(context);
 
     // Player
     this.player.base_image.render(context);
@@ -445,7 +558,7 @@ Entity.prototype._setActiveTile = function() {
 }
 
 Entity.prototype.update = function(game) {
-    if (game.listeners.isMousedown) {
+    if (game.listeners.mousedown) {
         if (this.state === "grass") {
             game.event("grass");
         }
@@ -480,8 +593,7 @@ Entity.prototype.update = function(game) {
     }
 
     // Reset the animation of the tile
-    this.activeTile.animationCounter = 0;
-    this.activeTile.spriteOffset = 0;
+    this.activeTile.setFrame(0);
 }
 
 Entity.prototype.render = function(context) {
@@ -492,9 +604,9 @@ Entity.prototype.render = function(context) {
 
     this.activeTile.render(context, 0 - renderOffsetX, 0 - renderOffsetY);
 
-    context.beginPath();
-    context.rect(this.canvasX, this.canvasY, this.collisionSquare, this.collisionSquare);
-    context.stroke();
+    // context.beginPath();
+    // context.rect(this.canvasX, this.canvasY, this.collisionSquare, this.collisionSquare);
+    // context.stroke();
 }
 
 module.exports = Entity;
@@ -577,6 +689,7 @@ Game.prototype.startGame = function() {
         }
 
         this.listeners.click = false;
+        this.listeners.mouseup = false;
     }
 
     let render = () => {
@@ -1071,12 +1184,13 @@ function Tile(settings) {
 
     this.numberOfFrames = settings.numberOfFrames ? settings.numberOfFrames : 1;
 
-    this.updateFrequency = settings.updateFrequency ? settings.updateFrequency : 0;
+    this.updateFrequency = settings.updateFrequency ? settings.updateFrequency : null;
 
     this.image = new Image();
     this.image.src = settings.src;
 
     this.loop = settings.loop === undefined ? true : settings.loop;
+    // this.loop = true;
 
     this.pause = settings.pause === undefined ? false : settings.pause;
     // this.pause = false;
@@ -1096,6 +1210,11 @@ Tile.prototype.isLoaded = function() {
     }
 
     return false;
+}
+
+Tile.prototype.setFrame = function(framenumber) {
+    this.animationCounter = framenumber;
+    this.spriteOffset = framenumber * this.offset;
 }
 
 Tile.prototype.update = function(game) {
@@ -1235,7 +1354,7 @@ function addListeners(game) {
     });
 
     game.canvas.addEventListener("mousedown", function(event) {
-        game.listeners.isMousedown = true;
+        game.listeners.mousedown = true;
 
         let canvasRect = game.canvas.getBoundingClientRect();
 
@@ -1244,7 +1363,7 @@ function addListeners(game) {
     });
 
     game.canvas.addEventListener("mousemove", function(event) {
-        game.listeners.isMousemove = true;
+        game.listeners.mousemove = true;
 
         let canvasRect = game.canvas.getBoundingClientRect();
 
@@ -1253,8 +1372,10 @@ function addListeners(game) {
     });
 
     window.addEventListener("mouseup", function(event) {
-        game.listeners.isMousedown = false;
-        game.listeners.isMousemove = false;
+        game.listeners.mouseup = true;
+
+        game.listeners.mousedown = false;
+        game.listeners.mousemove = false;
     });
 
     game.canvas.addEventListener("keydown", function(event) {

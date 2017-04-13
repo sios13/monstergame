@@ -18,12 +18,13 @@ function Tile(settings) {
 
     this.numberOfFrames = settings.numberOfFrames ? settings.numberOfFrames : 1;
 
-    this.updateFrequency = settings.updateFrequency ? settings.updateFrequency : 0;
+    this.updateFrequency = settings.updateFrequency ? settings.updateFrequency : null;
 
     this.image = new Image();
     this.image.src = settings.src;
 
     this.loop = settings.loop === undefined ? true : settings.loop;
+    // this.loop = true;
 
     this.pause = settings.pause === undefined ? false : settings.pause;
     // this.pause = false;
@@ -43,6 +44,11 @@ Tile.prototype.isLoaded = function() {
     }
 
     return false;
+}
+
+Tile.prototype.setFrame = function(framenumber) {
+    this.animationCounter = framenumber;
+    this.spriteOffset = framenumber * this.offset;
 }
 
 Tile.prototype.update = function(game) {
