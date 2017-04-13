@@ -112,8 +112,8 @@ Entity.prototype.isLoaded = function() {
 }
 
 Entity.prototype._setSpeed = function(game) {
-    let deltaX = game.listeners.mousePositionX - (this.canvasX + this.activeTile.renderWidth / 2);
-    let deltaY = game.listeners.mousePositionY - (this.canvasY + this.activeTile.renderHeight / 2);
+    let deltaX = game.listeners.mousePositionX - (this.canvasX + this.collisionSquare / 2);
+    let deltaY = game.listeners.mousePositionY - (this.canvasY + this.collisionSquare / 2);
 
     let distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
 
@@ -354,9 +354,9 @@ Entity.prototype.render = function(context) {
 
     this.activeTile.render(context, 0 - renderOffsetX, 0 - renderOffsetY);
 
-    // context.beginPath();
-    // context.rect(this.canvasX, this.canvasY, this.collisionSquare, this.collisionSquare);
-    // context.stroke();
+    context.beginPath();
+    context.rect(this.canvasX, this.canvasY, this.collisionSquare, this.collisionSquare);
+    context.stroke();
 }
 
 module.exports = Entity;

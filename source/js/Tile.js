@@ -1,7 +1,9 @@
 function Tile(settings) {
-    // renderCol, renderRow, renderWidth, renderHeight, spriteCol, spriteRow, tileWidth, tileHeight, offset, numberOfFrames, updateFrequency, image
     this.renderCol = settings.renderCol ? settings.renderCol : 0;
     this.renderRow = settings.renderRow ? settings.renderRow : 0;
+
+    this.renderX = settings.renderX ? settings.renderX : 0;
+    this.renderY = settings.renderY ? settings.renderY : 0;
 
     this.renderWidth = settings.renderWidth;
     this.renderHeight = settings.renderHeight;
@@ -73,10 +75,21 @@ Tile.prototype.render = function(context, mapX, mapY) {
     let xInImage = this.spriteCol * this.tileWidth + this.spriteOffset;
     let yInImage = this.spriteRow * this.tileHeight;
 
-    let renderX = this.renderCol * 32; // Assuming game tile width is 32
-    let renderY = this.renderRow * 32; // Assuming game tile height is 32
+    let renderX = this.renderCol ? this.renderCol * 32 : this.renderX;
+    let renderY = this.renderRow ? this.renderRow * 32 : this.renderY;
 
-    context.drawImage(this.image, xInImage, yInImage, this.tileWidth, this.tileHeight, mapX + renderX, mapY + renderY, this.renderWidth, this.renderHeight);
+    context.drawImage(
+        this.image,
+        xInImage,
+        yInImage,
+        this.tileWidth,
+        this.tileHeight,
+        mapX + renderX,
+        mapY + renderY,
+        this.renderWidth,
+        this.renderHeight
+    );
+    
 }
 
 module.exports = Tile;
