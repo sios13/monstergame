@@ -30,7 +30,7 @@ function Entity(settings) {
 
     tileManager.addSettings({
         identifier: "playerWalk",
-        src: "img/character_walking.png",
+        src: "img/character7.png",
         renderWidth: settings.renderWidth,
         renderHeight: settings.renderHeight,
         tileWidth: 32,

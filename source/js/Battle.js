@@ -16,8 +16,25 @@ function Battle(settings) {
 
     this.player = {
         name: "player",
-        image: new Tile({
-            renderX: 1024 + 512/2 - 350/2,
+        player_tile: new Tile({
+            renderX: 1024 + 200,
+            renderY: 768 - 192 - 230,
+            renderWidth: 230,
+            renderHeight: 230,
+            spriteCol: 0,
+            spriteRow: 0,
+            tileWidth: 128,
+            tileHeight: 128,
+            offset: 128,
+            numberOfFrames: 5,
+            updateFrequency: 5,
+            src: "img/battle/player_back.png",
+            loop: false,
+            pause: true
+        }),
+        monster_tile: new Tile({
+            // renderX: 1024 + 512/2 - 350/2,
+            renderX: -500,
             renderY: 280,
             renderWidth: 350,
             renderHeight: 350,
@@ -32,7 +49,7 @@ function Battle(settings) {
             loop: false,
             pause: true
         }),
-        base_image: new Tile({
+        base_tile: new Tile({
             renderX: 1024,
             renderY: this.screenHeight - 192 - 64,
             renderWidth: 512,
@@ -45,7 +62,7 @@ function Battle(settings) {
 
     this.enemy = {
         name: "HEJ",
-        image: new Tile({
+        monster_tile: new Tile({
             renderX: 0 - 512/2 - 350/2,
             renderY: 75,
             renderWidth: 350,
@@ -61,7 +78,7 @@ function Battle(settings) {
             loop: false,
             pause: true
         }),
-        base_image: new Tile({
+        base_tile: new Tile({
             renderX: 0 - 512,
             renderY: 200,
             renderWidth: 512,
@@ -140,19 +157,29 @@ Battle.prototype._intro = function() {
     }
 
     if (this.tick < 70) {
-        this.player.image.renderX -= 15;
-        this.player.base_image.renderX -= 15;
+        this.player.player_tile.renderX -= 15;
+        this.player.base_tile.renderX -= 15;
 
-        this.enemy.image.renderX += 15;
-        this.enemy.base_image.renderX += 15;
+        this.enemy.monster_tile.renderX += 15;
+        this.enemy.base_tile.renderX += 15;
     }
 
     if (this.tick === 75) {
-        this.player.image.pause = false;
-        this.enemy.image.pause = false;
+        // this.player.monster_tile.pause = false;
+        this.enemy.monster_tile.pause = false;
     }
 
-    if (this.tick === 200) {
+    if (this.tick === 110) {
+        this.player.player_tile.pause = false;
+    }
+
+    if (this.tick > 110 && this.tick < 150) {
+        this.player.player_tile.renderX -= 15;
+    }
+
+    if (this.tick === 160) {
+        this.player.monster_tile.renderX = 512/2 - 350/2;
+        this.player.monster_tile.pause = false;
     }
 
     if (this.tick === 300) {
@@ -215,10 +242,16 @@ Battle.prototype._mouseEvents = function(game) {
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
+    if (this.tick === 2) {
+        // game.scenarios.battleIntro(game);
+    }
+
     this._intro();
 
-    this.player.image.update(game);
-    this.enemy.image.update(game);
+    this.player.monster_tile.update(game);
+    this.player.player_tile.update(game);
+
+    this.enemy.monster_tile.update(game);
 
     this._mouseEvents(game);
 }
@@ -227,12 +260,13 @@ Battle.prototype.render = function(context) {
     this.background.render(context);
 
     // Enemy
-    this.enemy.base_image.render(context);
-    this.enemy.image.render(context);
+    this.enemy.base_tile.render(context);
+    this.enemy.monster_tile.render(context);
 
     // Player
-    this.player.base_image.render(context);
-    this.player.image.render(context);
+    this.player.base_tile.render(context);
+    this.player.player_tile.render(context);
+    this.player.monster_tile.render(context);
 
     // Bottom bar
     this.bottombar.render(context);

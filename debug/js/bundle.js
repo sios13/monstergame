@@ -17,8 +17,25 @@ function Battle(settings) {
 
     this.player = {
         name: "player",
-        image: new Tile({
-            renderX: 1024 + 512/2 - 350/2,
+        player_tile: new Tile({
+            renderX: 1024 + 200,
+            renderY: 768 - 192 - 230,
+            renderWidth: 230,
+            renderHeight: 230,
+            spriteCol: 0,
+            spriteRow: 0,
+            tileWidth: 128,
+            tileHeight: 128,
+            offset: 128,
+            numberOfFrames: 5,
+            updateFrequency: 5,
+            src: "img/battle/player_back.png",
+            loop: false,
+            pause: true
+        }),
+        monster_tile: new Tile({
+            // renderX: 1024 + 512/2 - 350/2,
+            renderX: -500,
             renderY: 280,
             renderWidth: 350,
             renderHeight: 350,
@@ -33,7 +50,7 @@ function Battle(settings) {
             loop: false,
             pause: true
         }),
-        base_image: new Tile({
+        base_tile: new Tile({
             renderX: 1024,
             renderY: this.screenHeight - 192 - 64,
             renderWidth: 512,
@@ -46,7 +63,7 @@ function Battle(settings) {
 
     this.enemy = {
         name: "HEJ",
-        image: new Tile({
+        monster_tile: new Tile({
             renderX: 0 - 512/2 - 350/2,
             renderY: 75,
             renderWidth: 350,
@@ -62,7 +79,7 @@ function Battle(settings) {
             loop: false,
             pause: true
         }),
-        base_image: new Tile({
+        base_tile: new Tile({
             renderX: 0 - 512,
             renderY: 200,
             renderWidth: 512,
@@ -141,19 +158,29 @@ Battle.prototype._intro = function() {
     }
 
     if (this.tick < 70) {
-        this.player.image.renderX -= 15;
-        this.player.base_image.renderX -= 15;
+        this.player.player_tile.renderX -= 15;
+        this.player.base_tile.renderX -= 15;
 
-        this.enemy.image.renderX += 15;
-        this.enemy.base_image.renderX += 15;
+        this.enemy.monster_tile.renderX += 15;
+        this.enemy.base_tile.renderX += 15;
     }
 
     if (this.tick === 75) {
-        this.player.image.pause = false;
-        this.enemy.image.pause = false;
+        // this.player.monster_tile.pause = false;
+        this.enemy.monster_tile.pause = false;
     }
 
-    if (this.tick === 200) {
+    if (this.tick === 110) {
+        this.player.player_tile.pause = false;
+    }
+
+    if (this.tick > 110 && this.tick < 150) {
+        this.player.player_tile.renderX -= 15;
+    }
+
+    if (this.tick === 160) {
+        this.player.monster_tile.renderX = 512/2 - 350/2;
+        this.player.monster_tile.pause = false;
     }
 
     if (this.tick === 300) {
@@ -216,10 +243,16 @@ Battle.prototype._mouseEvents = function(game) {
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
+    if (this.tick === 2) {
+        // game.scenarios.battleIntro(game);
+    }
+
     this._intro();
 
-    this.player.image.update(game);
-    this.enemy.image.update(game);
+    this.player.monster_tile.update(game);
+    this.player.player_tile.update(game);
+
+    this.enemy.monster_tile.update(game);
 
     this._mouseEvents(game);
 }
@@ -228,12 +261,13 @@ Battle.prototype.render = function(context) {
     this.background.render(context);
 
     // Enemy
-    this.enemy.base_image.render(context);
-    this.enemy.image.render(context);
+    this.enemy.base_tile.render(context);
+    this.enemy.monster_tile.render(context);
 
     // Player
-    this.player.base_image.render(context);
-    this.player.image.render(context);
+    this.player.base_tile.render(context);
+    this.player.player_tile.render(context);
+    this.player.monster_tile.render(context);
 
     // Bottom bar
     this.bottombar.render(context);
@@ -248,7 +282,7 @@ Battle.prototype.render = function(context) {
 
 module.exports = Battle;
 
-},{"./Tile.js":6}],2:[function(require,module,exports){
+},{"./Tile.js":7}],2:[function(require,module,exports){
 const TileManager = require("./TileManager.js");
 
 function Entity(settings) {
@@ -281,7 +315,7 @@ function Entity(settings) {
 
     tileManager.addSettings({
         identifier: "playerWalk",
-        src: "img/character_walking.png",
+        src: "img/character7.png",
         renderWidth: settings.renderWidth,
         renderHeight: settings.renderHeight,
         tileWidth: 32,
@@ -611,10 +645,11 @@ Entity.prototype.render = function(context) {
 
 module.exports = Entity;
 
-},{"./TileManager.js":7}],3:[function(require,module,exports){
+},{"./TileManager.js":8}],3:[function(require,module,exports){
 const Entity = require("./Entity.js");
 const MapInitializer = require("./MapInitializer.js");
 const Battle = require("./Battle.js");
+const ScenarioManager = require("./ScenarioManager.js");
 
 function Game() {
     this.tickCounter = 0;
@@ -624,6 +659,8 @@ function Game() {
     this.context = this.canvas.getContext("2d");
 
     this.map = MapInitializer.getMap("startMap");
+
+    this.scenarios = new ScenarioManager();
 
     this.coolguy = new Entity({
         x: 14*32,                       // x position on map
@@ -762,7 +799,7 @@ Game.prototype.endBattle = function() {
 
 module.exports = Game;
 
-},{"./Battle.js":1,"./Entity.js":2,"./MapInitializer.js":5,"./listeners.js":9}],4:[function(require,module,exports){
+},{"./Battle.js":1,"./Entity.js":2,"./MapInitializer.js":5,"./ScenarioManager.js":6,"./listeners.js":10}],4:[function(require,module,exports){
 function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles) {
     this.x = x;
     this.y = y;
@@ -1163,7 +1200,18 @@ module.exports = {
     getMap: getMap
 };
 
-},{"./Map.js":4,"./TileManager.js":7}],6:[function(require,module,exports){
+},{"./Map.js":4,"./TileManager.js":8}],6:[function(require,module,exports){
+function ScenarioManager() {
+    this.isPlaying = false;
+}
+
+ScenarioManager.prototype.battleIntro = function(game) {
+    console.log(game.battle.player.image);
+}
+
+module.exports = ScenarioManager;
+
+},{}],7:[function(require,module,exports){
 function Tile(settings) {
     this.renderCol = settings.renderCol ? settings.renderCol : 0;
     this.renderRow = settings.renderRow ? settings.renderRow : 0;
@@ -1266,7 +1314,7 @@ Tile.prototype.render = function(context, mapX, mapY) {
 
 module.exports = Tile;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 const Tile = require("./Tile.js");
 
 function TileManager(settings) {
@@ -1334,7 +1382,7 @@ TileManager.prototype.getTile = function(identifier, renderCol, renderRow, sprit
 
 module.exports = TileManager;
 
-},{"./Tile.js":6}],8:[function(require,module,exports){
+},{"./Tile.js":7}],9:[function(require,module,exports){
 let Game = require("./Game.js");
 
 // node_modules/.bin/browserify source/js/app.js > debug/js/bundle.js
@@ -1345,7 +1393,7 @@ window.addEventListener("load", function() {
     game.startGame();
 });
 
-},{"./Game.js":3}],9:[function(require,module,exports){
+},{"./Game.js":3}],10:[function(require,module,exports){
 function addListeners(game) {
     game.listeners = {};
 
@@ -1358,8 +1406,8 @@ function addListeners(game) {
 
         let canvasRect = game.canvas.getBoundingClientRect();
 
-        game.listeners.mousePositionX = canvasRect.left*-1 + event.pageX;
-        game.listeners.mousePositionY = canvasRect.top*-1 + event.pageY;
+        game.listeners.mousePositionX = event.clientX - canvasRect.left;
+        game.listeners.mousePositionY = event.clientY - canvasRect.top;
     });
 
     game.canvas.addEventListener("mousemove", function(event) {
@@ -1367,8 +1415,8 @@ function addListeners(game) {
 
         let canvasRect = game.canvas.getBoundingClientRect();
 
-        game.listeners.mousePositionX = canvasRect.left*-1 + event.pageX;
-        game.listeners.mousePositionY = canvasRect.top*-1 + event.pageY;
+        game.listeners.mousePositionX = event.clientX - canvasRect.left;
+        game.listeners.mousePositionY = event.clientY - canvasRect.top;
     });
 
     window.addEventListener("mouseup", function(event) {
@@ -1387,4 +1435,4 @@ module.exports = {
     addListeners: addListeners
 }
 
-},{}]},{},[8]);
+},{}]},{},[9]);

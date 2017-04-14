@@ -1,6 +1,7 @@
 const Entity = require("./Entity.js");
 const MapInitializer = require("./MapInitializer.js");
 const Battle = require("./Battle.js");
+const ScenarioManager = require("./ScenarioManager.js");
 
 function Game() {
     this.tickCounter = 0;
@@ -10,6 +11,8 @@ function Game() {
     this.context = this.canvas.getContext("2d");
 
     this.map = MapInitializer.getMap("startMap");
+
+    this.scenarios = new ScenarioManager();
 
     this.coolguy = new Entity({
         x: 14*32,                       // x position on map

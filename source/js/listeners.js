@@ -10,8 +10,8 @@ function addListeners(game) {
 
         let canvasRect = game.canvas.getBoundingClientRect();
 
-        game.listeners.mousePositionX = canvasRect.left*-1 + event.pageX;
-        game.listeners.mousePositionY = canvasRect.top*-1 + event.pageY;
+        game.listeners.mousePositionX = event.clientX - canvasRect.left;
+        game.listeners.mousePositionY = event.clientY - canvasRect.top;
     });
 
     game.canvas.addEventListener("mousemove", function(event) {
@@ -19,8 +19,8 @@ function addListeners(game) {
 
         let canvasRect = game.canvas.getBoundingClientRect();
 
-        game.listeners.mousePositionX = canvasRect.left*-1 + event.pageX;
-        game.listeners.mousePositionY = canvasRect.top*-1 + event.pageY;
+        game.listeners.mousePositionX = event.clientX - canvasRect.left;
+        game.listeners.mousePositionY = event.clientY - canvasRect.top;
     });
 
     window.addEventListener("mouseup", function(event) {
