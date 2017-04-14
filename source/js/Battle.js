@@ -89,6 +89,23 @@ function Battle(settings) {
         })
     };
 
+    this.ball = new Tile({
+        renderX: -500,
+        renderY: 410,
+        renderWidth: 48,
+        renderHeight: 48,
+        spriteCol: 0,
+        spriteRow: 0,
+        tileWidth: 32,
+        tileHeight: 32,
+        offset: 32,
+        numberOfFrames: 4,
+        updateFrequency: 3,
+        src: "img/battle/ball.png",
+        loop: true,
+        pause: false
+    });
+
     this.bottombar = new Tile({renderX: 0, renderY: this.screenHeight - 192, renderWidth: 1028, renderHeight: 192, tileWidth: 512, tileHeight: 96, src: "img/battle/bottombar.png"});
 
     this.textbox = new Tile({renderX: 10, renderY: this.screenHeight - 192 + 10, renderWidth: 481, renderHeight: 176, tileWidth: 244, tileHeight: 88, src: "img/battle/textbox.png"});
@@ -151,12 +168,7 @@ function Battle(settings) {
 }
 
 Battle.prototype._intro = function() {
-    // if intro is over -> exit
-    if (this.tick > 500) {
-        return;
-    }
-
-    if (this.tick < 70) {
+    if (this.tick > 0 && this.tick < 70) {
         this.player.player_tile.renderX -= 15;
         this.player.base_tile.renderX -= 15;
 
@@ -167,6 +179,7 @@ Battle.prototype._intro = function() {
     if (this.tick === 75) {
         // this.player.monster_tile.pause = false;
         this.enemy.monster_tile.pause = false;
+        console.log("hej!");
     }
 
     if (this.tick === 110) {
@@ -177,7 +190,16 @@ Battle.prototype._intro = function() {
         this.player.player_tile.renderX -= 15;
     }
 
+    if (this.tick === 120) {
+        this.ball.renderX = 110;
+    }
+
+    if (this.tick > 120 && this.tick < 150) {
+
+    }
+
     if (this.tick === 160) {
+        this.ball.renderX = -500;
         this.player.monster_tile.renderX = 512/2 - 350/2;
         this.player.monster_tile.pause = false;
     }
@@ -246,12 +268,18 @@ Battle.prototype.update = function(game) {
         // game.scenarios.battleIntro(game);
     }
 
-    this._intro();
+    if (this.tick < 200) {
+        this._intro();
+
+        return;
+    }
 
     this.player.monster_tile.update(game);
     this.player.player_tile.update(game);
 
     this.enemy.monster_tile.update(game);
+
+    this.ball.update(game);
 
     this._mouseEvents(game);
 }
@@ -267,6 +295,8 @@ Battle.prototype.render = function(context) {
     this.player.base_tile.render(context);
     this.player.player_tile.render(context);
     this.player.monster_tile.render(context);
+
+    this.ball.render(context);
 
     // Bottom bar
     this.bottombar.render(context);
