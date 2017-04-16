@@ -35,7 +35,7 @@ function Battle(settings) {
         monster_tile: new Tile({
             // renderX: 1024 + 512/2 - 350/2,
             renderX: -500,
-            renderY: 280,
+            renderY: 310,
             renderWidth: 350,
             renderHeight: 350,
             spriteCol: 0,
@@ -168,6 +168,10 @@ function Battle(settings) {
 }
 
 Battle.prototype._intro = function() {
+    if (this.tick === 200) {
+        return;
+    }
+
     if (this.tick > 0 && this.tick < 70) {
         this.player.player_tile.renderX -= 15;
         this.player.base_tile.renderX -= 15;
@@ -177,9 +181,7 @@ Battle.prototype._intro = function() {
     }
 
     if (this.tick === 75) {
-        // this.player.monster_tile.pause = false;
         this.enemy.monster_tile.pause = false;
-        console.log("hej!");
     }
 
     if (this.tick === 110) {
@@ -191,14 +193,15 @@ Battle.prototype._intro = function() {
     }
 
     if (this.tick === 120) {
-        this.ball.renderX = 110;
+        this.ball.renderX = 140;
     }
 
-    if (this.tick > 120 && this.tick < 150) {
-
+    if (this.tick > 120 && this.tick < 140) {
+        this.ball.renderX += 6;
+        this.ball.renderY += 3;
     }
 
-    if (this.tick === 160) {
+    if (this.tick === 140) {
         this.ball.renderX = -500;
         this.player.monster_tile.renderX = 512/2 - 350/2;
         this.player.monster_tile.pause = false;
@@ -268,11 +271,7 @@ Battle.prototype.update = function(game) {
         // game.scenarios.battleIntro(game);
     }
 
-    if (this.tick < 200) {
-        this._intro();
-
-        return;
-    }
+    this._intro();
 
     this.player.monster_tile.update(game);
     this.player.player_tile.update(game);
@@ -291,12 +290,13 @@ Battle.prototype.render = function(context) {
     this.enemy.base_tile.render(context);
     this.enemy.monster_tile.render(context);
 
+    // Ball
+    this.ball.render(context);
+
     // Player
     this.player.base_tile.render(context);
     this.player.player_tile.render(context);
     this.player.monster_tile.render(context);
-
-    this.ball.render(context);
 
     // Bottom bar
     this.bottombar.render(context);

@@ -30,7 +30,7 @@ function Entity(settings) {
 
     tileManager.addSettings({
         identifier: "playerWalk",
-        src: "img/character7.png",
+        src: "img/character7_walking.png",
         renderWidth: settings.renderWidth,
         renderHeight: settings.renderHeight,
         tileWidth: 32,
@@ -54,7 +54,7 @@ function Entity(settings) {
 
     tileManager.addSettings({
         identifier: "playerGrass",
-        src: "img/character_grass.png",
+        src: "img/character7_grass.png",
         renderWidth: settings.renderWidth,
         renderHeight: settings.renderHeight,
         tileWidth: 32,
