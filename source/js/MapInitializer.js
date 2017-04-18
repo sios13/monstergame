@@ -104,14 +104,14 @@ function startMap() {
         },
         {
             identifier: "grass",
-            src: "img/grass.png",
+            src: "img/grass2.png",
             renderWidth: 32,
             renderHeight: 32,
             tileWidth: 16,
             tileHeight: 16,
             offset: 16,
-            numberOfFrames: 4,
-            updateFrequency: 2,
+            numberOfFrames: 2,
+            updateFrequency: 4,
             loop: false,
             pause: true
         }
@@ -198,8 +198,18 @@ function startMap() {
 
     let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
 
+    // Attach map events!
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {
+            // Normal state!
+            if (collisionMap[y][x] === 0) {
+                map.attachEvent(x, y, {
+                    id: 1,
+                    data: {}
+                });
+            }
+
+            // Teleport!
             if (collisionMap[y][x] === 2) {
                 map.attachEvent(x, y, {
                     id: 2,
@@ -211,6 +221,7 @@ function startMap() {
                 });
             }
 
+            // Grass!
             if (collisionMap[y][x] === 3) {
                 // Find the tile associated to the grid
                 let tile = tileManager.tiles.find(tile => tile.renderCol === x && tile.renderRow === y);
@@ -221,6 +232,7 @@ function startMap() {
                 });
             }
 
+            // Water! Swim!
             if (collisionMap[y][x] === 4) {
                 map.attachEvent(x, y, {
                     id: 4,

@@ -17,7 +17,7 @@ function Battle(settings) {
     this.player = {
         name: "player",
         player_tile: new Tile({
-            renderX: 1024 + 200,
+            renderX: 1024 + 170,
             renderY: 768 - 192 - 230,
             renderWidth: 230,
             renderHeight: 230,
@@ -193,15 +193,15 @@ Battle.prototype._intro = function() {
     }
 
     if (this.tick === 120) {
-        this.ball.renderX = 140;
+        this.ball.renderX = 150;
     }
 
-    if (this.tick > 120 && this.tick < 140) {
-        this.ball.renderX += 6;
-        this.ball.renderY += 3;
+    if (this.tick > 120 && this.tick < 150) {
+        this.ball.renderX += 5;
+        this.ball.renderY += 2;
     }
 
-    if (this.tick === 140) {
+    if (this.tick === 150) {
         this.ball.renderX = -500;
         this.player.monster_tile.renderX = 512/2 - 350/2;
         this.player.monster_tile.pause = false;

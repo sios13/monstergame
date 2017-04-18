@@ -18,7 +18,7 @@ function Battle(settings) {
     this.player = {
         name: "player",
         player_tile: new Tile({
-            renderX: 1024 + 200,
+            renderX: 1024 + 170,
             renderY: 768 - 192 - 230,
             renderWidth: 230,
             renderHeight: 230,
@@ -194,15 +194,15 @@ Battle.prototype._intro = function() {
     }
 
     if (this.tick === 120) {
-        this.ball.renderX = 140;
+        this.ball.renderX = 150;
     }
 
-    if (this.tick > 120 && this.tick < 140) {
-        this.ball.renderX += 6;
-        this.ball.renderY += 3;
+    if (this.tick > 120 && this.tick < 150) {
+        this.ball.renderX += 5;
+        this.ball.renderY += 2;
     }
 
-    if (this.tick === 140) {
+    if (this.tick === 150) {
         this.ball.renderX = -500;
         this.player.monster_tile.renderX = 512/2 - 350/2;
         this.player.monster_tile.pause = false;
@@ -503,9 +503,10 @@ Entity.prototype._detectCollision = function(game) {
 
 /**
  * Updates the col and row position
+ * Returns true if entering a new grid, otherwise false
  * Sets newGrid to true if entering a new grid
  */
-Entity.prototype._checkGrid = function(game) {
+Entity.prototype._updateGridPosition = function(game) {
     let oldColumn = this.col;
     let oldRow = this.row;
 
@@ -516,23 +517,29 @@ Entity.prototype._checkGrid = function(game) {
     let newRow = Math.floor((y + this.speedY) / game.map.gridSize);
 
     if (oldColumn !== newColumn || oldRow !== newRow) {
-        this.newGrid = true;
-
         this.col = newColumn;
         this.row = newRow;
+
+        return true;
     }
+
+    return false;
 }
 
+/**
+ * Every grid on the map has an event!
+ * Check the events and set the state depending on event
+ */
 Entity.prototype._checkEvents = function(game) {
     // Only check for events if entered a new grid
-    if (this.newGrid === false) {
-        return;
-    }
+    // if (this.newGrid === false) {
+    //     return;
+    // }
 
-    this.newGrid = false;
+    // this.newGrid = false;
 
     // State is 'walking' by default
-    this.state = "walking";
+    // this.state = "walking";
 
     // Get event on position
     let event = game.map.getEvent(this.col, this.row);
@@ -542,20 +549,8 @@ Entity.prototype._checkEvents = function(game) {
         return;
     }
 
-    // Change map
-    if (event.id === 2) {return game.changeMap(event);}
-
-    // Grass!
-    if (event.id === 3) {
-        event.data.tile.pause = false;
-
-        this.state = "grass";
-
-        return;
-    }
-
-    // Water!
-    if (event.id === 4) {return this.state = "water";}
+    // Emit the event!
+    game.event(event);
 }
 
 Entity.prototype._setActiveTile = function() {
@@ -623,9 +618,9 @@ Entity.prototype._setActiveTile = function() {
 
 Entity.prototype.update = function(game) {
     if (game.listeners.mousedown) {
-        if (this.state === "grass") {
-            game.event("grass");
-        }
+        // if (this.state === "grass") {
+        //     game.event("grass");
+        // }
 
         // Use the mouse position to determine the entity speed
         this._setSpeed(game);
@@ -637,15 +632,21 @@ Entity.prototype.update = function(game) {
         // If collision is detected -> set the speed to 0
         this._detectCollision(game);
 
+        // Update entity position on the grid
         // Determine if entity is entering a new grid
-        this._checkGrid(game);
+        let newGrid = this._updateGridPosition(game);
 
         // Finally, add the speed to the position
         this.x += this.speedX;
         this.y += this.speedY;
 
+        // If entering a new grid -> check for events
+        if (newGrid === true) {
+            this._checkEvents(game);
+        }
+
         // Check for events
-        this._checkEvents(game);
+        // this._checkEvents(game);
 
         // Set the active tile depending on direction and events
         this._setActiveTile();
@@ -690,7 +691,7 @@ function Game() {
 
     this.map = MapInitializer.getMap("startMap");
 
-    this.scenarios = new ScenarioManager();
+    this.scenarioManager = new ScenarioManager(this);
 
     this.coolguy = new Entity({
         x: 14*32,                       // x position on map
@@ -740,13 +741,13 @@ Game.prototype.startGame = function() {
     }
 
     let update = () => {
+        this.scenarioManager.update(this);
+
         if (this.battle !== null) {
             this.battle.update(this);
         } else {
             // Do not update while system is loading
-            if (!this.isLoaded()) {
-                return;
-            }
+            if (!this.isLoaded()) {return;}
 
             // Update coolguy
             this.coolguy.update(this);
@@ -792,6 +793,8 @@ Game.prototype.startGame = function() {
 
         this.map.render(this.context);
 
+        this.scenarioManager.render(this.context);
+
         // If system was recently loaded -> tone from black screen to game
         if (this.tickCounter - this.loadedTick < 20) {
             this.context.beginPath();
@@ -802,21 +805,51 @@ Game.prototype.startGame = function() {
     }
 };
 
-Game.prototype.event = function(eventname) {
-    if (eventname === "grass") {
-        this.startBattle("xD");
+Game.prototype.event = function(event) {
+    // Walking!
+    if (event.id === 1) {
+        this.coolguy.state = "walking";
+
+        return;
     }
-}
 
-Game.prototype.changeMap = function(event) {
-    this.loadedTick = null;
+    // Change map!
+    if (event.id === 2) {
+        this.loadedTick = null;
 
-    this.map.destroy();
+        this.map.destroy();
 
-    this.map = MapInitializer.getMap(event.data.mapName);
+        this.map = MapInitializer.getMap(event.data.mapName);
 
-    this.coolguy.x = event.data.spawnX;
-    this.coolguy.y = event.data.spawnY;
+        this.coolguy.x = event.data.spawnX;
+        this.coolguy.y = event.data.spawnY;
+
+        return;
+    }
+
+    // Grass!
+    if (event.id === 3) {
+        this.coolguy.state = "grass";
+
+        event.data.tile.pause = false;
+
+        if (this.tickCounter % 10 === 0) {
+            this.scenarioManager.playScenario("battleIntro");
+
+            console.log("Battle!");
+
+            // this.startBattle("xD");
+        }
+
+        return;
+    }
+
+    // Water!
+    if (event.id === 4) {
+        this.coolguy.state = "water";
+
+        return;
+    }
 }
 
 Game.prototype.startBattle = function(settings) {
@@ -1047,14 +1080,14 @@ function startMap() {
         },
         {
             identifier: "grass",
-            src: "img/grass.png",
+            src: "img/grass2.png",
             renderWidth: 32,
             renderHeight: 32,
             tileWidth: 16,
             tileHeight: 16,
             offset: 16,
-            numberOfFrames: 4,
-            updateFrequency: 2,
+            numberOfFrames: 2,
+            updateFrequency: 4,
             loop: false,
             pause: true
         }
@@ -1141,8 +1174,18 @@ function startMap() {
 
     let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
 
+    // Attach map events!
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {
+            // Normal state!
+            if (collisionMap[y][x] === 0) {
+                map.attachEvent(x, y, {
+                    id: 1,
+                    data: {}
+                });
+            }
+
+            // Teleport!
             if (collisionMap[y][x] === 2) {
                 map.attachEvent(x, y, {
                     id: 2,
@@ -1154,6 +1197,7 @@ function startMap() {
                 });
             }
 
+            // Grass!
             if (collisionMap[y][x] === 3) {
                 // Find the tile associated to the grid
                 let tile = tileManager.tiles.find(tile => tile.renderCol === x && tile.renderRow === y);
@@ -1164,6 +1208,7 @@ function startMap() {
                 });
             }
 
+            // Water! Swim!
             if (collisionMap[y][x] === 4) {
                 map.attachEvent(x, y, {
                     id: 4,
@@ -1232,11 +1277,74 @@ module.exports = {
 
 },{"./Map.js":4,"./TileManager.js":8}],6:[function(require,module,exports){
 function ScenarioManager() {
-    this.isPlaying = false;
+    this.activeScenario = null;
+
+    this.tick = null;
+
+    this.endTick = null;
 }
 
-ScenarioManager.prototype.battleIntro = function(game) {
-    console.log(game.battle.player.image);
+// Initialize/reset properties and play a scenario
+ScenarioManager.prototype.playScenario = function(scenarioName) {
+    // Do not start a new scenario if there already is an active scenario playing
+    if (this.activeScenario !== null) {
+        return;
+    }
+
+    this.activeScenario = scenarioName;
+
+    this.tick = 0;
+
+    if (this.activeScenario === "battleIntro") {
+        this.endTick = 100;
+    }
+}
+
+ScenarioManager.prototype.endScenario = function() {
+    this.activeScenario = null;
+}
+
+ScenarioManager.prototype.isPlaying = function() {
+    if (this.activeScenario !== null) {
+        return true;
+    }
+
+    return false;
+}
+
+ScenarioManager.prototype.createBattleIntro = function() {
+    this.game.coolguy.x = 100;
+    this.game.coolguy.y = 100;
+}
+
+ScenarioManager.prototype.update = function(game) {
+    // Do not update if there is no active scenario
+    if (this.activeScenario === null) {
+        return;
+    }
+
+    // If at the end of the scenario -> end the active scenario
+    if (this.tick === this.endTick) {
+        this.activeScenario = null;
+
+        return;
+    }
+
+    this.tick += 1;
+
+    if (this.activeScenario === "battleIntro") {
+        console.log(this.tick);
+
+        if (this.tick === this.endTick) {
+            game.startBattle("xD");
+        }
+    }
+}
+
+ScenarioManager.prototype.render = function(context) {
+    if (this.activeScenario === "battleIntro") {
+
+    }
 }
 
 module.exports = ScenarioManager;

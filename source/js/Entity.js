@@ -188,9 +188,10 @@ Entity.prototype._detectCollision = function(game) {
 
 /**
  * Updates the col and row position
+ * Returns true if entering a new grid, otherwise false
  * Sets newGrid to true if entering a new grid
  */
-Entity.prototype._checkGrid = function(game) {
+Entity.prototype._updateGridPosition = function(game) {
     let oldColumn = this.col;
     let oldRow = this.row;
 
@@ -201,23 +202,29 @@ Entity.prototype._checkGrid = function(game) {
     let newRow = Math.floor((y + this.speedY) / game.map.gridSize);
 
     if (oldColumn !== newColumn || oldRow !== newRow) {
-        this.newGrid = true;
-
         this.col = newColumn;
         this.row = newRow;
+
+        return true;
     }
+
+    return false;
 }
 
+/**
+ * Every grid on the map has an event!
+ * Check the events and set the state depending on event
+ */
 Entity.prototype._checkEvents = function(game) {
     // Only check for events if entered a new grid
-    if (this.newGrid === false) {
-        return;
-    }
+    // if (this.newGrid === false) {
+    //     return;
+    // }
 
-    this.newGrid = false;
+    // this.newGrid = false;
 
     // State is 'walking' by default
-    this.state = "walking";
+    // this.state = "walking";
 
     // Get event on position
     let event = game.map.getEvent(this.col, this.row);
@@ -227,20 +234,8 @@ Entity.prototype._checkEvents = function(game) {
         return;
     }
 
-    // Change map
-    if (event.id === 2) {return game.changeMap(event);}
-
-    // Grass!
-    if (event.id === 3) {
-        event.data.tile.pause = false;
-
-        this.state = "grass";
-
-        return;
-    }
-
-    // Water!
-    if (event.id === 4) {return this.state = "water";}
+    // Emit the event!
+    game.event(event);
 }
 
 Entity.prototype._setActiveTile = function() {
@@ -308,9 +303,9 @@ Entity.prototype._setActiveTile = function() {
 
 Entity.prototype.update = function(game) {
     if (game.listeners.mousedown) {
-        if (this.state === "grass") {
-            game.event("grass");
-        }
+        // if (this.state === "grass") {
+        //     game.event("grass");
+        // }
 
         // Use the mouse position to determine the entity speed
         this._setSpeed(game);
@@ -322,15 +317,21 @@ Entity.prototype.update = function(game) {
         // If collision is detected -> set the speed to 0
         this._detectCollision(game);
 
+        // Update entity position on the grid
         // Determine if entity is entering a new grid
-        this._checkGrid(game);
+        let newGrid = this._updateGridPosition(game);
 
         // Finally, add the speed to the position
         this.x += this.speedX;
         this.y += this.speedY;
 
+        // If entering a new grid -> check for events
+        if (newGrid === true) {
+            this._checkEvents(game);
+        }
+
         // Check for events
-        this._checkEvents(game);
+        // this._checkEvents(game);
 
         // Set the active tile depending on direction and events
         this._setActiveTile();

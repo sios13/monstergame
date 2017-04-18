@@ -12,7 +12,7 @@ function Game() {
 
     this.map = MapInitializer.getMap("startMap");
 
-    this.scenarios = new ScenarioManager();
+    this.scenarioManager = new ScenarioManager(this);
 
     this.coolguy = new Entity({
         x: 14*32,                       // x position on map
@@ -62,13 +62,13 @@ Game.prototype.startGame = function() {
     }
 
     let update = () => {
+        this.scenarioManager.update(this);
+
         if (this.battle !== null) {
             this.battle.update(this);
         } else {
             // Do not update while system is loading
-            if (!this.isLoaded()) {
-                return;
-            }
+            if (!this.isLoaded()) {return;}
 
             // Update coolguy
             this.coolguy.update(this);
@@ -114,6 +114,8 @@ Game.prototype.startGame = function() {
 
         this.map.render(this.context);
 
+        this.scenarioManager.render(this.context);
+
         // If system was recently loaded -> tone from black screen to game
         if (this.tickCounter - this.loadedTick < 20) {
             this.context.beginPath();
@@ -124,21 +126,51 @@ Game.prototype.startGame = function() {
     }
 };
 
-Game.prototype.event = function(eventname) {
-    if (eventname === "grass") {
-        this.startBattle("xD");
+Game.prototype.event = function(event) {
+    // Walking!
+    if (event.id === 1) {
+        this.coolguy.state = "walking";
+
+        return;
     }
-}
 
-Game.prototype.changeMap = function(event) {
-    this.loadedTick = null;
+    // Change map!
+    if (event.id === 2) {
+        this.loadedTick = null;
 
-    this.map.destroy();
+        this.map.destroy();
 
-    this.map = MapInitializer.getMap(event.data.mapName);
+        this.map = MapInitializer.getMap(event.data.mapName);
 
-    this.coolguy.x = event.data.spawnX;
-    this.coolguy.y = event.data.spawnY;
+        this.coolguy.x = event.data.spawnX;
+        this.coolguy.y = event.data.spawnY;
+
+        return;
+    }
+
+    // Grass!
+    if (event.id === 3) {
+        this.coolguy.state = "grass";
+
+        event.data.tile.pause = false;
+
+        if (this.tickCounter % 10 === 0) {
+            this.scenarioManager.playScenario("battleIntro");
+
+            console.log("Battle!");
+
+            // this.startBattle("xD");
+        }
+
+        return;
+    }
+
+    // Water!
+    if (event.id === 4) {
+        this.coolguy.state = "water";
+
+        return;
+    }
 }
 
 Game.prototype.startBattle = function(settings) {
