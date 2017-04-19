@@ -84,9 +84,9 @@ Game.prototype.startGame = function() {
     let render = () => {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        if (this.battle !== null) {
-            return this.battle.render(this.context);
-        }
+        // if (this.battle !== null) {
+        //     return this.battle.render(this.context);
+        // }
 
         // Render 'loading screen' while system is loading
         if (!this.isLoaded()) {
@@ -123,6 +123,10 @@ Game.prototype.startGame = function() {
             this.context.fillRect(0, 0, 10000, 10000);
             this.context.stroke();
         }
+
+        if (this.battle !== null) {
+            this.battle.render(this.context);
+        }
     }
 };
 
@@ -154,13 +158,9 @@ Game.prototype.event = function(event) {
 
         event.data.tile.pause = false;
 
-        if (this.tickCounter % 10 === 0) {
-            this.scenarioManager.playScenario("battleIntro");
+        this.battle = new Battle();
 
-            console.log("Battle!");
-
-            // this.startBattle("xD");
-        }
+        this.battle.playIntro();
 
         return;
     }

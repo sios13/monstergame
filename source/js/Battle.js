@@ -267,10 +267,6 @@ Battle.prototype._mouseEvents = function(game) {
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
-    if (this.tick === 2) {
-        // game.scenarios.battleIntro(game);
-    }
-
     this._intro();
 
     this.player.monster_tile.update(game);
