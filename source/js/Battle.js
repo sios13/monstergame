@@ -1,12 +1,26 @@
 const Tile = require("./Tile.js");
 
 function Battle(settings) {
-    this.tick = 0;
+    this.tick = -1;
 
     this.screenWidth = 1024;
     this.screenHeight = 768;
 
+    // this.state = "transition";
+    
+    this.flash = new Tile({
+        renderWidth: this.screenWidth,
+        renderHeight: this.screenHeight,
+        tileWidth: 1024,
+        tileHeight: 768,
+        alpha: 0,
+        src: "img/battle/flash.png"
+    });
+    this.flash.alpha = 0;
+
     this.background = new Tile({
+        renderX: -10000,
+        renderY: 0,
         renderWidth: this.screenWidth,
         renderHeight: this.screenHeight,
         tileWidth: 512,
@@ -106,12 +120,12 @@ function Battle(settings) {
         pause: false
     });
 
-    this.bottombar = new Tile({renderX: 0, renderY: this.screenHeight - 192, renderWidth: 1028, renderHeight: 192, tileWidth: 512, tileHeight: 96, src: "img/battle/bottombar.png"});
+    this.bottombar = new Tile({renderX: -10000, renderY: this.screenHeight - 192, renderWidth: 1028, renderHeight: 192, tileWidth: 512, tileHeight: 96, src: "img/battle/bottombar.png"});
 
-    this.textbox = new Tile({renderX: 10, renderY: this.screenHeight - 192 + 10, renderWidth: 481, renderHeight: 176, tileWidth: 244, tileHeight: 88, src: "img/battle/textbox.png"});
+    this.textbox = new Tile({renderX: -10000, renderY: this.screenHeight - 192 + 10, renderWidth: 481, renderHeight: 176, tileWidth: 244, tileHeight: 88, src: "img/battle/textbox.png"});
 
     this.fightbtn = new Tile({
-        renderX: this.screenWidth/2 - 10,
+        renderX: -10000,
         renderY: this.screenHeight - 192 + 10,
         renderWidth: 256,
         renderHeight: 92,
@@ -125,7 +139,7 @@ function Battle(settings) {
     });
 
     this.bagbtn = new Tile({
-        renderX: this.screenWidth/2 - 10 + 256,
+        renderX: -10000,
         renderY: this.screenHeight - 192 + 10,
         renderWidth: 256,
         renderHeight: 92,
@@ -139,7 +153,7 @@ function Battle(settings) {
     });
 
     this.pokemonbtn = new Tile({
-        renderX: this.screenWidth/2 - 10,
+        renderX: -10000,
         renderY: this.screenHeight - 192 + 10 + 92 - 8,
         renderWidth: 256,
         renderHeight: 92,
@@ -153,7 +167,7 @@ function Battle(settings) {
     });
 
     this.runbtn = new Tile({
-        renderX: this.screenWidth/2 - 10 + 256,
+        renderX: -10000,
         renderY: this.screenHeight - 192 + 10 + 92 - 8,
         renderWidth: 256,
         renderHeight: 92,
@@ -167,12 +181,48 @@ function Battle(settings) {
     });
 }
 
-Battle.prototype._intro = function() {
-    if (this.tick === 200) {
-        return;
+Battle.prototype._playIntro = function() {
+    // if (this.tick === 0) {console.log(this.flash.alpha);this.flash.alpha = 0;}
+
+    if (this.tick >= 0 && this.tick < 5) {
+        this.flash.alpha += 0.20;
+    }
+    if (this.tick >= 5 && this.tick < 10) {
+        this.flash.alpha -= 0.20;
     }
 
-    if (this.tick > 0 && this.tick < 70) {
+    if (this.tick >= 10 && this.tick < 15) {
+        this.flash.alpha += 0.20;
+    }
+    if (this.tick >= 15 && this.tick < 20) {
+        this.flash.alpha -= 0.20;
+    }
+
+    if (this.tick >= 20 && this.tick < 25) {
+        this.flash.alpha += 0.20;
+    }
+    if (this.tick >= 25 && this.tick < 30) {
+        this.flash.alpha -= 0.20;
+    }
+
+    if (this.tick >= 45 && this.tick < 70) {
+        this.flash.alpha += 0.10;
+    }
+
+    // Transition is over -> set starting positions
+    if (this.tick === 90) {
+        this.background.renderX = 0;
+
+        this.bottombar.renderX = 0;
+        this.textbox.renderX = 10;
+
+        this.fightbtn.renderX = this.screenWidth/2 - 10;
+        this.bagbtn.renderX = this.screenWidth/2 - 10 + 256;
+        this.pokemonbtn.renderX = this.screenWidth/2 - 10;
+        this.runbtn.renderX = this.screenWidth/2 - 10 + 256;
+    }
+
+    if (this.tick > 90 && this.tick < 160) {
         this.player.player_tile.renderX -= 15;
         this.player.base_tile.renderX -= 15;
 
@@ -180,35 +230,31 @@ Battle.prototype._intro = function() {
         this.enemy.base_tile.renderX += 15;
     }
 
-    if (this.tick === 75) {
+    if (this.tick === 165) {
         this.enemy.monster_tile.pause = false;
     }
 
-    if (this.tick === 110) {
+    if (this.tick === 200) {
         this.player.player_tile.pause = false;
     }
 
-    if (this.tick > 110 && this.tick < 150) {
+    if (this.tick > 200 && this.tick < 240) {
         this.player.player_tile.renderX -= 15;
     }
 
-    if (this.tick === 120) {
+    if (this.tick === 210) {
         this.ball.renderX = 150;
     }
 
-    if (this.tick > 120 && this.tick < 150) {
+    if (this.tick > 210 && this.tick < 240) {
         this.ball.renderX += 5;
         this.ball.renderY += 2;
     }
 
-    if (this.tick === 150) {
+    if (this.tick === 240) {
         this.ball.renderX = -500;
         this.player.monster_tile.renderX = 512/2 - 350/2;
         this.player.monster_tile.pause = false;
-    }
-
-    if (this.tick === 300) {
-        // game.endBattle();
     }
 }
 
@@ -267,7 +313,15 @@ Battle.prototype._mouseEvents = function(game) {
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
-    this._intro();
+    if (this.tick < 300) {
+        this._playIntro();
+    }
+
+    if (this.tick < 100) {
+        this.state = "transition";
+    } else {
+        this.state = "battle";
+    }
 
     this.player.monster_tile.update(game);
     this.player.player_tile.update(game);
@@ -280,29 +334,40 @@ Battle.prototype.update = function(game) {
 }
 
 Battle.prototype.render = function(context) {
-    this.background.render(context);
+    // if (this.state === "transition") {
 
-    // Enemy
-    this.enemy.base_tile.render(context);
-    this.enemy.monster_tile.render(context);
+    //     return;
+    // }
 
-    // Ball
-    this.ball.render(context);
+    // if (this.state === "battle") {
+        this.flash.render(context);
 
-    // Player
-    this.player.base_tile.render(context);
-    this.player.player_tile.render(context);
-    this.player.monster_tile.render(context);
+        this.background.render(context);
 
-    // Bottom bar
-    this.bottombar.render(context);
+        // Enemy
+        this.enemy.base_tile.render(context);
+        this.enemy.monster_tile.render(context);
 
-    this.textbox.render(context);
+        // Ball
+        this.ball.render(context);
 
-    this.fightbtn.render(context);
-    this.bagbtn.render(context);
-    this.pokemonbtn.render(context);
-    this.runbtn.render(context);
+        // Player
+        this.player.base_tile.render(context);
+        this.player.player_tile.render(context);
+        this.player.monster_tile.render(context);
+
+        // Bottom bar
+        this.bottombar.render(context);
+
+        this.textbox.render(context);
+
+        this.fightbtn.render(context);
+        this.bagbtn.render(context);
+        this.pokemonbtn.render(context);
+        this.runbtn.render(context);
+
+        // return;
+    // }
 }
 
 module.exports = Battle;

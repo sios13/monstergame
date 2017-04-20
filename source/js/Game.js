@@ -62,14 +62,15 @@ Game.prototype.startGame = function() {
     }
 
     let update = () => {
-        this.scenarioManager.update(this);
+        // Do not update while system is loading
+        if (!this.isLoaded()) {return;}
 
-        if (this.battle !== null) {
+        if (this.battle !== null)
+        {
             this.battle.update(this);
-        } else {
-            // Do not update while system is loading
-            if (!this.isLoaded()) {return;}
-
+        }
+        else
+        {
             // Update coolguy
             this.coolguy.update(this);
 
@@ -159,8 +160,6 @@ Game.prototype.event = function(event) {
         event.data.tile.pause = false;
 
         this.battle = new Battle();
-
-        this.battle.playIntro();
 
         return;
     }

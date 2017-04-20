@@ -24,10 +24,10 @@ function Tile(settings) {
     this.image.src = settings.src;
 
     this.loop = settings.loop === undefined ? true : settings.loop;
-    // this.loop = true;
 
     this.pause = settings.pause === undefined ? false : settings.pause;
-    // this.pause = false;
+
+    this.alpha = settings.alpha ? settings.alpha : 1;
 
     // Animation
     this.animationCounter = 0;
@@ -84,6 +84,10 @@ Tile.prototype.render = function(context, mapX, mapY) {
     let renderX = this.renderCol ? this.renderCol * 32 : this.renderX;
     let renderY = this.renderRow ? this.renderRow * 32 : this.renderY;
 
+    context.save();
+
+    context.globalAlpha = this.alpha;
+
     context.drawImage(
         this.image,
         xInImage,
@@ -95,6 +99,8 @@ Tile.prototype.render = function(context, mapX, mapY) {
         this.renderWidth,
         this.renderHeight
     );
+
+    context.restore();
     
 }
 
