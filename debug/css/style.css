@@ -2,9 +2,10 @@ body {margin:0;}
 
 canvas {
     background-color:black;
-    margin:10px;
-    /*position:absolute;
+    position:absolute;
     top:10;
-    left:10;
-    visibility:hidden;*/
 }
+
+.canvas1 {left:10;}
+
+.canvas2 {left:1050;}

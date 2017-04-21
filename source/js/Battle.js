@@ -5,12 +5,10 @@ function Battle(settings) {
 
     this.screenWidth = 1024;
     this.screenHeight = 768;
-
-    // this.state = "transition";
     
     this.flash = new Tile({
-        renderWidth: this.screenWidth,
-        renderHeight: this.screenHeight,
+        renderWidth: 1024,
+        renderHeight: 768,
         tileWidth: 1024,
         tileHeight: 768,
         alpha: 0,
@@ -47,8 +45,7 @@ function Battle(settings) {
             pause: true
         }),
         monster_tile: new Tile({
-            // renderX: 1024 + 512/2 - 350/2,
-            renderX: -500,
+            renderX: -10000,
             renderY: 310,
             renderWidth: 350,
             renderHeight: 350,
@@ -182,7 +179,9 @@ function Battle(settings) {
 }
 
 Battle.prototype._playIntro = function() {
-    // if (this.tick === 0) {console.log(this.flash.alpha);this.flash.alpha = 0;}
+    if (this.tick > 240) {
+        return;
+    }
 
     if (this.tick >= 0 && this.tick < 5) {
         this.flash.alpha += 0.20;
@@ -206,7 +205,11 @@ Battle.prototype._playIntro = function() {
     }
 
     if (this.tick >= 45 && this.tick < 70) {
-        this.flash.alpha += 0.10;
+        this.flash.alpha += 0.05;
+    }
+
+    if (this.tick === 70) {
+        // this.flash.alpha = 0;
     }
 
     // Transition is over -> set starting positions
@@ -253,8 +256,8 @@ Battle.prototype._playIntro = function() {
 
     if (this.tick === 240) {
         this.ball.renderX = -500;
-        this.player.monster_tile.renderX = 512/2 - 350/2;
         this.player.monster_tile.pause = false;
+        this.player.monster_tile.renderX = 512/2 - 350/2;
     }
 }
 
@@ -313,9 +316,7 @@ Battle.prototype._mouseEvents = function(game) {
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
-    if (this.tick < 300) {
-        this._playIntro();
-    }
+    this._playIntro();
 
     if (this.tick < 100) {
         this.state = "transition";

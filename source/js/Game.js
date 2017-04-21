@@ -1,18 +1,15 @@
 const Entity = require("./Entity.js");
 const MapInitializer = require("./MapInitializer.js");
 const Battle = require("./Battle.js");
-const ScenarioManager = require("./ScenarioManager.js");
 
 function Game() {
     this.tickCounter = 0;
     this.framerate = 30;
 
-    this.canvas = document.querySelector("canvas");
+    this.canvas = document.querySelector(".canvas1");
     this.context = this.canvas.getContext("2d");
 
     this.map = MapInitializer.getMap("startMap");
-
-    this.scenarioManager = new ScenarioManager(this);
 
     this.coolguy = new Entity({
         x: 14*32,                       // x position on map
@@ -114,8 +111,6 @@ Game.prototype.startGame = function() {
         this.map.renderLayer2(this.context);
 
         this.map.render(this.context);
-
-        this.scenarioManager.render(this.context);
 
         // If system was recently loaded -> tone from black screen to game
         if (this.tickCounter - this.loadedTick < 20) {

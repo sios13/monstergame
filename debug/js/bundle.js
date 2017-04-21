@@ -6,12 +6,10 @@ function Battle(settings) {
 
     this.screenWidth = 1024;
     this.screenHeight = 768;
-
-    // this.state = "transition";
     
     this.flash = new Tile({
-        renderWidth: this.screenWidth,
-        renderHeight: this.screenHeight,
+        renderWidth: 1024,
+        renderHeight: 768,
         tileWidth: 1024,
         tileHeight: 768,
         alpha: 0,
@@ -48,8 +46,7 @@ function Battle(settings) {
             pause: true
         }),
         monster_tile: new Tile({
-            // renderX: 1024 + 512/2 - 350/2,
-            renderX: -500,
+            renderX: -10000,
             renderY: 310,
             renderWidth: 350,
             renderHeight: 350,
@@ -183,7 +180,9 @@ function Battle(settings) {
 }
 
 Battle.prototype._playIntro = function() {
-    // if (this.tick === 0) {console.log(this.flash.alpha);this.flash.alpha = 0;}
+    if (this.tick > 240) {
+        return;
+    }
 
     if (this.tick >= 0 && this.tick < 5) {
         this.flash.alpha += 0.20;
@@ -207,7 +206,11 @@ Battle.prototype._playIntro = function() {
     }
 
     if (this.tick >= 45 && this.tick < 70) {
-        this.flash.alpha += 0.10;
+        this.flash.alpha += 0.05;
+    }
+
+    if (this.tick === 70) {
+        // this.flash.alpha = 0;
     }
 
     // Transition is over -> set starting positions
@@ -254,8 +257,8 @@ Battle.prototype._playIntro = function() {
 
     if (this.tick === 240) {
         this.ball.renderX = -500;
-        this.player.monster_tile.renderX = 512/2 - 350/2;
         this.player.monster_tile.pause = false;
+        this.player.monster_tile.renderX = 512/2 - 350/2;
     }
 }
 
@@ -314,9 +317,7 @@ Battle.prototype._mouseEvents = function(game) {
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
-    if (this.tick < 300) {
-        this._playIntro();
-    }
+    this._playIntro();
 
     if (this.tick < 100) {
         this.state = "transition";
@@ -373,7 +374,7 @@ Battle.prototype.render = function(context) {
 
 module.exports = Battle;
 
-},{"./Tile.js":7}],2:[function(require,module,exports){
+},{"./Tile.js":6}],2:[function(require,module,exports){
 const TileManager = require("./TileManager.js");
 
 function Entity(settings) {
@@ -737,22 +738,19 @@ Entity.prototype.render = function(context) {
 
 module.exports = Entity;
 
-},{"./TileManager.js":8}],3:[function(require,module,exports){
+},{"./TileManager.js":7}],3:[function(require,module,exports){
 const Entity = require("./Entity.js");
 const MapInitializer = require("./MapInitializer.js");
 const Battle = require("./Battle.js");
-const ScenarioManager = require("./ScenarioManager.js");
 
 function Game() {
     this.tickCounter = 0;
     this.framerate = 30;
 
-    this.canvas = document.querySelector("canvas");
+    this.canvas = document.querySelector(".canvas1");
     this.context = this.canvas.getContext("2d");
 
     this.map = MapInitializer.getMap("startMap");
-
-    this.scenarioManager = new ScenarioManager(this);
 
     this.coolguy = new Entity({
         x: 14*32,                       // x position on map
@@ -855,8 +853,6 @@ Game.prototype.startGame = function() {
 
         this.map.render(this.context);
 
-        this.scenarioManager.render(this.context);
-
         // If system was recently loaded -> tone from black screen to game
         if (this.tickCounter - this.loadedTick < 20) {
             this.context.beginPath();
@@ -922,7 +918,7 @@ Game.prototype.endBattle = function() {
 
 module.exports = Game;
 
-},{"./Battle.js":1,"./Entity.js":2,"./MapInitializer.js":5,"./ScenarioManager.js":6,"./listeners.js":10}],4:[function(require,module,exports){
+},{"./Battle.js":1,"./Entity.js":2,"./MapInitializer.js":5,"./listeners.js":9}],4:[function(require,module,exports){
 function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles) {
     this.x = x;
     this.y = y;
@@ -1335,81 +1331,7 @@ module.exports = {
     getMap: getMap
 };
 
-},{"./Map.js":4,"./TileManager.js":8}],6:[function(require,module,exports){
-function ScenarioManager() {
-    this.activeScenario = null;
-
-    this.tick = null;
-
-    this.endTick = null;
-}
-
-// Initialize/reset properties and play a scenario
-ScenarioManager.prototype.playScenario = function(scenarioName) {
-    // Do not start a new scenario if there already is an active scenario playing
-    if (this.activeScenario !== null) {
-        return;
-    }
-
-    this.activeScenario = scenarioName;
-
-    this.tick = 0;
-
-    if (this.activeScenario === "battleIntro") {
-        this.endTick = 100;
-    }
-}
-
-ScenarioManager.prototype.endScenario = function() {
-    this.activeScenario = null;
-}
-
-ScenarioManager.prototype.isPlaying = function() {
-    if (this.activeScenario !== null) {
-        return true;
-    }
-
-    return false;
-}
-
-ScenarioManager.prototype.createBattleIntro = function() {
-    this.game.coolguy.x = 100;
-    this.game.coolguy.y = 100;
-}
-
-ScenarioManager.prototype.update = function(game) {
-    // Do not update if there is no active scenario
-    if (this.activeScenario === null) {
-        return;
-    }
-
-    // If at the end of the scenario -> end the active scenario
-    if (this.tick === this.endTick) {
-        this.activeScenario = null;
-
-        return;
-    }
-
-    this.tick += 1;
-
-    if (this.activeScenario === "battleIntro") {
-        console.log(this.tick);
-
-        if (this.tick === this.endTick) {
-            game.startBattle("xD");
-        }
-    }
-}
-
-ScenarioManager.prototype.render = function(context) {
-    if (this.activeScenario === "battleIntro") {
-
-    }
-}
-
-module.exports = ScenarioManager;
-
-},{}],7:[function(require,module,exports){
+},{"./Map.js":4,"./TileManager.js":7}],6:[function(require,module,exports){
 function Tile(settings) {
     this.renderCol = settings.renderCol ? settings.renderCol : 0;
     this.renderRow = settings.renderRow ? settings.renderRow : 0;
@@ -1518,7 +1440,7 @@ Tile.prototype.render = function(context, mapX, mapY) {
 
 module.exports = Tile;
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 const Tile = require("./Tile.js");
 
 function TileManager(settings) {
@@ -1586,7 +1508,7 @@ TileManager.prototype.getTile = function(identifier, renderCol, renderRow, sprit
 
 module.exports = TileManager;
 
-},{"./Tile.js":7}],9:[function(require,module,exports){
+},{"./Tile.js":6}],8:[function(require,module,exports){
 let Game = require("./Game.js");
 
 // node_modules/.bin/browserify source/js/app.js > debug/js/bundle.js
@@ -1597,7 +1519,7 @@ window.addEventListener("load", function() {
     game.startGame();
 });
 
-},{"./Game.js":3}],10:[function(require,module,exports){
+},{"./Game.js":3}],9:[function(require,module,exports){
 function addListeners(game) {
     game.listeners = {};
 
@@ -1639,4 +1561,4 @@ module.exports = {
     addListeners: addListeners
 }
 
-},{}]},{},[9]);
+},{}]},{},[8]);
