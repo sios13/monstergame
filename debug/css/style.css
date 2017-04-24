@@ -2,10 +2,11 @@ body {margin:0;}
 
 canvas {
     background-color:black;
-    position:absolute;
-    top:10;
+    margin:10px;
+    /*position:absolute;*/
+    /*top:10;*/
 }
 
-.canvas1 {left:10;}
+/*.canvas1 {left:10;}*/
 
-.canvas2 {left:1050;}
+/*.canvas2 {left:1050;}*/
