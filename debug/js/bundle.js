@@ -1,11 +1,17 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 const Tile = require("./Tile.js");
+const Conversation = require("./Conversation.js");
 
 function Battle(settings) {
     this.tick = -1;
 
+    this.state = "intro1";
+
     this.screenWidth = 1024;
     this.screenHeight = 768;
+
+    this.conversation = new Conversation();
+    this.conversation.hidden = true;
     
     this.flash = new Tile({
         renderWidth: 1024,
@@ -179,11 +185,7 @@ function Battle(settings) {
     });
 }
 
-Battle.prototype._playIntro = function() {
-    if (this.tick > 240) {
-        return;
-    }
-
+Battle.prototype._playIntro1 = function() {
     if (this.tick >= 0 && this.tick < 5) {
         this.flash.alpha += 0.20;
     }
@@ -209,16 +211,14 @@ Battle.prototype._playIntro = function() {
         this.flash.alpha += 0.05;
     }
 
-    if (this.tick === 70) {
-        // this.flash.alpha = 0;
-    }
-
     // Transition is over -> set starting positions
     if (this.tick === 90) {
         this.background.renderX = 0;
 
         this.bottombar.renderX = 0;
-        this.textbox.renderX = 10;
+        this.conversation.hidden = false;
+
+        // this.textbox.renderX = 10;
 
         this.fightbtn.renderX = this.screenWidth/2 - 10;
         this.bagbtn.renderX = this.screenWidth/2 - 10 + 256;
@@ -236,8 +236,12 @@ Battle.prototype._playIntro = function() {
 
     if (this.tick === 165) {
         this.enemy.monster_tile.pause = false;
+        this.conversation.addText("A wild monster appeared!");
+        this.conversation.next();
     }
+}
 
+Battle.prototype._playIntro2 = function() {
     if (this.tick === 200) {
         this.player.player_tile.pause = false;
     }
@@ -317,12 +321,8 @@ Battle.prototype._mouseEvents = function(game) {
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
-    this._playIntro();
-
-    if (this.tick < 100) {
-        this.state = "transition";
-    } else {
-        this.state = "battle";
+    if (this.state = "intro1") {
+        this._playIntro1();
     }
 
     this.player.monster_tile.update(game);
@@ -333,48 +333,110 @@ Battle.prototype.update = function(game) {
     this.ball.update(game);
 
     this._mouseEvents(game);
+
+    this.conversation.update(game);
 }
 
 Battle.prototype.render = function(context) {
-    // if (this.state === "transition") {
+    this.flash.render(context);
 
-    //     return;
-    // }
+    this.background.render(context);
 
-    // if (this.state === "battle") {
-        this.flash.render(context);
+    // Enemy
+    this.enemy.base_tile.render(context);
+    this.enemy.monster_tile.render(context);
 
-        this.background.render(context);
+    // Ball
+    this.ball.render(context);
 
-        // Enemy
-        this.enemy.base_tile.render(context);
-        this.enemy.monster_tile.render(context);
+    // Player
+    this.player.base_tile.render(context);
+    this.player.player_tile.render(context);
+    this.player.monster_tile.render(context);
 
-        // Ball
-        this.ball.render(context);
+    // Bottom bar
+    this.bottombar.render(context);
 
-        // Player
-        this.player.base_tile.render(context);
-        this.player.player_tile.render(context);
-        this.player.monster_tile.render(context);
+    // this.textbox.render(context);
 
-        // Bottom bar
-        this.bottombar.render(context);
+    // this.fightbtn.render(context);
+    // this.bagbtn.render(context);
+    // this.pokemonbtn.render(context);
+    // this.runbtn.render(context);
 
-        this.textbox.render(context);
-
-        this.fightbtn.render(context);
-        this.bagbtn.render(context);
-        this.pokemonbtn.render(context);
-        this.runbtn.render(context);
-
-        // return;
-    // }
+    this.conversation.render(context);
 }
 
 module.exports = Battle;
 
-},{"./Tile.js":6}],2:[function(require,module,exports){
+},{"./Conversation.js":2,"./Tile.js":7}],2:[function(require,module,exports){
+const Tile = require("./Tile.js");
+
+function Conversation() {
+    this.tile = new Tile({
+        renderX: 0,
+        renderY: 583,
+        renderWidth: 1028,
+        renderHeight: 179,
+        tileWidth: 1028,
+        tileHeight: 179,
+        src: "img/conversation_background.png",
+    });
+
+    this.texts = [""];
+
+    this.currentText = "";
+
+    this.textsIndex = 0;
+
+    // Hides the covnversation, do not render the converation if true
+    this.hidden = false;
+}
+
+// Shows the next text
+Conversation.prototype.next = function() {
+    this.textsIndex += 1;
+}
+
+Conversation.prototype.addText = function(text) {
+    this.texts.push(text);
+}
+
+Conversation.prototype.update = function(game) {
+    let x = game.listeners.mousePositionX;
+    let y = game.listeners.mousePositionY;
+
+    // If clicked at conversation bar
+    if (x > 0 && x < 1028 && y > 576 && y < 768 && game.listeners.click === true) {
+        // this.textsIndex += 1;
+
+        // this.currentText = "";
+    }
+
+    if (this.currentText !== this.texts[this.textsIndex]) {
+        console.log("HEJ!");
+        if (game.tickCounter % 1 === 0) {
+            this.currentText += this.texts[this.textsIndex][this.currentText.length];
+        }
+    }
+}
+
+Conversation.prototype.render = function(context) {
+    // Do not render if conversation should be hidden
+    if (this.hidden === true) {
+        return;
+    }
+
+    this.tile.render(context);
+
+    context.font = "45px Century Gothic";
+    context.fillStyle = "rgba(0,0,0,0.7)";
+    context.fillText(this.currentText, 75, 660);
+}
+
+module.exports = Conversation;
+
+},{"./Tile.js":7}],3:[function(require,module,exports){
 const TileManager = require("./TileManager.js");
 
 function Entity(settings) {
@@ -738,14 +800,18 @@ Entity.prototype.render = function(context) {
 
 module.exports = Entity;
 
-},{"./TileManager.js":7}],3:[function(require,module,exports){
+},{"./TileManager.js":8}],4:[function(require,module,exports){
 const Entity = require("./Entity.js");
 const MapInitializer = require("./MapInitializer.js");
 const Battle = require("./Battle.js");
 
 function Game() {
+    this.now = null;
+    this.deltaTime = 0;
+    this.last = Date.now();
+    this.step = 1/30;
+
     this.tickCounter = 0;
-    this.framerate = 30;
 
     this.canvas = document.querySelector(".canvas1");
     this.context = this.canvas.getContext("2d");
@@ -789,17 +855,28 @@ Game.prototype.isLoaded = function() {
 Game.prototype.startGame = function() {
     require("./listeners.js").addListeners(this);
 
-    // Start game!
-    setInterval(frame.bind(this), 1000/this.framerate);
-
     function frame() {
-        this.tickCounter += 1;
+        this.now = Date.now();
+        this.deltaTime = this.deltaTime + Math.min(1, (this.now - this.last) / 1000);
 
-        update();
+        while(this.deltaTime > this.step) {
+            this.deltaTime = this.deltaTime - this.step;
+            update();
+        }
+
         render();
+
+        this.last = this.now;
+
+        requestAnimationFrame(frame.bind(this));
     }
 
+    // Start game!
+    requestAnimationFrame(frame.bind(this));
+
     let update = () => {
+        this.tickCounter += 1;
+
         // Do not update while system is loading
         if (!this.isLoaded()) {return;}
 
@@ -918,7 +995,7 @@ Game.prototype.endBattle = function() {
 
 module.exports = Game;
 
-},{"./Battle.js":1,"./Entity.js":2,"./MapInitializer.js":5,"./listeners.js":9}],4:[function(require,module,exports){
+},{"./Battle.js":1,"./Entity.js":3,"./MapInitializer.js":6,"./listeners.js":10}],5:[function(require,module,exports){
 function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles) {
     this.x = x;
     this.y = y;
@@ -1029,7 +1106,7 @@ Map.prototype.destroy = function() {
 
 module.exports = Map;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 const Map = require("./Map.js");
 const TileManager = require("./TileManager.js");
 
@@ -1331,7 +1408,7 @@ module.exports = {
     getMap: getMap
 };
 
-},{"./Map.js":4,"./TileManager.js":7}],6:[function(require,module,exports){
+},{"./Map.js":5,"./TileManager.js":8}],7:[function(require,module,exports){
 function Tile(settings) {
     this.renderCol = settings.renderCol ? settings.renderCol : 0;
     this.renderRow = settings.renderRow ? settings.renderRow : 0;
@@ -1440,7 +1517,7 @@ Tile.prototype.render = function(context, mapX, mapY) {
 
 module.exports = Tile;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 const Tile = require("./Tile.js");
 
 function TileManager(settings) {
@@ -1508,7 +1585,7 @@ TileManager.prototype.getTile = function(identifier, renderCol, renderRow, sprit
 
 module.exports = TileManager;
 
-},{"./Tile.js":6}],8:[function(require,module,exports){
+},{"./Tile.js":7}],9:[function(require,module,exports){
 let Game = require("./Game.js");
 
 // node_modules/.bin/browserify source/js/app.js > debug/js/bundle.js
@@ -1519,7 +1596,7 @@ window.addEventListener("load", function() {
     game.startGame();
 });
 
-},{"./Game.js":3}],9:[function(require,module,exports){
+},{"./Game.js":4}],10:[function(require,module,exports){
 function addListeners(game) {
     game.listeners = {};
 
@@ -1551,14 +1628,22 @@ function addListeners(game) {
         game.listeners.mousedown = false;
         game.listeners.mousemove = false;
     });
-
-    game.canvas.addEventListener("keydown", function(event) {
-        console.log("keydown");
-    });
 }
+
+// function isInsideBox(x1, y1, x2, y2) {
+//     let x = game.listeners.mousePositionX;
+//     let y = game.listeners.mousePositionY;
+
+//     if (x > x1 && y > y1 && x < x2 && y < y2) {
+//         return true;
+//     }
+
+//     return false;
+// }
 
 module.exports = {
-    addListeners: addListeners
+    addListeners: addListeners,
+    // isInsideBox: isInsideBox
 }
 
-},{}]},{},[8]);
+},{}]},{},[9]);

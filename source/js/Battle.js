@@ -1,10 +1,16 @@
 const Tile = require("./Tile.js");
+const Conversation = require("./Conversation.js");
 
 function Battle(settings) {
     this.tick = -1;
 
+    this.state = "intro1";
+
     this.screenWidth = 1024;
     this.screenHeight = 768;
+
+    this.conversation = new Conversation();
+    this.conversation.hidden = true;
     
     this.flash = new Tile({
         renderWidth: 1024,
@@ -178,11 +184,7 @@ function Battle(settings) {
     });
 }
 
-Battle.prototype._playIntro = function() {
-    if (this.tick > 240) {
-        return;
-    }
-
+Battle.prototype._playIntro1 = function() {
     if (this.tick >= 0 && this.tick < 5) {
         this.flash.alpha += 0.20;
     }
@@ -208,16 +210,14 @@ Battle.prototype._playIntro = function() {
         this.flash.alpha += 0.05;
     }
 
-    if (this.tick === 70) {
-        // this.flash.alpha = 0;
-    }
-
     // Transition is over -> set starting positions
     if (this.tick === 90) {
         this.background.renderX = 0;
 
         this.bottombar.renderX = 0;
-        this.textbox.renderX = 10;
+        this.conversation.hidden = false;
+
+        // this.textbox.renderX = 10;
 
         this.fightbtn.renderX = this.screenWidth/2 - 10;
         this.bagbtn.renderX = this.screenWidth/2 - 10 + 256;
@@ -235,8 +235,12 @@ Battle.prototype._playIntro = function() {
 
     if (this.tick === 165) {
         this.enemy.monster_tile.pause = false;
+        this.conversation.addText("A wild monster appeared!");
+        this.conversation.next();
     }
+}
 
+Battle.prototype._playIntro2 = function() {
     if (this.tick === 200) {
         this.player.player_tile.pause = false;
     }
@@ -316,12 +320,8 @@ Battle.prototype._mouseEvents = function(game) {
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
-    this._playIntro();
-
-    if (this.tick < 100) {
-        this.state = "transition";
-    } else {
-        this.state = "battle";
+    if (this.state = "intro1") {
+        this._playIntro1();
     }
 
     this.player.monster_tile.update(game);
@@ -332,43 +332,38 @@ Battle.prototype.update = function(game) {
     this.ball.update(game);
 
     this._mouseEvents(game);
+
+    this.conversation.update(game);
 }
 
 Battle.prototype.render = function(context) {
-    // if (this.state === "transition") {
+    this.flash.render(context);
 
-    //     return;
-    // }
+    this.background.render(context);
 
-    // if (this.state === "battle") {
-        this.flash.render(context);
+    // Enemy
+    this.enemy.base_tile.render(context);
+    this.enemy.monster_tile.render(context);
 
-        this.background.render(context);
+    // Ball
+    this.ball.render(context);
 
-        // Enemy
-        this.enemy.base_tile.render(context);
-        this.enemy.monster_tile.render(context);
+    // Player
+    this.player.base_tile.render(context);
+    this.player.player_tile.render(context);
+    this.player.monster_tile.render(context);
 
-        // Ball
-        this.ball.render(context);
+    // Bottom bar
+    this.bottombar.render(context);
 
-        // Player
-        this.player.base_tile.render(context);
-        this.player.player_tile.render(context);
-        this.player.monster_tile.render(context);
+    // this.textbox.render(context);
 
-        // Bottom bar
-        this.bottombar.render(context);
+    // this.fightbtn.render(context);
+    // this.bagbtn.render(context);
+    // this.pokemonbtn.render(context);
+    // this.runbtn.render(context);
 
-        this.textbox.render(context);
-
-        this.fightbtn.render(context);
-        this.bagbtn.render(context);
-        this.pokemonbtn.render(context);
-        this.runbtn.render(context);
-
-        // return;
-    // }
+    this.conversation.render(context);
 }
 
 module.exports = Battle;

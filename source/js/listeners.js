@@ -29,12 +29,20 @@ function addListeners(game) {
         game.listeners.mousedown = false;
         game.listeners.mousemove = false;
     });
-
-    game.canvas.addEventListener("keydown", function(event) {
-        console.log("keydown");
-    });
 }
 
+// function isInsideBox(x1, y1, x2, y2) {
+//     let x = game.listeners.mousePositionX;
+//     let y = game.listeners.mousePositionY;
+
+//     if (x > x1 && y > y1 && x < x2 && y < y2) {
+//         return true;
+//     }
+
+//     return false;
+// }
+
 module.exports = {
-    addListeners: addListeners
+    addListeners: addListeners,
+    // isInsideBox: isInsideBox
 }

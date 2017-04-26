@@ -3,8 +3,12 @@ const MapInitializer = require("./MapInitializer.js");
 const Battle = require("./Battle.js");
 
 function Game() {
+    this.now = null;
+    this.deltaTime = 0;
+    this.last = Date.now();
+    this.step = 1/30;
+
     this.tickCounter = 0;
-    this.framerate = 30;
 
     this.canvas = document.querySelector(".canvas1");
     this.context = this.canvas.getContext("2d");
@@ -48,17 +52,28 @@ Game.prototype.isLoaded = function() {
 Game.prototype.startGame = function() {
     require("./listeners.js").addListeners(this);
 
-    // Start game!
-    setInterval(frame.bind(this), 1000/this.framerate);
-
     function frame() {
-        this.tickCounter += 1;
+        this.now = Date.now();
+        this.deltaTime = this.deltaTime + Math.min(1, (this.now - this.last) / 1000);
 
-        update();
+        while(this.deltaTime > this.step) {
+            this.deltaTime = this.deltaTime - this.step;
+            update();
+        }
+
         render();
+
+        this.last = this.now;
+
+        requestAnimationFrame(frame.bind(this));
     }
 
+    // Start game!
+    requestAnimationFrame(frame.bind(this));
+
     let update = () => {
+        this.tickCounter += 1;
+
         // Do not update while system is loading
         if (!this.isLoaded()) {return;}
 
