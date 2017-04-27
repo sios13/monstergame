@@ -3,10 +3,9 @@
 body {margin:0;}
 
 canvas {
-    background-color:black;
-    margin:10px;
-    /*position:absolute;*/
-    /*top:10;*/
+    /*background-color:black;*/
+    position:absolute;
+    top:10;
 }
 
 /*.canvas1 {left:10;}*/

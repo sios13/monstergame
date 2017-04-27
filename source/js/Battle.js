@@ -56,8 +56,8 @@ function Battle(settings) {
         monster_tile: new Tile({
             renderX: 512/2 - 350/2,
             renderY: 310,
-            renderWidth: 108,
-            renderHeight: 108,
+            renderWidth: 350,
+            renderHeight: 350,
             spriteCol: 0,
             spriteRow: 0,
             tileWidth: 108,
@@ -189,6 +189,7 @@ function Battle(settings) {
 }
 
 Battle.prototype._playIntro1 = function() {
+    console.log(this.flash.alpha);
     if (this.tick >= 0 && this.tick < 5) {
         this.flash.alpha += 0.20;
     }

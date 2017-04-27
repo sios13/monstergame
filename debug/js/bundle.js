@@ -57,8 +57,8 @@ function Battle(settings) {
         monster_tile: new Tile({
             renderX: 512/2 - 350/2,
             renderY: 310,
-            renderWidth: 108,
-            renderHeight: 108,
+            renderWidth: 350,
+            renderHeight: 350,
             spriteCol: 0,
             spriteRow: 0,
             tileWidth: 108,
@@ -190,6 +190,7 @@ function Battle(settings) {
 }
 
 Battle.prototype._playIntro1 = function() {
+    console.log(this.flash.alpha);
     if (this.tick >= 0 && this.tick < 5) {
         this.flash.alpha += 0.20;
     }
@@ -931,8 +932,16 @@ function Game() {
 
     this.tickCounter = 0;
 
-    this.canvas = document.querySelector(".canvas1");
-    this.context = this.canvas.getContext("2d");
+    this.state = "world";
+
+    this.worldCanvas = document.querySelector(".worldCanvas");
+    this.worldContext = this.worldCanvas.getContext("2d");
+
+    this.battleCanvas = document.querySelector(".battleCanvas");
+    this.battleContext = this.battleCanvas.getContext("2d");
+
+    this.canvas = this.worldCanvas;
+    this.context = this.worldContext;
 
     this.map = MapInitializer.getMap("startMap");
 
@@ -975,6 +984,7 @@ Game.prototype.startGame = function() {
 
     function frame() {
         this.now = Date.now();
+
         this.deltaTime = this.deltaTime + Math.min(1, (this.now - this.last) / 1000);
 
         while(this.deltaTime > this.step) {
@@ -997,12 +1007,12 @@ Game.prototype.startGame = function() {
         // Do not update while system is loading
         if (!this.isLoaded()) {return;}
 
-        if (this.battle !== null)
-        {
+        if (this.state === "battle") {
+            // Update battle
             this.battle.update(this);
         }
-        else
-        {
+
+        if (this.state === "world") {
             // Update coolguy
             this.coolguy.update(this);
 
@@ -1015,48 +1025,48 @@ Game.prototype.startGame = function() {
     }
 
     let render = () => {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // if (this.battle !== null) {
-        //     return this.battle.render(this.context);
-        // }
 
         // Render 'loading screen' while system is loading
         if (!this.isLoaded()) {
-            this.context.beginPath();
+            // this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-            this.context.fillStyle = "rgb(0, 0, 0)";
-            this.context.fillRect(0, 0, 10000, 10000);
+            // this.context.beginPath();
 
-            this.context.font = "26px Georgia";
-            this.context.fillStyle = "#DDDDDD";
-            this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
+            // this.context.font = "26px Georgia";
+            // this.context.fillStyle = "#DDDDDD";
+            // this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
 
-            this.context.stroke();
+            // // this.context.stroke();
 
-            return;
+            // return;
         }
 
-        this.map.renderLayer1(this.context);
+        if (this.state === "battle") {
+            let context = this.context;
 
-        this.map.renderTiles(this.context);
+            this.battle.render(context);
+        }
 
-        this.coolguy.render(this.context);
+        if (this.state === "world") {
+            let context = this.context;
 
-        this.map.renderLayer2(this.context);
+            this.map.renderLayer1(context);
 
-        this.map.render(this.context);
+            this.map.renderTiles(context);
+
+            this.coolguy.render(context);
+
+            this.map.renderLayer2(context);
+
+            this.map.render(context);
+        }
 
         // If system was recently loaded -> tone from black screen to game
         if (this.tickCounter - this.loadedTick < 20) {
-            this.context.beginPath();
-            this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
-            this.context.fillRect(0, 0, 10000, 10000);
-            this.context.stroke();
-        }
-
-        if (this.battle !== null) {
-            this.battle.render(this.context);
+            // this.context.beginPath();
+            // this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
+            // this.context.fillRect(0, 0, 2000, 2000);
+            // this.context.stroke();
         }
     }
 };
@@ -1089,7 +1099,7 @@ Game.prototype.event = function(event) {
 
         event.data.tile.pause = false;
 
-        this.battle = new Battle();
+        this.startBattle();
 
         return;
     }
@@ -1104,10 +1114,26 @@ Game.prototype.event = function(event) {
 
 Game.prototype.startBattle = function(settings) {
     this.battle = new Battle(settings);
+
+    this.state = "battle";
+
+    this.canvas = this.battleCanvas;
+    this.context = this.battleContext;
+
+    this.worldCanvas.style.zIndex = 1;
+    this.battleCanvas.style.zIndex = 2;
 }
 
 Game.prototype.endBattle = function() {
     this.battle = null;
+
+    this.state = "world";
+
+    this.canvas = this.worldCanvas;
+    this.context = this.worldContext;
+
+    this.worldCanvas.style.zIndex = 2;
+    this.battleCanvas.style.zIndex = 1;
 }
 
 module.exports = Game;
@@ -1717,9 +1743,12 @@ window.addEventListener("load", function() {
 function addListeners(game) {
     game.listeners = {};
 
-    game.canvas.addEventListener("click", function(event) {
+    let clickEvent = function(event) {
         game.listeners.click = true;
-    });
+    }
+
+    game.worldCanvas.addEventListener("click", clickEvent);
+    game.battleCanvas.addEventListener("click", clickEvent);
 
     game.canvas.addEventListener("mousedown", function(event) {
         game.listeners.mousedown = true;
@@ -1730,14 +1759,17 @@ function addListeners(game) {
         game.listeners.mousePositionY = event.clientY - canvasRect.top;
     });
 
-    game.canvas.addEventListener("mousemove", function(event) {
+    let mousemoveEvent = function(event) {
         game.listeners.mousemove = true;
 
         let canvasRect = game.canvas.getBoundingClientRect();
 
         game.listeners.mousePositionX = event.clientX - canvasRect.left;
         game.listeners.mousePositionY = event.clientY - canvasRect.top;
-    });
+    }
+
+    game.worldCanvas.addEventListener("mousemove", mousemoveEvent);
+    game.battleCanvas.addEventListener("mousemove", mousemoveEvent);
 
     window.addEventListener("mouseup", function(event) {
         game.listeners.mouseup = true;
