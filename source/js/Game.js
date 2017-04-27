@@ -59,9 +59,8 @@ Game.prototype.startGame = function() {
         while(this.deltaTime > this.step) {
             this.deltaTime = this.deltaTime - this.step;
             update();
+            render();
         }
-
-        render();
 
         this.last = this.now;
 

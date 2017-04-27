@@ -9,8 +9,11 @@ function Battle(settings) {
     this.screenWidth = 1024;
     this.screenHeight = 768;
 
-    this.conversation = new Conversation();
-    this.conversation.hidden = true;
+    this.conversation = new Conversation({
+        backgroundSrc: "img/conversation/background_battle.png",
+        hidden: true,
+        nextable: false
+    });
     
     this.flash = new Tile({
         renderWidth: 1024,
@@ -51,10 +54,10 @@ function Battle(settings) {
             pause: true
         }),
         monster_tile: new Tile({
-            renderX: -10000,
+            renderX: 512/2 - 350/2,
             renderY: 310,
-            renderWidth: 350,
-            renderHeight: 350,
+            renderWidth: 108,
+            renderHeight: 108,
             spriteCol: 0,
             spriteRow: 0,
             tileWidth: 108,
@@ -62,7 +65,7 @@ function Battle(settings) {
             offset: 108,
             numberOfFrames: 87,
             updateFrequency: 1,
-            src: "img/battle/player_monster.png",
+            src: "img/battle/player_monster_shiny.png",
             loop: false,
             pause: true
         }),
@@ -76,6 +79,7 @@ function Battle(settings) {
             src: "img/battle/playerbaseFieldGrassEve.png"
         })
     };
+    this.player.monster_tile.alpha = 0;
 
     this.enemy = {
         name: "HEJ",
@@ -125,10 +129,10 @@ function Battle(settings) {
 
     this.bottombar = new Tile({renderX: -10000, renderY: this.screenHeight - 192, renderWidth: 1028, renderHeight: 192, tileWidth: 512, tileHeight: 96, src: "img/battle/bottombar.png"});
 
-    this.textbox = new Tile({renderX: -10000, renderY: this.screenHeight - 192 + 10, renderWidth: 481, renderHeight: 176, tileWidth: 244, tileHeight: 88, src: "img/battle/textbox.png"});
+    // his.textbox = new Tile({renderX: -10000, renderY: this.screenHeight - 192 + 10, renderWidth: 481, renderHeight: 176, tileWidth: 244, tileHeight: 88, src: "img/battle/textbox.png"});
 
     this.fightbtn = new Tile({
-        renderX: -10000,
+        renderX: 514,
         renderY: this.screenHeight - 192 + 10,
         renderWidth: 256,
         renderHeight: 92,
@@ -142,7 +146,7 @@ function Battle(settings) {
     });
 
     this.bagbtn = new Tile({
-        renderX: -10000,
+        renderX: 770,
         renderY: this.screenHeight - 192 + 10,
         renderWidth: 256,
         renderHeight: 92,
@@ -156,7 +160,7 @@ function Battle(settings) {
     });
 
     this.pokemonbtn = new Tile({
-        renderX: -10000,
+        renderX: 514,
         renderY: this.screenHeight - 192 + 10 + 92 - 8,
         renderWidth: 256,
         renderHeight: 92,
@@ -170,7 +174,7 @@ function Battle(settings) {
     });
 
     this.runbtn = new Tile({
-        renderX: -10000,
+        renderX: 770,
         renderY: this.screenHeight - 192 + 10 + 92 - 8,
         renderWidth: 256,
         renderHeight: 92,
@@ -235,37 +239,54 @@ Battle.prototype._playIntro1 = function() {
 
     if (this.tick === 165) {
         this.enemy.monster_tile.pause = false;
-        this.conversation.addText("A wild monster appeared!");
+        this.conversation.addText("A wild monster appeared!+");
+        this.conversation.nextable = true;
         this.conversation.next();
+        this.conversation.addCallable(function() {
+            this.tick = -1;
+            this.state = "intro2";
+            this.conversation.addText("Go hehehehehe!+");
+            this.conversation.nextable = false;
+        }.bind(this));
     }
 }
 
 Battle.prototype._playIntro2 = function() {
-    if (this.tick === 200) {
+    if (this.tick === 0) {
         this.player.player_tile.pause = false;
     }
 
-    if (this.tick > 200 && this.tick < 240) {
+    if (this.tick > 0 && this.tick < 40) {
         this.player.player_tile.renderX -= 15;
     }
 
-    if (this.tick === 210) {
+    if (this.tick === 10) {
         this.ball.renderX = 150;
     }
 
-    if (this.tick > 210 && this.tick < 240) {
+    if (this.tick > 10 && this.tick < 40) {
         this.ball.renderX += 5;
         this.ball.renderY += 2;
     }
 
-    if (this.tick === 240) {
+    if (this.tick === 40) {
         this.ball.renderX = -500;
         this.player.monster_tile.pause = false;
-        this.player.monster_tile.renderX = 512/2 - 350/2;
+        // this.player.monster_tile.renderX = 512/2 - 350/2;
+        this.player.monster_tile.alpha = 1;
+    }
+
+    if (this.tick === 60) {
+        this.conversation.nextable = true;
+        this.conversation.addText("What will+hehehe do?");
+        this.conversation.addCallable(function() {
+            this.conversation.nextable = false;
+            this.state = "choose";
+        }.bind(this));
     }
 }
 
-Battle.prototype._mouseEvents = function(game) {
+Battle.prototype._chooseMouseEvents = function(game) {
     let isInsideBox = function(x1, y1, x2, y2) {
         let x = game.listeners.mousePositionX;
         let y = game.listeners.mousePositionY;
@@ -286,7 +307,7 @@ Battle.prototype._mouseEvents = function(game) {
         this.fightbtn.setFrame(1);
 
         if (game.listeners.click === true) {
-            console.log("fight");
+            this.state = "choosefight";
         }
     }
 
@@ -310,28 +331,53 @@ Battle.prototype._mouseEvents = function(game) {
         this.runbtn.setFrame(1);
 
         if (game.listeners.click === true) {
-            console.log("run");
-
-            game.endBattle();
+            this.state = "chooserun";
         }
+    }
+}
+
+Battle.prototype._chooseFightMouseEvents = function(game) {
+    let isInsideBox = function(x1, y1, x2, y2) {
+        let x = game.listeners.mousePositionX;
+        let y = game.listeners.mousePositionY;
+
+        if (x > x1 && y > y1 && x < x2 && y < y2) {
+            return true;
+        }
+
+        return false;
     }
 }
 
 Battle.prototype.update = function(game) {
     this.tick += 1;
 
-    if (this.state = "intro1") {
+    if (this.state === "intro1") {
         this._playIntro1();
+    }
+
+    if (this.state === "intro2") {
+        this._playIntro2();
+
+        this.ball.update(game);
+    }
+
+    if (this.state === "choose") {
+        this._chooseMouseEvents(game);
+    }
+
+    if (this.state === "choosefight") {
+        this._chooseFightMouseEvents(game);
+    }
+
+    if (this.state === "chooserun") {
+        game.endBattle();
     }
 
     this.player.monster_tile.update(game);
     this.player.player_tile.update(game);
 
     this.enemy.monster_tile.update(game);
-
-    this.ball.update(game);
-
-    this._mouseEvents(game);
 
     this.conversation.update(game);
 }
@@ -358,12 +404,14 @@ Battle.prototype.render = function(context) {
 
     // this.textbox.render(context);
 
-    // this.fightbtn.render(context);
-    // this.bagbtn.render(context);
-    // this.pokemonbtn.render(context);
-    // this.runbtn.render(context);
-
     this.conversation.render(context);
+
+    if (this.state === "choose") {
+        this.fightbtn.render(context);
+        this.bagbtn.render(context);
+        this.pokemonbtn.render(context);
+        this.runbtn.render(context);
+    }
 }
 
 module.exports = Battle;
