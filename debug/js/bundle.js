@@ -254,7 +254,7 @@ Battle.prototype._playIntro1 = function() {
 
     if (this.tick === 180) {
         this.enemy.monster_tile.pause = false;
-        // this.enemy.audio.play();
+        this.enemy.audio.play();
 
         this.conversation.addText("A wild monster appeared!+");
         this.conversation.nextable = true;
@@ -289,7 +289,7 @@ Battle.prototype._playIntro2 = function() {
     if (this.tick === 40) {
         this.player.monster_tile.pause = false;
         this.player.monster_tile.alpha = 1;
-        // this.player.audio.play();
+        this.player.audio.play();
 
         this.ball.renderX = -500;
     }
