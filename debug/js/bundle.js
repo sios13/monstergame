@@ -10,6 +10,10 @@ function Battle(settings) {
     this.screenWidth = 1024;
     this.screenHeight = 768;
 
+    this.audio = new Audio("audio/pkmn-fajt.mp3");
+    this.audio.loop = true;
+    this.audio.play();
+
     this.conversation = new Conversation({
         backgroundSrc: "img/conversation/background_battle.png",
         hidden: true,
@@ -38,6 +42,7 @@ function Battle(settings) {
 
     this.player = {
         name: "player",
+        audio: new Audio("audio/monster/130Cry.wav"),
         player_tile: new Tile({
             renderX: 1024 + 170,
             renderY: 768 - 192 - 230,
@@ -84,6 +89,7 @@ function Battle(settings) {
 
     this.enemy = {
         name: "HEJ",
+        audio: new Audio("audio/monster/093Cry.wav"),
         monster_tile: new Tile({
             renderX: 0 - 512/2 - 350/2,
             renderY: 75,
@@ -130,7 +136,7 @@ function Battle(settings) {
 
     this.bottombar = new Tile({renderX: -10000, renderY: this.screenHeight - 192, renderWidth: 1028, renderHeight: 192, tileWidth: 512, tileHeight: 96, src: "img/battle/bottombar.png"});
 
-    // his.textbox = new Tile({renderX: -10000, renderY: this.screenHeight - 192 + 10, renderWidth: 481, renderHeight: 176, tileWidth: 244, tileHeight: 88, src: "img/battle/textbox.png"});
+    // this.textbox = new Tile({renderX: -10000, renderY: this.screenHeight - 192 + 10, renderWidth: 481, renderHeight: 176, tileWidth: 244, tileHeight: 88, src: "img/battle/textbox.png"});
 
     this.fightbtn = new Tile({
         renderX: 514,
@@ -190,7 +196,6 @@ function Battle(settings) {
 }
 
 Battle.prototype._playIntro1 = function() {
-    console.log(this.flash.alpha);
     if (this.tick >= 0 && this.tick < 5) {
         this.flash.alpha += 0.20;
     }
@@ -212,15 +217,23 @@ Battle.prototype._playIntro1 = function() {
         this.flash.alpha -= 0.20;
     }
 
-    if (this.tick >= 45 && this.tick < 70) {
-        this.flash.alpha += 0.05;
+    if (this.tick >= 30 && this.tick < 35) {
+        this.flash.alpha += 0.20;
+    }
+    if (this.tick >= 35 && this.tick < 40) {
+        this.flash.alpha -= 0.20;
+    }
+
+    if (this.tick >= 60 && this.tick < 70) {
+        this.flash.alpha += 0.10;
     }
 
     // Transition is over -> set starting positions
-    if (this.tick === 90) {
+    if (this.tick === 105) {
         this.background.renderX = 0;
 
         this.bottombar.renderX = 0;
+
         this.conversation.hidden = false;
 
         // this.textbox.renderX = 10;
@@ -231,7 +244,7 @@ Battle.prototype._playIntro1 = function() {
         this.runbtn.renderX = this.screenWidth/2 - 10 + 256;
     }
 
-    if (this.tick > 90 && this.tick < 160) {
+    if (this.tick > 105 && this.tick < 175) {
         this.player.player_tile.renderX -= 15;
         this.player.base_tile.renderX -= 15;
 
@@ -239,8 +252,10 @@ Battle.prototype._playIntro1 = function() {
         this.enemy.base_tile.renderX += 15;
     }
 
-    if (this.tick === 165) {
+    if (this.tick === 180) {
         this.enemy.monster_tile.pause = false;
+        // this.enemy.audio.play();
+
         this.conversation.addText("A wild monster appeared!+");
         this.conversation.nextable = true;
         this.conversation.next();
@@ -272,10 +287,11 @@ Battle.prototype._playIntro2 = function() {
     }
 
     if (this.tick === 40) {
-        this.ball.renderX = -500;
         this.player.monster_tile.pause = false;
-        // this.player.monster_tile.renderX = 512/2 - 350/2;
         this.player.monster_tile.alpha = 1;
+        // this.player.audio.play();
+
+        this.ball.renderX = -500;
     }
 
     if (this.tick === 60) {
@@ -310,6 +326,11 @@ Battle.prototype._chooseMouseEvents = function(game) {
 
         if (game.listeners.click === true) {
             this.state = "choosefight";
+
+            this.conversation.addText("+");
+            this.conversation.nextable = true;
+            this.conversation.next();
+            this.conversation.nextable = false;
         }
     }
 
@@ -349,6 +370,9 @@ Battle.prototype._chooseFightMouseEvents = function(game) {
 
         return false;
     }
+
+    let x = game.listeners.mousePositionX;
+    let y = game.listeners.mousePositionY;
 }
 
 Battle.prototype.update = function(game) {
@@ -1028,27 +1052,29 @@ Game.prototype.startGame = function() {
 
         // Render 'loading screen' while system is loading
         if (!this.isLoaded()) {
-            // this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context.beginPath();
 
-            // this.context.beginPath();
+            this.context.font = "26px Georgia";
+            this.context.fillStyle = "#DDDDDD";
+            this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
 
-            // this.context.font = "26px Georgia";
-            // this.context.fillStyle = "#DDDDDD";
-            // this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
+            // this.context.stroke();
 
-            // // this.context.stroke();
-
-            // return;
+            return;
         }
 
         if (this.state === "battle") {
-            let context = this.context;
+            let context = this.battleContext;
+
+            context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
             this.battle.render(context);
         }
 
         if (this.state === "world") {
-            let context = this.context;
+            let context = this.worldContext;
+
+            context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
             this.map.renderLayer1(context);
 
@@ -1063,10 +1089,10 @@ Game.prototype.startGame = function() {
 
         // If system was recently loaded -> tone from black screen to game
         if (this.tickCounter - this.loadedTick < 20) {
-            // this.context.beginPath();
-            // this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
-            // this.context.fillRect(0, 0, 2000, 2000);
-            // this.context.stroke();
+            this.context.beginPath();
+            this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
+            this.context.fillRect(0, 0, 2000, 2000);
+            this.context.stroke();
         }
     }
 };
@@ -1113,24 +1139,30 @@ Game.prototype.event = function(event) {
 }
 
 Game.prototype.startBattle = function(settings) {
+    this.map.audio.pause();
+
     this.battle = new Battle(settings);
 
     this.state = "battle";
 
-    this.canvas = this.battleCanvas;
-    this.context = this.battleContext;
+    // this.canvas = this.battleCanvas;
+    // this.context = this.battleContext;
 
     this.worldCanvas.style.zIndex = 1;
     this.battleCanvas.style.zIndex = 2;
 }
 
 Game.prototype.endBattle = function() {
+    this.battle.audio.pause();
+
+    this.map.audio.play();
+
     this.battle = null;
 
     this.state = "world";
 
-    this.canvas = this.worldCanvas;
-    this.context = this.worldContext;
+    // this.canvas = this.worldCanvas;
+    // this.context = this.worldContext;
 
     this.worldCanvas.style.zIndex = 2;
     this.battleCanvas.style.zIndex = 1;

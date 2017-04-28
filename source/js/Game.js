@@ -106,27 +106,29 @@ Game.prototype.startGame = function() {
 
         // Render 'loading screen' while system is loading
         if (!this.isLoaded()) {
-            // this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context.beginPath();
 
-            // this.context.beginPath();
+            this.context.font = "26px Georgia";
+            this.context.fillStyle = "#DDDDDD";
+            this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
 
-            // this.context.font = "26px Georgia";
-            // this.context.fillStyle = "#DDDDDD";
-            // this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
+            // this.context.stroke();
 
-            // // this.context.stroke();
-
-            // return;
+            return;
         }
 
         if (this.state === "battle") {
-            let context = this.context;
+            let context = this.battleContext;
+
+            context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
             this.battle.render(context);
         }
 
         if (this.state === "world") {
-            let context = this.context;
+            let context = this.worldContext;
+
+            context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
             this.map.renderLayer1(context);
 
@@ -141,10 +143,10 @@ Game.prototype.startGame = function() {
 
         // If system was recently loaded -> tone from black screen to game
         if (this.tickCounter - this.loadedTick < 20) {
-            // this.context.beginPath();
-            // this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
-            // this.context.fillRect(0, 0, 2000, 2000);
-            // this.context.stroke();
+            this.context.beginPath();
+            this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
+            this.context.fillRect(0, 0, 2000, 2000);
+            this.context.stroke();
         }
     }
 };
@@ -191,24 +193,30 @@ Game.prototype.event = function(event) {
 }
 
 Game.prototype.startBattle = function(settings) {
+    this.map.audio.pause();
+
     this.battle = new Battle(settings);
 
     this.state = "battle";
 
-    this.canvas = this.battleCanvas;
-    this.context = this.battleContext;
+    // this.canvas = this.battleCanvas;
+    // this.context = this.battleContext;
 
     this.worldCanvas.style.zIndex = 1;
     this.battleCanvas.style.zIndex = 2;
 }
 
 Game.prototype.endBattle = function() {
+    this.battle.audio.pause();
+
+    this.map.audio.play();
+
     this.battle = null;
 
     this.state = "world";
 
-    this.canvas = this.worldCanvas;
-    this.context = this.worldContext;
+    // this.canvas = this.worldCanvas;
+    // this.context = this.worldContext;
 
     this.worldCanvas.style.zIndex = 2;
     this.battleCanvas.style.zIndex = 1;
