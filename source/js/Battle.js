@@ -268,15 +268,6 @@ Battle.prototype._playIntro1 = function() {
 }
 
 Battle.prototype._playIntro2 = function() {
-    switch (this.tick) {
-        case 0:
-            
-            break;
-        case 
-    
-        default:
-            break;
-    }
     if (this.tick === 0) {
         this.player.player_tile.pause = false;
     }

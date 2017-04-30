@@ -8,19 +8,22 @@ function addListeners(game) {
     game.worldCanvas.addEventListener("click", clickEvent);
     game.battleCanvas.addEventListener("click", clickEvent);
 
-    game.canvas.addEventListener("mousedown", function(event) {
+    let mousedownEvent = function(event) {
         game.listeners.mousedown = true;
 
-        let canvasRect = game.canvas.getBoundingClientRect();
+        let canvasRect = game.worldCanvas.getBoundingClientRect();
 
         game.listeners.mousePositionX = event.clientX - canvasRect.left;
         game.listeners.mousePositionY = event.clientY - canvasRect.top;
-    });
+    }
+
+    game.worldCanvas.addEventListener("mousedown", mousedownEvent);
+    game.battleCanvas.addEventListener("mousedown", mousedownEvent);
 
     let mousemoveEvent = function(event) {
         game.listeners.mousemove = true;
 
-        let canvasRect = game.canvas.getBoundingClientRect();
+        let canvasRect = game.worldCanvas.getBoundingClientRect();
 
         game.listeners.mousePositionX = event.clientX - canvasRect.left;
         game.listeners.mousePositionY = event.clientY - canvasRect.top;
@@ -30,8 +33,6 @@ function addListeners(game) {
     game.battleCanvas.addEventListener("mousemove", mousemoveEvent);
 
     window.addEventListener("mouseup", function(event) {
-        game.listeners.mouseup = true;
-
         game.listeners.mousedown = false;
         game.listeners.mousemove = false;
     });

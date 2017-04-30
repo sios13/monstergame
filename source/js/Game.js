@@ -1,6 +1,7 @@
 const Entity = require("./Entity.js");
 const MapInitializer = require("./MapInitializer.js");
 const Battle = require("./Battle.js");
+const ResourceLoader = require("./ResourceLoader.js");
 
 function Game() {
     this.now = null;
@@ -10,24 +11,31 @@ function Game() {
 
     this.tickCounter = 0;
 
-    this.state = "world";
+    this.state = "loading";
 
-    this.worldCanvas = document.querySelector(".worldCanvas");
-    this.worldContext = this.worldCanvas.getContext("2d");
+    // Loading properties
+    this.loadCanvas = document.querySelector(".loadCanvas");
+    this.loadContext = this.loadCanvas.getContext("2d");
 
+    this.resourceLoader = new ResourceLoader();
+
+    // Battle properties
     this.battleCanvas = document.querySelector(".battleCanvas");
     this.battleContext = this.battleCanvas.getContext("2d");
 
-    this.canvas = this.worldCanvas;
-    this.context = this.worldContext;
+    this.battle = null;
+
+    // World properties
+    this.worldCanvas = document.querySelector(".worldCanvas");
+    this.worldContext = this.worldCanvas.getContext("2d");
 
     this.map = MapInitializer.getMap("startMap");
 
     this.coolguy = new Entity({
         x: 14*32,                       // x position on map
         y: 35*32,                       // y position on map
-        canvasX: this.canvas.width/2,   // x position on canvas
-        canvasY: this.canvas.height/2,  // y position on canvas
+        canvasX: 512,                   // x position on canvas
+        canvasY: 384,                   // y position on canvas
         collisionSquare: 20,            // width and height of collision square
         renderWidth: 32,                // render width
         renderHeight: 48,               // render height
@@ -35,27 +43,25 @@ function Game() {
     });
 
     // The tick when system was loaded
-    this.loadedTick = null;
-
-    this.battle = null;
+    // this.loadedTick = null;
 }
 
 /**
  * Returns true if system is loaded
  */
-Game.prototype.isLoaded = function() {
-    if (this.map.isLoaded() && this.coolguy.isLoaded()) {
-        if (this.loadedTick === null) {
-            this.loadedTick = this.tickCounter;
-        }
+// Game.prototype.isLoaded = function() {
+//     if (this.map.isLoaded() && this.coolguy.isLoaded()) {
+//         if (this.loadedTick === null) {
+//             this.loadedTick = this.tickCounter;
+//         }
 
-        return true;
-    }
+//         return true;
+//     }
 
-    console.log("Not loaded tick!");
+//     console.log("Not loaded tick!");
 
-    return false;
-}
+//     return false;
+// }
 
 Game.prototype.startGame = function() {
     require("./listeners.js").addListeners(this);
@@ -67,8 +73,8 @@ Game.prototype.startGame = function() {
 
         while(this.deltaTime > this.step) {
             this.deltaTime = this.deltaTime - this.step;
-            update();
-            render();
+            this.update();
+            this.render();
         }
 
         this.last = this.now;
@@ -78,78 +84,86 @@ Game.prototype.startGame = function() {
 
     // Start game!
     requestAnimationFrame(frame.bind(this));
-
-    let update = () => {
-        this.tickCounter += 1;
-
-        // Do not update while system is loading
-        if (!this.isLoaded()) {return;}
-
-        if (this.state === "battle") {
-            // Update battle
-            this.battle.update(this);
-        }
-
-        if (this.state === "world") {
-            // Update coolguy
-            this.coolguy.update(this);
-
-            // Update map
-            this.map.update(this);
-        }
-
-        this.listeners.click = false;
-        this.listeners.mouseup = false;
-    }
-
-    let render = () => {
-
-        // Render 'loading screen' while system is loading
-        if (!this.isLoaded()) {
-            this.context.beginPath();
-
-            this.context.font = "26px Georgia";
-            this.context.fillStyle = "#DDDDDD";
-            this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
-
-            // this.context.stroke();
-
-            return;
-        }
-
-        if (this.state === "battle") {
-            let context = this.battleContext;
-
-            context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-            this.battle.render(context);
-        }
-
-        if (this.state === "world") {
-            let context = this.worldContext;
-
-            context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-            this.map.renderLayer1(context);
-
-            this.map.renderTiles(context);
-
-            this.coolguy.render(context);
-
-            this.map.renderLayer2(context);
-
-            this.map.render(context);
-        }
-
-        // If system was recently loaded -> tone from black screen to game
-        if (this.tickCounter - this.loadedTick < 20) {
-            this.context.beginPath();
-            this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
-            this.context.fillRect(0, 0, 2000, 2000);
-            this.context.stroke();
-        }
-    }
 };
+
+Game.prototype.update = function() {
+    this.tickCounter += 1;
+
+    // Do not update while system is loading
+    // if (!this.isLoaded()) {return;}
+
+    if (this.state === "loading") {
+        // Update resorce loader
+        this.resourceLoader.update(this);
+    }
+
+    if (this.state === "battle") {
+        // Update battle
+        this.battle.update(this);
+    }
+
+    if (this.state === "world") {
+        // Update coolguy
+        this.coolguy.update(this);
+
+        // Update map
+        this.map.update(this);
+    }
+
+    this.listeners.click = false;
+    this.listeners.mouseup = false;
+}
+
+Game.prototype.render = function() {
+    // Render 'loading screen' while system is loading
+    // if (!this.isLoaded()) {
+    //     this.context.beginPath();
+
+    //     this.context.font = "26px Georgia";
+    //     this.context.fillStyle = "#DDDDDD";
+    //     this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
+
+    //     // this.context.stroke();
+
+    //     return;
+    // }
+
+    if (this.state === "loading") {
+        this.resourceLoader.render(this.loadContext);
+    }
+
+    if (this.state === "battle") {
+        let context = this.battleContext;
+
+        context.clearRect(0, 0, this.battleCanvas.width, this.battleCanvas.height);
+
+        this.battle.render(context);
+    }
+
+    if (this.state === "world") {
+        let context = this.worldContext;
+
+        context.clearRect(0, 0, this.worldCanvas.width, this.worldCanvas.height);
+
+        this.map.renderLayer1(context);
+
+        this.map.renderTiles(context);
+
+        this.coolguy.render(context);
+
+        this.map.renderLayer2(context);
+
+        this.map.render(context);
+    }
+
+    // If system was recently loaded -> tone from black screen to game
+    // if (this.tickCounter - this.loadedTick < 20) {
+    //     this.context.beginPath();
+    //     this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
+    //     this.context.fillRect(0, 0, 2000, 2000);
+    //     this.context.stroke();
+    // }
+}
 
 Game.prototype.event = function(event) {
     // Walking!
@@ -190,6 +204,10 @@ Game.prototype.event = function(event) {
 
         return;
     }
+}
+
+Game.prototype.setState = function(state) {
+    this.state = state;
 }
 
 Game.prototype.startBattle = function(settings) {
