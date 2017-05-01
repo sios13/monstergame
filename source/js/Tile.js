@@ -101,7 +101,6 @@ Tile.prototype.render = function(context, mapX, mapY) {
     );
 
     context.restore();
-    
 }
 
 module.exports = Tile;

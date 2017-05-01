@@ -52,7 +52,8 @@ TileManager.prototype.getTile = function(identifier, renderCol, renderRow, sprit
         offset: settings.offset,                    // offset length
         numberOfFrames: settings.numberOfFrames,    // number of frames
         updateFrequency: settings.updateFrequency,  // specifies how often to update (5 is every fifth tick, 2 is every other tick, 1 is every tick etc...)
-        src: settings.src,                          // sprite or sprites src
+        image: settings.image,
+        // src: settings.src,                          // sprite or sprites src
         loop: settings.loop,                        // loop
         pause: settings.pause                       // pause
     });

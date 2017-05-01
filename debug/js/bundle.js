@@ -610,9 +610,12 @@ function Entity(settings) {
 
     let tileManager = new TileManager();
 
+    console.log(localStorage.getItem("images"));
+
     tileManager.addSettings({
         identifier: "playerWalk",
-        src: "img/character7_walking.png",
+        // src: "img/character7_walking.png",
+        image: localStorage.getItem("images").find(x => x.name === "img/character7_walking.png"),
         renderWidth: settings.renderWidth,
         renderHeight: settings.renderHeight,
         tileWidth: 32,
@@ -1602,6 +1605,8 @@ module.exports = {
 };
 
 },{"./Map.js":5,"./TileManager.js":9}],7:[function(require,module,exports){
+const Tile = require("./Tile.js");
+
 function ResourceLoader() {
     this.tick = 0;
     
@@ -1614,6 +1619,25 @@ function ResourceLoader() {
         src: "img/battle/flash.png"
     });
     this.flash.alpha = 0;
+
+    let loadEvent = new function(event, test) {
+
+    }
+
+    let images = [
+        "img/character7_walking.png"
+    ];
+
+    for (let i = 0; i < images.length; i++) {
+        let src = images[i];
+        images[i] = new Image();
+        images[i].addEventListener("load", loadEvent);
+        images[i].src = src;
+    }
+
+    console.log(images);
+
+    localStorage.setItem("images", images);
 }
 
 ResourceLoader.prototype.update = function(game) {
@@ -1630,7 +1654,7 @@ ResourceLoader.prototype.render = function(context) {
 
 module.exports = ResourceLoader;
 
-},{}],8:[function(require,module,exports){
+},{"./Tile.js":8}],8:[function(require,module,exports){
 function Tile(settings) {
     this.renderCol = settings.renderCol ? settings.renderCol : 0;
     this.renderRow = settings.renderRow ? settings.renderRow : 0;
@@ -1734,7 +1758,6 @@ Tile.prototype.render = function(context, mapX, mapY) {
     );
 
     context.restore();
-    
 }
 
 module.exports = Tile;
@@ -1794,7 +1817,8 @@ TileManager.prototype.getTile = function(identifier, renderCol, renderRow, sprit
         offset: settings.offset,                    // offset length
         numberOfFrames: settings.numberOfFrames,    // number of frames
         updateFrequency: settings.updateFrequency,  // specifies how often to update (5 is every fifth tick, 2 is every other tick, 1 is every tick etc...)
-        src: settings.src,                          // sprite or sprites src
+        image: settings.image,
+        // src: settings.src,                          // sprite or sprites src
         loop: settings.loop,                        // loop
         pause: settings.pause                       // pause
     });

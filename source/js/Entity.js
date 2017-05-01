@@ -28,9 +28,12 @@ function Entity(settings) {
 
     let tileManager = new TileManager();
 
+    console.log(localStorage.getItem("images"));
+
     tileManager.addSettings({
         identifier: "playerWalk",
-        src: "img/character7_walking.png",
+        // src: "img/character7_walking.png",
+        image: localStorage.getItem("images").find(x => x.name === "img/character7_walking.png"),
         renderWidth: settings.renderWidth,
         renderHeight: settings.renderHeight,
         tileWidth: 32,
