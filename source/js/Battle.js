@@ -1,8 +1,9 @@
 const Tile = require("./Tile.js");
 const Conversation = require("./Conversation.js");
 
-function Battle(settings) {
-    this.tick = -1;
+function Battle(service, settings) {
+    this.service = service;
+    // this.tick = -1;
 
     this.state = "intro1";
 
@@ -303,10 +304,10 @@ Battle.prototype._playIntro2 = function() {
     }
 }
 
-Battle.prototype._chooseMouseEvents = function(game) {
+Battle.prototype._chooseMouseEvents = function() {
     let isInsideBox = function(x1, y1, x2, y2) {
-        let x = game.listeners.mousePositionX;
-        let y = game.listeners.mousePositionY;
+        let x = this.service.listeners.mousePositionX;
+        let y = this.service.listeners.mousePositionY;
 
         if (x > x1 && y > y1 && x < x2 && y < y2) {
             return true;
@@ -323,7 +324,7 @@ Battle.prototype._chooseMouseEvents = function(game) {
     if (isInsideBox(this.fightbtn.renderX, this.fightbtn.renderY, this.fightbtn.renderX + this.fightbtn.renderWidth, this.fightbtn.renderY + this.fightbtn.renderHeight)) {
         this.fightbtn.setFrame(1);
 
-        if (game.listeners.click === true) {
+        if (this.service.listeners.click === true) {
             this.state = "choosefight";
 
             this.conversation.addText("+");
@@ -336,7 +337,7 @@ Battle.prototype._chooseMouseEvents = function(game) {
     if (isInsideBox(this.bagbtn.renderX, this.bagbtn.renderY, this.bagbtn.renderX + this.bagbtn.renderWidth, this.bagbtn.renderY + this.bagbtn.renderHeight)) {
         this.bagbtn.setFrame(1);
 
-        if (game.listeners.click === true) {
+        if (this.service.listeners.click === true) {
             console.log("bag");
         }
     }
@@ -344,7 +345,7 @@ Battle.prototype._chooseMouseEvents = function(game) {
     if (isInsideBox(this.pokemonbtn.renderX, this.pokemonbtn.renderY, this.pokemonbtn.renderX + this.pokemonbtn.renderWidth, this.pokemonbtn.renderY + this.pokemonbtn.renderHeight)) {
         this.pokemonbtn.setFrame(1);
 
-        if (game.listeners.click === true) {
+        if (this.service.listeners.click === true) {
             console.log("pokemon");
         }
     }
@@ -352,16 +353,16 @@ Battle.prototype._chooseMouseEvents = function(game) {
     if (isInsideBox(this.runbtn.renderX, this.runbtn.renderY, this.runbtn.renderX + this.runbtn.renderWidth, this.runbtn.renderY + this.runbtn.renderHeight)) {
         this.runbtn.setFrame(1);
 
-        if (game.listeners.click === true) {
+        if (this.service.listeners.click === true) {
             this.state = "chooserun";
         }
     }
 }
 
-Battle.prototype._chooseFightMouseEvents = function(game) {
+Battle.prototype._chooseFightMouseEvents = function() {
     let isInsideBox = function(x1, y1, x2, y2) {
-        let x = game.listeners.mousePositionX;
-        let y = game.listeners.mousePositionY;
+        let x = this.service.listeners.mousePositionX;
+        let y = this.service.listeners.mousePositionY;
 
         if (x > x1 && y > y1 && x < x2 && y < y2) {
             return true;
@@ -370,11 +371,11 @@ Battle.prototype._chooseFightMouseEvents = function(game) {
         return false;
     }
 
-    let x = game.listeners.mousePositionX;
-    let y = game.listeners.mousePositionY;
+    let x = this.service.listeners.mousePositionX;
+    let y = this.service.listeners.mousePositionY;
 }
 
-Battle.prototype.update = function(game) {
+Battle.prototype.update = function(ame) {
     this.tick += 1;
 
     if (this.state === "intro1") {
@@ -384,27 +385,27 @@ Battle.prototype.update = function(game) {
     if (this.state === "intro2") {
         this._playIntro2();
 
-        this.ball.update(game);
+        this.ball.update();
     }
 
     if (this.state === "choose") {
-        this._chooseMouseEvents(game);
+        this._chooseMouseEvents();
     }
 
     if (this.state === "choosefight") {
-        this._chooseFightMouseEvents(game);
+        this._chooseFightMouseEvents();
     }
 
     if (this.state === "chooserun") {
-        game.endBattle();
+        
     }
 
-    this.player.monster_tile.update(game);
-    this.player.player_tile.update(game);
+    this.player.monster_tile.update();
+    this.player.player_tile.update();
 
-    this.enemy.monster_tile.update(game);
+    this.enemy.monster_tile.update();
 
-    this.conversation.update(game);
+    this.conversation.update();
 }
 
 Battle.prototype.render = function(context) {

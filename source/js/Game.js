@@ -1,7 +1,7 @@
 const Entity = require("./Entity.js");
-const MapInitializer = require("./MapInitializer.js");
+const MapManager = require("./MapManager.js");
 const Battle = require("./Battle.js");
-const ResourceLoader = require("./ResourceLoader.js");
+const Loader = require("./Loader.js");
 
 function Game() {
     this.now = null;
@@ -9,63 +9,68 @@ function Game() {
     this.last = Date.now();
     this.step = 1/30;
 
-    this.tickCounter = 0;
+    // Initialize serivce
+    this.service = {};
 
-    this.state = "loading";
+    this.service.tick = 0;
+
+    this.service.state = "loading";
+
+    // Loading
+    // Load resources to service.resouces
+    this.loader = new Loader(this.service, {});
+    // Initialize world state
+    this.loader.load(function() {
+        this.service.coolguy = new Entity(this.service, {
+            x: 14*32,                       // x position on map
+            y: 35*32,                       // y position on map
+            canvasX: 512,                   // x position on canvas
+            canvasY: 384,                   // y position on canvas
+            collisionSquare: 20,            // width and height of collision square
+            renderWidth: 32,                // render width
+            renderHeight: 48,               // render height
+            speed: 4                        // speed
+        });
+
+        this.service.mapManager = new MapManager(this.service, {});
+
+        this.service.map = this.service.mapManager.getMap("startMap");
+
+        this.service.state = "world";
+    });
+
+    // Battle
+
+    // World
 
     // Loading properties
-    this.loadCanvas = document.querySelector(".loadCanvas");
-    this.loadContext = this.loadCanvas.getContext("2d");
-
-    this.resourceLoader = new ResourceLoader();
+    this.service.loadCanvas = document.querySelector(".loadCanvas");
+    this.service.loadContext = this.service.loadCanvas.getContext("2d");
 
     // Battle properties
-    this.battleCanvas = document.querySelector(".battleCanvas");
-    this.battleContext = this.battleCanvas.getContext("2d");
-
-    this.battle = null;
+    this.service.battleCanvas = document.querySelector(".battleCanvas");
+    this.service.battleContext = this.service.battleCanvas.getContext("2d");
 
     // World properties
-    this.worldCanvas = document.querySelector(".worldCanvas");
-    this.worldContext = this.worldCanvas.getContext("2d");
+    this.service.worldCanvas = document.querySelector(".worldCanvas");
+    this.service.worldContext = this.service.worldCanvas.getContext("2d");
 
-    this.map = MapInitializer.getMap("startMap");
+    require("./listeners.js").addListeners(this.service);
 
-    this.coolguy = new Entity({
-        x: 14*32,                       // x position on map
-        y: 35*32,                       // y position on map
-        canvasX: 512,                   // x position on canvas
-        canvasY: 384,                   // y position on canvas
-        collisionSquare: 20,            // width and height of collision square
-        renderWidth: 32,                // render width
-        renderHeight: 48,               // render height
-        speed: 4                        // speed
-    });
+    this.startGame();
 
     // The tick when system was loaded
     // this.loadedTick = null;
 }
 
-/**
- * Returns true if system is loaded
- */
-// Game.prototype.isLoaded = function() {
-//     if (this.map.isLoaded() && this.coolguy.isLoaded()) {
-//         if (this.loadedTick === null) {
-//             this.loadedTick = this.tickCounter;
-//         }
-
-//         return true;
-//     }
-
-//     console.log("Not loaded tick!");
-
-//     return false;
-// }
+Game.prototype.setState = function(state) {
+    if (this.state = "world") {
+        this.map = this.mapManager.getMap("startMap");
+    }
+    this.state = state;
+}
 
 Game.prototype.startGame = function() {
-    require("./listeners.js").addListeners(this);
-
     function frame() {
         this.now = Date.now();
 
@@ -87,31 +92,31 @@ Game.prototype.startGame = function() {
 };
 
 Game.prototype.update = function() {
-    this.tickCounter += 1;
+    this.service.tick += 1;
 
     // Do not update while system is loading
     // if (!this.isLoaded()) {return;}
 
-    if (this.state === "loading") {
+    if (this.service.state === "loading") {
         // Update resorce loader
-        this.resourceLoader.update(this);
+        this.loader.update();
     }
 
-    if (this.state === "battle") {
+    if (this.service.state === "battle") {
         // Update battle
-        this.battle.update(this);
+        this.battle.update();
     }
 
-    if (this.state === "world") {
+    if (this.service.state === "world") {
         // Update coolguy
-        this.coolguy.update(this);
+        this.service.coolguy.update();
 
         // Update map
-        this.map.update(this);
+        this.service.map.update();
     }
 
-    this.listeners.click = false;
-    this.listeners.mouseup = false;
+    this.service.listeners.click = false;
+    this.service.listeners.mouseup = false;
 }
 
 Game.prototype.render = function() {
@@ -206,38 +211,34 @@ Game.prototype.event = function(event) {
     }
 }
 
-Game.prototype.setState = function(state) {
-    this.state = state;
-}
+// Game.prototype.startBattle = function(settings) {
+//     this.map.audio.pause();
 
-Game.prototype.startBattle = function(settings) {
-    this.map.audio.pause();
+//     this.battle = new Battle(settings);
 
-    this.battle = new Battle(settings);
+//     this.state = "battle";
 
-    this.state = "battle";
+//     // this.canvas = this.battleCanvas;
+//     // this.context = this.battleContext;
 
-    // this.canvas = this.battleCanvas;
-    // this.context = this.battleContext;
+//     this.worldCanvas.style.zIndex = 1;
+//     this.battleCanvas.style.zIndex = 2;
+// }
 
-    this.worldCanvas.style.zIndex = 1;
-    this.battleCanvas.style.zIndex = 2;
-}
+// Game.prototype.endBattle = function() {
+//     this.battle.audio.pause();
 
-Game.prototype.endBattle = function() {
-    this.battle.audio.pause();
+//     this.map.audio.play();
 
-    this.map.audio.play();
+//     this.battle = null;
 
-    this.battle = null;
+//     this.state = "world";
 
-    this.state = "world";
+//     // this.canvas = this.worldCanvas;
+//     // this.context = this.worldContext;
 
-    // this.canvas = this.worldCanvas;
-    // this.context = this.worldContext;
-
-    this.worldCanvas.style.zIndex = 2;
-    this.battleCanvas.style.zIndex = 1;
-}
+//     this.worldCanvas.style.zIndex = 2;
+//     this.battleCanvas.style.zIndex = 1;
+// }
 
 module.exports = Game;

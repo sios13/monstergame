@@ -1,6 +1,8 @@
 const Tile = require("./Tile.js");
 
-function TileManager(settings) {
+function TileManager(service, settings) {
+    this.service = service;
+
     this.tilesSettings = [];
 
     this.addSettings(settings);
@@ -40,7 +42,7 @@ TileManager.prototype.addSettings = function(settings) {
 TileManager.prototype.getTile = function(identifier, renderCol, renderRow, spriteCol, spriteRow) {
     let settings = this.tilesSettings.find(x => x.identifier === identifier);
 
-    let tile = new Tile({
+    let tile = new Tile(this.service, {
         renderCol: renderCol,                       // col where to render
         renderRow: renderRow,                       // row where to render
         renderWidth: settings.renderWidth,          // render width
@@ -52,8 +54,8 @@ TileManager.prototype.getTile = function(identifier, renderCol, renderRow, sprit
         offset: settings.offset,                    // offset length
         numberOfFrames: settings.numberOfFrames,    // number of frames
         updateFrequency: settings.updateFrequency,  // specifies how often to update (5 is every fifth tick, 2 is every other tick, 1 is every tick etc...)
-        image: settings.image,
-        // src: settings.src,                          // sprite or sprites src
+        // image: settings.image,
+        src: settings.src,                          // sprite or sprites src
         loop: settings.loop,                        // loop
         pause: settings.pause                       // pause
     });

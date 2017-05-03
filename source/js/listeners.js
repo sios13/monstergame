@@ -1,40 +1,40 @@
-function addListeners(game) {
-    game.listeners = {};
+function addListeners(service) {
+    service.listeners = {};
 
     let clickEvent = function(event) {
-        game.listeners.click = true;
+        service.listeners.click = true;
     }
 
-    game.worldCanvas.addEventListener("click", clickEvent);
-    game.battleCanvas.addEventListener("click", clickEvent);
+    service.worldCanvas.addEventListener("click", clickEvent);
+    service.battleCanvas.addEventListener("click", clickEvent);
 
     let mousedownEvent = function(event) {
-        game.listeners.mousedown = true;
+        service.listeners.mousedown = true;
 
-        let canvasRect = game.worldCanvas.getBoundingClientRect();
+        let canvasRect = service.worldCanvas.getBoundingClientRect();
 
-        game.listeners.mousePositionX = event.clientX - canvasRect.left;
-        game.listeners.mousePositionY = event.clientY - canvasRect.top;
+        service.listeners.mousePositionX = event.clientX - canvasRect.left;
+        service.listeners.mousePositionY = event.clientY - canvasRect.top;
     }
 
-    game.worldCanvas.addEventListener("mousedown", mousedownEvent);
-    game.battleCanvas.addEventListener("mousedown", mousedownEvent);
+    service.worldCanvas.addEventListener("mousedown", mousedownEvent);
+    service.battleCanvas.addEventListener("mousedown", mousedownEvent);
 
     let mousemoveEvent = function(event) {
-        game.listeners.mousemove = true;
+        service.listeners.mousemove = true;
 
-        let canvasRect = game.worldCanvas.getBoundingClientRect();
+        let canvasRect = service.worldCanvas.getBoundingClientRect();
 
-        game.listeners.mousePositionX = event.clientX - canvasRect.left;
-        game.listeners.mousePositionY = event.clientY - canvasRect.top;
+        service.listeners.mousePositionX = event.clientX - canvasRect.left;
+        service.listeners.mousePositionY = event.clientY - canvasRect.top;
     }
 
-    game.worldCanvas.addEventListener("mousemove", mousemoveEvent);
-    game.battleCanvas.addEventListener("mousemove", mousemoveEvent);
+    service.worldCanvas.addEventListener("mousemove", mousemoveEvent);
+    service.battleCanvas.addEventListener("mousemove", mousemoveEvent);
 
     window.addEventListener("mouseup", function(event) {
-        game.listeners.mousedown = false;
-        game.listeners.mousemove = false;
+        service.listeners.mousedown = false;
+        service.listeners.mousemove = false;
     });
 }
 

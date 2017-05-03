@@ -1,6 +1,8 @@
 const TileManager = require("./TileManager.js");
 
-function Entity(settings) {
+function Entity(service, settings) {
+    this.service = service;
+
     this.x = settings.x;
     this.y = settings.y;
 
@@ -26,14 +28,12 @@ function Entity(settings) {
 
     this.newGrid = false;
 
-    let tileManager = new TileManager();
-
-    console.log(localStorage.getItem("images"));
+    let tileManager = new TileManager(this.service);
 
     tileManager.addSettings({
         identifier: "playerWalk",
-        // src: "img/character7_walking.png",
-        image: localStorage.getItem("images").find(x => x.name === "img/character7_walking.png"),
+        src: "img/character7_walking.png",
+        // image: this.service.resources.images.find(x => x.src === "img/character7_walking.png"),
         renderWidth: settings.renderWidth,
         renderHeight: settings.renderHeight,
         tileWidth: 32,
@@ -114,9 +114,9 @@ Entity.prototype.isLoaded = function() {
     return true;
 }
 
-Entity.prototype._setSpeed = function(game) {
-    let deltaX = game.listeners.mousePositionX - (this.canvasX + this.collisionSquare / 2);
-    let deltaY = game.listeners.mousePositionY - (this.canvasY + this.collisionSquare / 2);
+Entity.prototype._setSpeed = function() {
+    let deltaX = this.service.listeners.mousePositionX - (this.canvasX + this.collisionSquare / 2);
+    let deltaY = this.service.listeners.mousePositionY - (this.canvasY + this.collisionSquare / 2);
 
     let distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
 
@@ -140,7 +140,7 @@ Entity.prototype._setDirection = function() {
     }
 }
 
-Entity.prototype._detectCollision = function(game) {
+Entity.prototype._detectCollision = function() {
     let x = this.x;
     let y = this.y;
 
@@ -162,14 +162,14 @@ Entity.prototype._detectCollision = function(game) {
         let pointX = collisionPoints[i][0];
         let pointY = collisionPoints[i][1];
 
-        let oldColumn = Math.floor(pointX / game.map.gridSize);
-        let oldRow = Math.floor(pointY / game.map.gridSize);
+        let oldColumn = Math.floor(pointX / this.service.map.gridSize);
+        let oldRow = Math.floor(pointY / this.service.map.gridSize);
 
-        let newColumn = Math.floor((pointX+this.speedX) / game.map.gridSize);
-        let newRow = Math.floor((pointY+this.speedY) / game.map.gridSize);
+        let newColumn = Math.floor((pointX+this.speedX) / this.service.map.gridSize);
+        let newRow = Math.floor((pointY+this.speedY) / this.service.map.gridSize);
 
         // If collision point is trying to enter a disallowed grid
-        if (game.map.collisionMap[newRow][newColumn] === 1) {
+        if (this.service.map.collisionMap[newRow][newColumn] === 1) {
             // If trying to enter new column and row at the same time
             if (newColumn !== oldColumn && newRow !== oldRow) {
                 // Trust that another collision point will find the collision
@@ -194,15 +194,15 @@ Entity.prototype._detectCollision = function(game) {
  * Returns true if entering a new grid, otherwise false
  * Sets newGrid to true if entering a new grid
  */
-Entity.prototype._updateGridPosition = function(game) {
+Entity.prototype._updateGridPosition = function() {
     let oldColumn = this.col;
     let oldRow = this.row;
 
     let x = this.x + this.collisionSquare / 2;
     let y = this.y + this.collisionSquare / 2;
 
-    let newColumn = Math.floor((x + this.speedX) / game.map.gridSize);
-    let newRow = Math.floor((y + this.speedY) / game.map.gridSize);
+    let newColumn = Math.floor((x + this.speedX) / this.service.map.gridSize);
+    let newRow = Math.floor((y + this.speedY) / this.service.map.gridSize);
 
     if (oldColumn !== newColumn || oldRow !== newRow) {
         this.col = newColumn;
@@ -218,7 +218,7 @@ Entity.prototype._updateGridPosition = function(game) {
  * Every grid on the map has an event!
  * Check the events and set the state depending on event
  */
-Entity.prototype._checkEvents = function(game) {
+Entity.prototype._checkEvents = function() {
     // Only check for events if entered a new grid
     // if (this.newGrid === false) {
     //     return;
@@ -230,7 +230,7 @@ Entity.prototype._checkEvents = function(game) {
     // this.state = "walking";
 
     // Get event on position
-    let event = game.map.getEvent(this.col, this.row);
+    let event = this.service.map.getEvent(this.col, this.row);
 
     // If there is no event -> exit
     if (typeof event !== "object") {
@@ -238,7 +238,7 @@ Entity.prototype._checkEvents = function(game) {
     }
 
     // Emit the event!
-    game.event(event);
+    this.service.event(event);
 }
 
 Entity.prototype._setActiveTile = function() {
@@ -304,25 +304,25 @@ Entity.prototype._setActiveTile = function() {
     }
 }
 
-Entity.prototype.update = function(game) {
-    if (game.listeners.mousedown) {
+Entity.prototype.update = function() {
+    if (this.service.listeners.mousedown) {
         // if (this.state === "grass") {
         //     game.event("grass");
         // }
 
         // Use the mouse position to determine the entity speed
-        this._setSpeed(game);
+        this._setSpeed();
 
         // Use the speed to determine the direction
         this._setDirection();
 
         // Detect collision.
         // If collision is detected -> set the speed to 0
-        this._detectCollision(game);
+        this._detectCollision();
 
         // Update entity position on the grid
         // Determine if entity is entering a new grid
-        let newGrid = this._updateGridPosition(game);
+        let newGrid = this._updateGridPosition();
 
         // Finally, add the speed to the position
         this.x += this.speedX;
@@ -330,7 +330,7 @@ Entity.prototype.update = function(game) {
 
         // If entering a new grid -> check for events
         if (newGrid === true) {
-            this._checkEvents(game);
+            this._checkEvents();
         }
 
         // Check for events
@@ -340,7 +340,7 @@ Entity.prototype.update = function(game) {
         this._setActiveTile();
 
         // Update tile animation
-        this.activeTile.update(game);
+        this.activeTile.update();
 
         return;
     }

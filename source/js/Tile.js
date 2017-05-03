@@ -1,4 +1,6 @@
-function Tile(settings) {
+function Tile(service, settings) {
+    this.service = service;
+
     this.renderCol = settings.renderCol ? settings.renderCol : 0;
     this.renderRow = settings.renderRow ? settings.renderRow : 0;
 
@@ -51,7 +53,7 @@ Tile.prototype.setFrame = function(framenumber) {
     this.spriteOffset = framenumber * this.offset;
 }
 
-Tile.prototype.update = function(game) {
+Tile.prototype.update = function() {
     // Dont update if animation is paused
     if (this.pause === true) {
         return;
@@ -62,7 +64,7 @@ Tile.prototype.update = function(game) {
         return;
     }
 
-    if (game.tickCounter % this.updateFrequency === 0) {
+    if (this.service.tick % this.updateFrequency === 0) {
         this.animationCounter += 1;
 
         this.spriteOffset = this.offset * (this.animationCounter % this.numberOfFrames);

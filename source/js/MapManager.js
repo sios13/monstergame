@@ -1,17 +1,24 @@
 const Map = require("./Map.js");
 const TileManager = require("./TileManager.js");
 
-function getMap(mapName) {
+function MapManager(service) {
+    this.service = service;
+}
+
+MapManager.prototype.getMap = function(mapName) {
     if (mapName === "startMap") {
-        return startMap();
+        return this.createStartMap();
     }
 
     if (mapName === "house1Map") {
-        return house1Map();
+        return this.createHouse1Map();
     }
 }
 
-function startMap() {
+/**
+ * Creates and returns a start map
+ */
+MapManager.prototype.createStartMap = function() {
     let x = 0;
     let y = 0;
 
@@ -69,7 +76,7 @@ function startMap() {
 
     let audioSrc = "audio/music1.mp3";
 
-    let tileManager = new TileManager([{
+    let tileManager = new TileManager(this.service, [{
             identifier: "sea",  // identifier
             src: "img/Sea.png", // image source
             renderWidth: 32,    // width when rendering
@@ -196,7 +203,7 @@ function startMap() {
         tileManager.getTile("grass", 11, 30, 0, 0)
     ];
 
-    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
+    let map = new Map(this.service, x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
 
     // Attach map events!
     for (let y = 0; y < collisionMap.length; y++) {
@@ -245,7 +252,7 @@ function startMap() {
     return map;
 }
 
-function house1Map() {
+MapManager.prototype.createHouse1Map = function() {
     let x = 0;
     let y = 0;
 
@@ -275,7 +282,7 @@ function house1Map() {
 
     let tiles = [];
 
-    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
+    let map = new Map(this.service, x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
 
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {
@@ -295,6 +302,4 @@ function house1Map() {
     return map;
 }
 
-module.exports = {
-    getMap: getMap
-};
+module.exports = MapManager;

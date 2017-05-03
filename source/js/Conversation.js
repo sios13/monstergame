@@ -95,7 +95,7 @@ Conversation.prototype._updateText = function() {
     }
 }
 
-Conversation.prototype.update = function(game) {
+Conversation.prototype.update = function() {
     this._updateText();
 
     if (this.typing === true || this.nextable === false) {
@@ -104,11 +104,11 @@ Conversation.prototype.update = function(game) {
         this.nextBtn.setFrame(1);
     }
 
-    let x = game.listeners.mousePositionX;
-    let y = game.listeners.mousePositionY;
+    let x = this.service.listeners.mousePositionX;
+    let y = this.service.listeners.mousePositionY;
 
     // If clicked at conversation bar
-    if (game.listeners.click === true && x > 0 && x < 1028 && y > 576 && y < 768) {
+    if (this.service.listeners.click === true && x > 0 && x < 1028 && y > 576 && y < 768) {
         this.next();
     }
 }

@@ -2,8 +2,9 @@
 const Tile = require("./Tile.js");
 const Conversation = require("./Conversation.js");
 
-function Battle(settings) {
-    this.tick = -1;
+function Battle(service, settings) {
+    this.service = service;
+    // this.tick = -1;
 
     this.state = "intro1";
 
@@ -304,10 +305,10 @@ Battle.prototype._playIntro2 = function() {
     }
 }
 
-Battle.prototype._chooseMouseEvents = function(game) {
+Battle.prototype._chooseMouseEvents = function() {
     let isInsideBox = function(x1, y1, x2, y2) {
-        let x = game.listeners.mousePositionX;
-        let y = game.listeners.mousePositionY;
+        let x = this.service.listeners.mousePositionX;
+        let y = this.service.listeners.mousePositionY;
 
         if (x > x1 && y > y1 && x < x2 && y < y2) {
             return true;
@@ -324,7 +325,7 @@ Battle.prototype._chooseMouseEvents = function(game) {
     if (isInsideBox(this.fightbtn.renderX, this.fightbtn.renderY, this.fightbtn.renderX + this.fightbtn.renderWidth, this.fightbtn.renderY + this.fightbtn.renderHeight)) {
         this.fightbtn.setFrame(1);
 
-        if (game.listeners.click === true) {
+        if (this.service.listeners.click === true) {
             this.state = "choosefight";
 
             this.conversation.addText("+");
@@ -337,7 +338,7 @@ Battle.prototype._chooseMouseEvents = function(game) {
     if (isInsideBox(this.bagbtn.renderX, this.bagbtn.renderY, this.bagbtn.renderX + this.bagbtn.renderWidth, this.bagbtn.renderY + this.bagbtn.renderHeight)) {
         this.bagbtn.setFrame(1);
 
-        if (game.listeners.click === true) {
+        if (this.service.listeners.click === true) {
             console.log("bag");
         }
     }
@@ -345,7 +346,7 @@ Battle.prototype._chooseMouseEvents = function(game) {
     if (isInsideBox(this.pokemonbtn.renderX, this.pokemonbtn.renderY, this.pokemonbtn.renderX + this.pokemonbtn.renderWidth, this.pokemonbtn.renderY + this.pokemonbtn.renderHeight)) {
         this.pokemonbtn.setFrame(1);
 
-        if (game.listeners.click === true) {
+        if (this.service.listeners.click === true) {
             console.log("pokemon");
         }
     }
@@ -353,16 +354,16 @@ Battle.prototype._chooseMouseEvents = function(game) {
     if (isInsideBox(this.runbtn.renderX, this.runbtn.renderY, this.runbtn.renderX + this.runbtn.renderWidth, this.runbtn.renderY + this.runbtn.renderHeight)) {
         this.runbtn.setFrame(1);
 
-        if (game.listeners.click === true) {
+        if (this.service.listeners.click === true) {
             this.state = "chooserun";
         }
     }
 }
 
-Battle.prototype._chooseFightMouseEvents = function(game) {
+Battle.prototype._chooseFightMouseEvents = function() {
     let isInsideBox = function(x1, y1, x2, y2) {
-        let x = game.listeners.mousePositionX;
-        let y = game.listeners.mousePositionY;
+        let x = this.service.listeners.mousePositionX;
+        let y = this.service.listeners.mousePositionY;
 
         if (x > x1 && y > y1 && x < x2 && y < y2) {
             return true;
@@ -371,11 +372,11 @@ Battle.prototype._chooseFightMouseEvents = function(game) {
         return false;
     }
 
-    let x = game.listeners.mousePositionX;
-    let y = game.listeners.mousePositionY;
+    let x = this.service.listeners.mousePositionX;
+    let y = this.service.listeners.mousePositionY;
 }
 
-Battle.prototype.update = function(game) {
+Battle.prototype.update = function(ame) {
     this.tick += 1;
 
     if (this.state === "intro1") {
@@ -385,27 +386,27 @@ Battle.prototype.update = function(game) {
     if (this.state === "intro2") {
         this._playIntro2();
 
-        this.ball.update(game);
+        this.ball.update();
     }
 
     if (this.state === "choose") {
-        this._chooseMouseEvents(game);
+        this._chooseMouseEvents();
     }
 
     if (this.state === "choosefight") {
-        this._chooseFightMouseEvents(game);
+        this._chooseFightMouseEvents();
     }
 
     if (this.state === "chooserun") {
-        game.endBattle();
+        
     }
 
-    this.player.monster_tile.update(game);
-    this.player.player_tile.update(game);
+    this.player.monster_tile.update();
+    this.player.player_tile.update();
 
-    this.enemy.monster_tile.update(game);
+    this.enemy.monster_tile.update();
 
-    this.conversation.update(game);
+    this.conversation.update();
 }
 
 Battle.prototype.render = function(context) {
@@ -540,7 +541,7 @@ Conversation.prototype._updateText = function() {
     }
 }
 
-Conversation.prototype.update = function(game) {
+Conversation.prototype.update = function() {
     this._updateText();
 
     if (this.typing === true || this.nextable === false) {
@@ -549,11 +550,11 @@ Conversation.prototype.update = function(game) {
         this.nextBtn.setFrame(1);
     }
 
-    let x = game.listeners.mousePositionX;
-    let y = game.listeners.mousePositionY;
+    let x = this.service.listeners.mousePositionX;
+    let y = this.service.listeners.mousePositionY;
 
     // If clicked at conversation bar
-    if (game.listeners.click === true && x > 0 && x < 1028 && y > 576 && y < 768) {
+    if (this.service.listeners.click === true && x > 0 && x < 1028 && y > 576 && y < 768) {
         this.next();
     }
 }
@@ -582,7 +583,9 @@ module.exports = Conversation;
 },{"./Tile.js":8}],3:[function(require,module,exports){
 const TileManager = require("./TileManager.js");
 
-function Entity(settings) {
+function Entity(service, settings) {
+    this.service = service;
+
     this.x = settings.x;
     this.y = settings.y;
 
@@ -608,14 +611,12 @@ function Entity(settings) {
 
     this.newGrid = false;
 
-    let tileManager = new TileManager();
-
-    console.log(localStorage.getItem("images"));
+    let tileManager = new TileManager(this.service);
 
     tileManager.addSettings({
         identifier: "playerWalk",
-        // src: "img/character7_walking.png",
-        image: localStorage.getItem("images").find(x => x.name === "img/character7_walking.png"),
+        src: "img/character7_walking.png",
+        // image: this.service.resources.images.find(x => x.src === "img/character7_walking.png"),
         renderWidth: settings.renderWidth,
         renderHeight: settings.renderHeight,
         tileWidth: 32,
@@ -696,9 +697,9 @@ Entity.prototype.isLoaded = function() {
     return true;
 }
 
-Entity.prototype._setSpeed = function(game) {
-    let deltaX = game.listeners.mousePositionX - (this.canvasX + this.collisionSquare / 2);
-    let deltaY = game.listeners.mousePositionY - (this.canvasY + this.collisionSquare / 2);
+Entity.prototype._setSpeed = function() {
+    let deltaX = this.service.listeners.mousePositionX - (this.canvasX + this.collisionSquare / 2);
+    let deltaY = this.service.listeners.mousePositionY - (this.canvasY + this.collisionSquare / 2);
 
     let distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
 
@@ -722,7 +723,7 @@ Entity.prototype._setDirection = function() {
     }
 }
 
-Entity.prototype._detectCollision = function(game) {
+Entity.prototype._detectCollision = function() {
     let x = this.x;
     let y = this.y;
 
@@ -744,14 +745,14 @@ Entity.prototype._detectCollision = function(game) {
         let pointX = collisionPoints[i][0];
         let pointY = collisionPoints[i][1];
 
-        let oldColumn = Math.floor(pointX / game.map.gridSize);
-        let oldRow = Math.floor(pointY / game.map.gridSize);
+        let oldColumn = Math.floor(pointX / this.service.map.gridSize);
+        let oldRow = Math.floor(pointY / this.service.map.gridSize);
 
-        let newColumn = Math.floor((pointX+this.speedX) / game.map.gridSize);
-        let newRow = Math.floor((pointY+this.speedY) / game.map.gridSize);
+        let newColumn = Math.floor((pointX+this.speedX) / this.service.map.gridSize);
+        let newRow = Math.floor((pointY+this.speedY) / this.service.map.gridSize);
 
         // If collision point is trying to enter a disallowed grid
-        if (game.map.collisionMap[newRow][newColumn] === 1) {
+        if (this.service.map.collisionMap[newRow][newColumn] === 1) {
             // If trying to enter new column and row at the same time
             if (newColumn !== oldColumn && newRow !== oldRow) {
                 // Trust that another collision point will find the collision
@@ -776,15 +777,15 @@ Entity.prototype._detectCollision = function(game) {
  * Returns true if entering a new grid, otherwise false
  * Sets newGrid to true if entering a new grid
  */
-Entity.prototype._updateGridPosition = function(game) {
+Entity.prototype._updateGridPosition = function() {
     let oldColumn = this.col;
     let oldRow = this.row;
 
     let x = this.x + this.collisionSquare / 2;
     let y = this.y + this.collisionSquare / 2;
 
-    let newColumn = Math.floor((x + this.speedX) / game.map.gridSize);
-    let newRow = Math.floor((y + this.speedY) / game.map.gridSize);
+    let newColumn = Math.floor((x + this.speedX) / this.service.map.gridSize);
+    let newRow = Math.floor((y + this.speedY) / this.service.map.gridSize);
 
     if (oldColumn !== newColumn || oldRow !== newRow) {
         this.col = newColumn;
@@ -800,7 +801,7 @@ Entity.prototype._updateGridPosition = function(game) {
  * Every grid on the map has an event!
  * Check the events and set the state depending on event
  */
-Entity.prototype._checkEvents = function(game) {
+Entity.prototype._checkEvents = function() {
     // Only check for events if entered a new grid
     // if (this.newGrid === false) {
     //     return;
@@ -812,7 +813,7 @@ Entity.prototype._checkEvents = function(game) {
     // this.state = "walking";
 
     // Get event on position
-    let event = game.map.getEvent(this.col, this.row);
+    let event = this.service.map.getEvent(this.col, this.row);
 
     // If there is no event -> exit
     if (typeof event !== "object") {
@@ -820,7 +821,7 @@ Entity.prototype._checkEvents = function(game) {
     }
 
     // Emit the event!
-    game.event(event);
+    this.service.event(event);
 }
 
 Entity.prototype._setActiveTile = function() {
@@ -886,25 +887,25 @@ Entity.prototype._setActiveTile = function() {
     }
 }
 
-Entity.prototype.update = function(game) {
-    if (game.listeners.mousedown) {
+Entity.prototype.update = function() {
+    if (this.service.listeners.mousedown) {
         // if (this.state === "grass") {
         //     game.event("grass");
         // }
 
         // Use the mouse position to determine the entity speed
-        this._setSpeed(game);
+        this._setSpeed();
 
         // Use the speed to determine the direction
         this._setDirection();
 
         // Detect collision.
         // If collision is detected -> set the speed to 0
-        this._detectCollision(game);
+        this._detectCollision();
 
         // Update entity position on the grid
         // Determine if entity is entering a new grid
-        let newGrid = this._updateGridPosition(game);
+        let newGrid = this._updateGridPosition();
 
         // Finally, add the speed to the position
         this.x += this.speedX;
@@ -912,7 +913,7 @@ Entity.prototype.update = function(game) {
 
         // If entering a new grid -> check for events
         if (newGrid === true) {
-            this._checkEvents(game);
+            this._checkEvents();
         }
 
         // Check for events
@@ -922,7 +923,7 @@ Entity.prototype.update = function(game) {
         this._setActiveTile();
 
         // Update tile animation
-        this.activeTile.update(game);
+        this.activeTile.update();
 
         return;
     }
@@ -948,9 +949,9 @@ module.exports = Entity;
 
 },{"./TileManager.js":9}],4:[function(require,module,exports){
 const Entity = require("./Entity.js");
-const MapInitializer = require("./MapInitializer.js");
+const MapManager = require("./MapManager.js");
 const Battle = require("./Battle.js");
-const ResourceLoader = require("./ResourceLoader.js");
+const Loader = require("./Loader.js");
 
 function Game() {
     this.now = null;
@@ -958,63 +959,68 @@ function Game() {
     this.last = Date.now();
     this.step = 1/30;
 
-    this.tickCounter = 0;
+    // Initialize serivce
+    this.service = {};
 
-    this.state = "loading";
+    this.service.tick = 0;
+
+    this.service.state = "loading";
+
+    // Loading
+    // Load resources to service.resouces
+    this.loader = new Loader(this.service, {});
+    // Initialize world state
+    this.loader.load(function() {
+        this.service.coolguy = new Entity(this.service, {
+            x: 14*32,                       // x position on map
+            y: 35*32,                       // y position on map
+            canvasX: 512,                   // x position on canvas
+            canvasY: 384,                   // y position on canvas
+            collisionSquare: 20,            // width and height of collision square
+            renderWidth: 32,                // render width
+            renderHeight: 48,               // render height
+            speed: 4                        // speed
+        });
+
+        this.service.mapManager = new MapManager(this.service, {});
+
+        this.service.map = this.service.mapManager.getMap("startMap");
+
+        this.service.state = "world";
+    });
+
+    // Battle
+
+    // World
 
     // Loading properties
-    this.loadCanvas = document.querySelector(".loadCanvas");
-    this.loadContext = this.loadCanvas.getContext("2d");
-
-    this.resourceLoader = new ResourceLoader();
+    this.service.loadCanvas = document.querySelector(".loadCanvas");
+    this.service.loadContext = this.service.loadCanvas.getContext("2d");
 
     // Battle properties
-    this.battleCanvas = document.querySelector(".battleCanvas");
-    this.battleContext = this.battleCanvas.getContext("2d");
-
-    this.battle = null;
+    this.service.battleCanvas = document.querySelector(".battleCanvas");
+    this.service.battleContext = this.service.battleCanvas.getContext("2d");
 
     // World properties
-    this.worldCanvas = document.querySelector(".worldCanvas");
-    this.worldContext = this.worldCanvas.getContext("2d");
+    this.service.worldCanvas = document.querySelector(".worldCanvas");
+    this.service.worldContext = this.service.worldCanvas.getContext("2d");
 
-    this.map = MapInitializer.getMap("startMap");
+    require("./listeners.js").addListeners(this.service);
 
-    this.coolguy = new Entity({
-        x: 14*32,                       // x position on map
-        y: 35*32,                       // y position on map
-        canvasX: 512,                   // x position on canvas
-        canvasY: 384,                   // y position on canvas
-        collisionSquare: 20,            // width and height of collision square
-        renderWidth: 32,                // render width
-        renderHeight: 48,               // render height
-        speed: 4                        // speed
-    });
+    this.startGame();
 
     // The tick when system was loaded
     // this.loadedTick = null;
 }
 
-/**
- * Returns true if system is loaded
- */
-// Game.prototype.isLoaded = function() {
-//     if (this.map.isLoaded() && this.coolguy.isLoaded()) {
-//         if (this.loadedTick === null) {
-//             this.loadedTick = this.tickCounter;
-//         }
-
-//         return true;
-//     }
-
-//     console.log("Not loaded tick!");
-
-//     return false;
-// }
+Game.prototype.setState = function(state) {
+    if (this.state = "world") {
+        this.map = this.mapManager.getMap("startMap");
+    }
+    this.state = state;
+}
 
 Game.prototype.startGame = function() {
-    require("./listeners.js").addListeners(this);
-
     function frame() {
         this.now = Date.now();
 
@@ -1036,31 +1042,31 @@ Game.prototype.startGame = function() {
 };
 
 Game.prototype.update = function() {
-    this.tickCounter += 1;
+    this.service.tick += 1;
 
     // Do not update while system is loading
     // if (!this.isLoaded()) {return;}
 
-    if (this.state === "loading") {
+    if (this.service.state === "loading") {
         // Update resorce loader
-        this.resourceLoader.update(this);
+        this.loader.update();
     }
 
-    if (this.state === "battle") {
+    if (this.service.state === "battle") {
         // Update battle
-        this.battle.update(this);
+        this.battle.update();
     }
 
-    if (this.state === "world") {
+    if (this.service.state === "world") {
         // Update coolguy
-        this.coolguy.update(this);
+        this.service.coolguy.update();
 
         // Update map
-        this.map.update(this);
+        this.service.map.update();
     }
 
-    this.listeners.click = false;
-    this.listeners.mouseup = false;
+    this.service.listeners.click = false;
+    this.service.listeners.mouseup = false;
 }
 
 Game.prototype.render = function() {
@@ -1155,44 +1161,121 @@ Game.prototype.event = function(event) {
     }
 }
 
-Game.prototype.setState = function(state) {
-    this.state = state;
-}
+// Game.prototype.startBattle = function(settings) {
+//     this.map.audio.pause();
 
-Game.prototype.startBattle = function(settings) {
-    this.map.audio.pause();
+//     this.battle = new Battle(settings);
 
-    this.battle = new Battle(settings);
+//     this.state = "battle";
 
-    this.state = "battle";
+//     // this.canvas = this.battleCanvas;
+//     // this.context = this.battleContext;
 
-    // this.canvas = this.battleCanvas;
-    // this.context = this.battleContext;
+//     this.worldCanvas.style.zIndex = 1;
+//     this.battleCanvas.style.zIndex = 2;
+// }
 
-    this.worldCanvas.style.zIndex = 1;
-    this.battleCanvas.style.zIndex = 2;
-}
+// Game.prototype.endBattle = function() {
+//     this.battle.audio.pause();
 
-Game.prototype.endBattle = function() {
-    this.battle.audio.pause();
+//     this.map.audio.play();
 
-    this.map.audio.play();
+//     this.battle = null;
 
-    this.battle = null;
+//     this.state = "world";
 
-    this.state = "world";
+//     // this.canvas = this.worldCanvas;
+//     // this.context = this.worldContext;
 
-    // this.canvas = this.worldCanvas;
-    // this.context = this.worldContext;
-
-    this.worldCanvas.style.zIndex = 2;
-    this.battleCanvas.style.zIndex = 1;
-}
+//     this.worldCanvas.style.zIndex = 2;
+//     this.battleCanvas.style.zIndex = 1;
+// }
 
 module.exports = Game;
 
-},{"./Battle.js":1,"./Entity.js":3,"./MapInitializer.js":6,"./ResourceLoader.js":7,"./listeners.js":11}],5:[function(require,module,exports){
-function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles) {
+},{"./Battle.js":1,"./Entity.js":3,"./Loader.js":5,"./MapManager.js":7,"./listeners.js":11}],5:[function(require,module,exports){
+const Tile = require("./Tile.js");
+
+function Loader(service, settings)
+{
+    this.service = service;
+    
+    this.tick = 0;
+
+    this.endTick = null;
+
+    this.loadEssentialCounter = 0;
+
+    this.images = [
+        "img/character7_walking.png"
+    ];
+
+    this.loadEssentialResources();
+}
+
+Loader.prototype.loadEssentialResources = function() {
+    for (let i = 0; i < this.images.length; i++) {
+        let src = this.images[i];
+        this.images[i] = new Image();
+        this.images[i].addEventListener("load", function() {
+            this.loadEssentialCounter += 1;
+        }.bind(this));
+        this.images[i].src = src;
+    }
+
+    this.service.resources = {};
+
+    this.service.resources.images = this.images;
+}
+
+/**
+ * Starts a new loading
+ */
+Loader.prototype.load = function(callable)
+{
+    this.tick = 0;
+
+    this.endTick = null;
+
+    this.loadCallable = callable;
+}
+
+Loader.prototype.update = function()
+{
+    this.tick += 1;
+
+    // Do not update while essential resources is loading
+    if (this.loadEssentialCounter !== this.images.length) {
+        return;
+    }
+
+    // If 30 ticks have passed since loading started -> call the callable
+    if (this.tick === 30) {
+        this.loadCallable();
+
+        this.endTick = this.tick + 10 + 30;
+    }
+}
+
+Loader.prototype.render = function(context)
+{
+    context.beginPath();
+
+    context.fillStyle = "rgba(0, 0, 0, " + this.tick + ")";
+    context.fillRect(0, 0, 2000, 2000);
+    context.stroke();
+
+    context.font = "26px Georgia";
+    context.fillStyle = "#DDDDDD";
+    context.fillText("Loading!", context.canvas.width/2 - 50, context.canvas.height/2 - 10);
+}
+
+module.exports = Loader;
+
+},{"./Tile.js":8}],6:[function(require,module,exports){
+function Map(service, x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles) {
+    this.service = service;
+
     this.x = x;
     this.y = y;
 
@@ -1227,23 +1310,23 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
 /**
  * Returns true if map has been loaded
  */
-Map.prototype.isLoaded = function() {
-    // If the two map layers and audio has been loaded
-    if (this.loadCounter === this.loadCounterFinish) {
-        for (let i = 0; i < this.tiles.length; i++) {
+// Map.prototype.isLoaded = function() {
+//     // If the two map layers and audio has been loaded
+//     if (this.loadCounter === this.loadCounterFinish) {
+//         for (let i = 0; i < this.tiles.length; i++) {
 
-            // Return false if a tile has not been loaded
-            if (this.tiles[i].image.complete === false) {
-                return false;
-            }
-        }
+//             // Return false if a tile has not been loaded
+//             if (this.tiles[i].image.complete === false) {
+//                 return false;
+//             }
+//         }
 
-        // If all tiles also has been loaded
-        return true;
-    }
+//         // If all tiles also has been loaded
+//         return true;
+//     }
 
-    return false;
-}
+//     return false;
+// }
 
 Map.prototype.attachEvent = function(col, row, event) {
     this.collisionMap[row][col] = event;
@@ -1253,15 +1336,15 @@ Map.prototype.getEvent = function(col, row) {
     return this.collisionMap[row][col];
 }
 
-Map.prototype.update = function(game) {
+Map.prototype.update = function() {
     this.tickCounter += 1;
 
     // Update map position
-    this.x = game.coolguy.canvasX - game.coolguy.x;
-    this.y = game.coolguy.canvasY - game.coolguy.y;
+    this.x = this.service.coolguy.canvasX - this.service.coolguy.x;
+    this.y = this.service.coolguy.canvasY - this.service.coolguy.y;
 
     for (let i = 0; i < this.tiles.length; i++) {
-        this.tiles[i].update(game);
+        this.tiles[i].update();
     }
 }
 
@@ -1302,21 +1385,28 @@ Map.prototype.destroy = function() {
 
 module.exports = Map;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 const Map = require("./Map.js");
 const TileManager = require("./TileManager.js");
 
-function getMap(mapName) {
+function MapManager(service) {
+    this.service = service;
+}
+
+MapManager.prototype.getMap = function(mapName) {
     if (mapName === "startMap") {
-        return startMap();
+        return this.createStartMap();
     }
 
     if (mapName === "house1Map") {
-        return house1Map();
+        return this.createHouse1Map();
     }
 }
 
-function startMap() {
+/**
+ * Creates and returns a start map
+ */
+MapManager.prototype.createStartMap = function() {
     let x = 0;
     let y = 0;
 
@@ -1374,7 +1464,7 @@ function startMap() {
 
     let audioSrc = "audio/music1.mp3";
 
-    let tileManager = new TileManager([{
+    let tileManager = new TileManager(this.service, [{
             identifier: "sea",  // identifier
             src: "img/Sea.png", // image source
             renderWidth: 32,    // width when rendering
@@ -1501,7 +1591,7 @@ function startMap() {
         tileManager.getTile("grass", 11, 30, 0, 0)
     ];
 
-    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
+    let map = new Map(this.service, x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
 
     // Attach map events!
     for (let y = 0; y < collisionMap.length; y++) {
@@ -1550,7 +1640,7 @@ function startMap() {
     return map;
 }
 
-function house1Map() {
+MapManager.prototype.createHouse1Map = function() {
     let x = 0;
     let y = 0;
 
@@ -1580,7 +1670,7 @@ function house1Map() {
 
     let tiles = [];
 
-    let map = new Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
+    let map = new Map(this.service, x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
 
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {
@@ -1600,62 +1690,12 @@ function house1Map() {
     return map;
 }
 
-module.exports = {
-    getMap: getMap
-};
+module.exports = MapManager;
 
-},{"./Map.js":5,"./TileManager.js":9}],7:[function(require,module,exports){
-const Tile = require("./Tile.js");
+},{"./Map.js":6,"./TileManager.js":9}],8:[function(require,module,exports){
+function Tile(service, settings) {
+    this.service = service;
 
-function ResourceLoader() {
-    this.tick = 0;
-    
-    this.flash = new Tile({
-        renderWidth: 1024,
-        renderHeight: 768,
-        tileWidth: 1024,
-        tileHeight: 768,
-        alpha: 0,
-        src: "img/battle/flash.png"
-    });
-    this.flash.alpha = 0;
-
-    let loadEvent = new function(event, test) {
-
-    }
-
-    let images = [
-        "img/character7_walking.png"
-    ];
-
-    for (let i = 0; i < images.length; i++) {
-        let src = images[i];
-        images[i] = new Image();
-        images[i].addEventListener("load", loadEvent);
-        images[i].src = src;
-    }
-
-    console.log(images);
-
-    localStorage.setItem("images", images);
-}
-
-ResourceLoader.prototype.update = function(game) {
-    this.tick += 1;
-
-    if (this.tick === 30) {
-        game.setState("world");
-    }
-}
-
-ResourceLoader.prototype.render = function(context) {
-
-}
-
-module.exports = ResourceLoader;
-
-},{"./Tile.js":8}],8:[function(require,module,exports){
-function Tile(settings) {
     this.renderCol = settings.renderCol ? settings.renderCol : 0;
     this.renderRow = settings.renderRow ? settings.renderRow : 0;
 
@@ -1708,7 +1748,7 @@ Tile.prototype.setFrame = function(framenumber) {
     this.spriteOffset = framenumber * this.offset;
 }
 
-Tile.prototype.update = function(game) {
+Tile.prototype.update = function() {
     // Dont update if animation is paused
     if (this.pause === true) {
         return;
@@ -1719,7 +1759,7 @@ Tile.prototype.update = function(game) {
         return;
     }
 
-    if (game.tickCounter % this.updateFrequency === 0) {
+    if (this.service.tick % this.updateFrequency === 0) {
         this.animationCounter += 1;
 
         this.spriteOffset = this.offset * (this.animationCounter % this.numberOfFrames);
@@ -1765,7 +1805,9 @@ module.exports = Tile;
 },{}],9:[function(require,module,exports){
 const Tile = require("./Tile.js");
 
-function TileManager(settings) {
+function TileManager(service, settings) {
+    this.service = service;
+
     this.tilesSettings = [];
 
     this.addSettings(settings);
@@ -1805,7 +1847,7 @@ TileManager.prototype.addSettings = function(settings) {
 TileManager.prototype.getTile = function(identifier, renderCol, renderRow, spriteCol, spriteRow) {
     let settings = this.tilesSettings.find(x => x.identifier === identifier);
 
-    let tile = new Tile({
+    let tile = new Tile(this.service, {
         renderCol: renderCol,                       // col where to render
         renderRow: renderRow,                       // row where to render
         renderWidth: settings.renderWidth,          // render width
@@ -1817,8 +1859,8 @@ TileManager.prototype.getTile = function(identifier, renderCol, renderRow, sprit
         offset: settings.offset,                    // offset length
         numberOfFrames: settings.numberOfFrames,    // number of frames
         updateFrequency: settings.updateFrequency,  // specifies how often to update (5 is every fifth tick, 2 is every other tick, 1 is every tick etc...)
-        image: settings.image,
-        // src: settings.src,                          // sprite or sprites src
+        // image: settings.image,
+        src: settings.src,                          // sprite or sprites src
         loop: settings.loop,                        // loop
         pause: settings.pause                       // pause
     });
@@ -1839,47 +1881,47 @@ let Game = require("./Game.js");
 window.addEventListener("load", function() {
     let game = new Game();
 
-    game.startGame();
+    // game.startGame();
 });
 
 },{"./Game.js":4}],11:[function(require,module,exports){
-function addListeners(game) {
-    game.listeners = {};
+function addListeners(service) {
+    service.listeners = {};
 
     let clickEvent = function(event) {
-        game.listeners.click = true;
+        service.listeners.click = true;
     }
 
-    game.worldCanvas.addEventListener("click", clickEvent);
-    game.battleCanvas.addEventListener("click", clickEvent);
+    service.worldCanvas.addEventListener("click", clickEvent);
+    service.battleCanvas.addEventListener("click", clickEvent);
 
     let mousedownEvent = function(event) {
-        game.listeners.mousedown = true;
+        service.listeners.mousedown = true;
 
-        let canvasRect = game.worldCanvas.getBoundingClientRect();
+        let canvasRect = service.worldCanvas.getBoundingClientRect();
 
-        game.listeners.mousePositionX = event.clientX - canvasRect.left;
-        game.listeners.mousePositionY = event.clientY - canvasRect.top;
+        service.listeners.mousePositionX = event.clientX - canvasRect.left;
+        service.listeners.mousePositionY = event.clientY - canvasRect.top;
     }
 
-    game.worldCanvas.addEventListener("mousedown", mousedownEvent);
-    game.battleCanvas.addEventListener("mousedown", mousedownEvent);
+    service.worldCanvas.addEventListener("mousedown", mousedownEvent);
+    service.battleCanvas.addEventListener("mousedown", mousedownEvent);
 
     let mousemoveEvent = function(event) {
-        game.listeners.mousemove = true;
+        service.listeners.mousemove = true;
 
-        let canvasRect = game.worldCanvas.getBoundingClientRect();
+        let canvasRect = service.worldCanvas.getBoundingClientRect();
 
-        game.listeners.mousePositionX = event.clientX - canvasRect.left;
-        game.listeners.mousePositionY = event.clientY - canvasRect.top;
+        service.listeners.mousePositionX = event.clientX - canvasRect.left;
+        service.listeners.mousePositionY = event.clientY - canvasRect.top;
     }
 
-    game.worldCanvas.addEventListener("mousemove", mousemoveEvent);
-    game.battleCanvas.addEventListener("mousemove", mousemoveEvent);
+    service.worldCanvas.addEventListener("mousemove", mousemoveEvent);
+    service.battleCanvas.addEventListener("mousemove", mousemoveEvent);
 
     window.addEventListener("mouseup", function(event) {
-        game.listeners.mousedown = false;
-        game.listeners.mousemove = false;
+        service.listeners.mousedown = false;
+        service.listeners.mousemove = false;
     });
 }
 

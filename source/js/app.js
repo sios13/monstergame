@@ -5,5 +5,5 @@ let Game = require("./Game.js");
 window.addEventListener("load", function() {
     let game = new Game();
 
-    game.startGame();
+    // game.startGame();
 });

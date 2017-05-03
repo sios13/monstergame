@@ -1,4 +1,6 @@
-function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles) {
+function Map(service, x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles) {
+    this.service = service;
+
     this.x = x;
     this.y = y;
 
@@ -33,23 +35,23 @@ function Map(x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles
 /**
  * Returns true if map has been loaded
  */
-Map.prototype.isLoaded = function() {
-    // If the two map layers and audio has been loaded
-    if (this.loadCounter === this.loadCounterFinish) {
-        for (let i = 0; i < this.tiles.length; i++) {
+// Map.prototype.isLoaded = function() {
+//     // If the two map layers and audio has been loaded
+//     if (this.loadCounter === this.loadCounterFinish) {
+//         for (let i = 0; i < this.tiles.length; i++) {
 
-            // Return false if a tile has not been loaded
-            if (this.tiles[i].image.complete === false) {
-                return false;
-            }
-        }
+//             // Return false if a tile has not been loaded
+//             if (this.tiles[i].image.complete === false) {
+//                 return false;
+//             }
+//         }
 
-        // If all tiles also has been loaded
-        return true;
-    }
+//         // If all tiles also has been loaded
+//         return true;
+//     }
 
-    return false;
-}
+//     return false;
+// }
 
 Map.prototype.attachEvent = function(col, row, event) {
     this.collisionMap[row][col] = event;
@@ -59,15 +61,15 @@ Map.prototype.getEvent = function(col, row) {
     return this.collisionMap[row][col];
 }
 
-Map.prototype.update = function(game) {
+Map.prototype.update = function() {
     this.tickCounter += 1;
 
     // Update map position
-    this.x = game.coolguy.canvasX - game.coolguy.x;
-    this.y = game.coolguy.canvasY - game.coolguy.y;
+    this.x = this.service.coolguy.canvasX - this.service.coolguy.x;
+    this.y = this.service.coolguy.canvasY - this.service.coolguy.y;
 
     for (let i = 0; i < this.tiles.length; i++) {
-        this.tiles[i].update(game);
+        this.tiles[i].update();
     }
 }
 
