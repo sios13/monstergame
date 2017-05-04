@@ -42,6 +42,8 @@ function Game() {
             this.service.map = this.service.mapManager.getMap("startMap");
 
             this.service.state = "world";
+
+            this.service.battle = new Battle(service, {});
         });
     });
 

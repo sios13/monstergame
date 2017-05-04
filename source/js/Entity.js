@@ -26,8 +26,6 @@ function Entity(service, settings) {
     this.speedX = null;
     this.speedY = null;
 
-    this.newGrid = false;
-
     let tileManager = new TileManager(this.service);
 
     tileManager.addSettings({
@@ -99,19 +97,6 @@ function Entity(service, settings) {
 
     // Get all tiles from tile manager to easily check if all tiles have been loaded
     this.allTiles = tileManager.getAllTiles();
-}
-
-/**
- * Returns true if entity has been loaded
- */
-Entity.prototype.isLoaded = function() {
-    for (let i = 0; i < this.allTiles.length; i++) {
-        if (this.allTiles[i].isLoaded() === false) {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 Entity.prototype._setSpeed = function() {
@@ -189,58 +174,6 @@ Entity.prototype._detectCollision = function() {
     }
 }
 
-/**
- * Updates the col and row position
- * Returns true if entering a new grid, otherwise false
- * Sets newGrid to true if entering a new grid
- */
-Entity.prototype._updateGridPosition = function() {
-    let oldColumn = this.col;
-    let oldRow = this.row;
-
-    let x = this.x + this.collisionSquare / 2;
-    let y = this.y + this.collisionSquare / 2;
-
-    let newColumn = Math.floor((x + this.speedX) / this.service.map.gridSize);
-    let newRow = Math.floor((y + this.speedY) / this.service.map.gridSize);
-
-    if (oldColumn !== newColumn || oldRow !== newRow) {
-        this.col = newColumn;
-        this.row = newRow;
-
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Every grid on the map has an event!
- * Check the events and set the state depending on event
- */
-// Entity.prototype._checkEvents = function() {
-//     // Only check for events if entered a new grid
-//     // if (this.newGrid === false) {
-//     //     return;
-//     // }
-
-//     // this.newGrid = false;
-
-//     // State is 'walking' by default
-//     // this.state = "walking";
-
-//     // Get event on position
-//     let event = this.service.map.getEvent(this.col, this.row);
-
-//     // If there is no event -> exit
-//     if (typeof event !== "object") {
-//         return;
-//     }
-
-//     // Emit the event!
-//     this.service.event(event);
-// }
-
 Entity.prototype._setActiveTile = function() {
     if (this.direction === "left")
     {
@@ -306,9 +239,6 @@ Entity.prototype._setActiveTile = function() {
 
 Entity.prototype.update = function() {
     if (this.service.listeners.mousedown) {
-        // if (this.state === "grass") {
-        //     game.event("grass");
-        // }
 
         // Use the mouse position to determine the entity speed
         this._setSpeed();
@@ -320,28 +250,28 @@ Entity.prototype.update = function() {
         // If collision is detected -> set the speed to 0
         this._detectCollision();
 
-        // Update entity position on the grid
-        // Determine if entity is entering a new grid
-        let newGrid = this._updateGridPosition();
-
         // Finally, add the speed to the position
         this.x += this.speedX;
         this.y += this.speedY;
 
-        // If entering a new grid -> check for events
-        if (newGrid === true) {
+        // Update grid position
+        let oldCol = this.col;
+        let oldRow = this.row;
+
+        this.col = Math.floor((this.x + this.collisionSquare / 2 + this.speedX) / this.service.map.gridSize);
+        this.row = Math.floor((this.y + this.collisionSquare / 2 + this.speedY) / this.service.map.gridSize);
+
+        // If entering a new grid -> push the new grid event to service.events
+        if (this.col !== oldCol || this.row !== oldRow) {
             let event = this.service.map.getEvent(this.col, this.row);
 
             this.service.events.push(event);
         }
 
-        // Check for events
-        // this._checkEvents(game);
-
         // Set the active tile depending on direction and events
         this._setActiveTile();
 
-        // Update tile animation
+        // Update tile animation (walking animation etc...)
         this.activeTile.update();
 
         return;

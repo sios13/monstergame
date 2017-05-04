@@ -1,6 +1,4 @@
-function Tile(service, settings) {
-    this.service = service;
-
+function Tile(settings) {
     this.image = new Image();
     this.image.src = settings.src;
 
@@ -19,7 +17,7 @@ function Tile(service, settings) {
     this.tileWidth = settings.tileWidth;
     this.tileHeight = settings.tileHeight;
 
-    this.offset = settings.offset ? settings.offset : 0;
+    this.spriteWidth = settings.spriteWidth ? settings.spriteWidth : 0;
 
     this.numberOfFrames = settings.numberOfFrames ? settings.numberOfFrames : 1;
 
@@ -50,7 +48,7 @@ Tile.prototype.isLoaded = function() {
 
 Tile.prototype.setFrame = function(framenumber) {
     this.animationCounter = framenumber;
-    this.spriteOffset = framenumber * this.offset;
+    this.spriteOffset = framenumber * this.spriteWidth;
 }
 
 Tile.prototype.update = function() {
@@ -67,7 +65,7 @@ Tile.prototype.update = function() {
     if (this.service.tick % this.updateFrequency === 0) {
         this.animationCounter += 1;
 
-        this.spriteOffset = this.offset * (this.animationCounter % this.numberOfFrames);
+        this.spriteOffset = this.spriteWidth * (this.animationCounter % this.numberOfFrames);
 
         // If no looping and at the first frame of the animation -> pause animation
         if (this.loop === false && this.animationCounter % this.numberOfFrames === 0) {

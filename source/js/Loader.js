@@ -18,12 +18,14 @@ function Loader(service, settings)
         }
     }.bind(this);
 
-    this.images = [
-        "img/character7_walking.png",
-        "img/Sea.png",
-        "img/map1layer1.png",
-        "img/map1layer2.png"
-    ];
+    this.tiles = [];
+
+    // this.images = [
+    //     "img/character7_walking.png",
+    //     "img/Sea.png",
+    //     "img/map1layer1.png",
+    //     "img/map1layer2.png"
+    // ];
 
     this.audios = [
         "audio/music1.mp3"
@@ -32,14 +34,49 @@ function Loader(service, settings)
     this.loadEssentialResources();
 }
 
+Loader.prototype._loadTiles = function() {
+    // Takes a sprite and return tiles
+    let spriteToTiles = function(sprite) {
+        let tiles = [];
+
+        for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
+            for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
+                let tile = new Tile(Object.assign(seaSprite, {
+                    spriteCol: x,
+                    spriteRow: y
+                }));
+            }
+        }
+
+        return tiles;
+    };
+
+    let seaSprite = {
+        src: "img/Sea.png",
+        tileWidth: 16,
+        tileHeight: 16,
+        spriteWidth: 96,
+        spriteHeight: 128,
+        numberOfFrames: 8,
+        updateFrequency: 7,
+        renderWidth: 32,
+        renderHeight: 32,
+    };
+
+    let tiles = [];
+    
+    tiles.push(spriteToTiles(seasSprite));
+}
+
 Loader.prototype.loadEssentialResources = function() {
-    // Load images
-    for (let i = 0; i < this.images.length; i++) {
-        let src = this.images[i];
-        this.images[i] = new Image();
-        this.images[i].addEventListener("load", this.loadEvent);
-        this.images[i].src = src;
-    }
+    // Load tiles
+    this._loadTiles();
+    // for (let i = 0; i < this.images.length; i++) {
+    //     let src = this.images[i];
+    //     this.images[i] = new Image();
+    //     this.images[i].addEventListener("load", this.loadEvent);
+    //     this.images[i].src = src;
+    // }
 
     // Load audios
     for (let i = 0; i < this.audios.length; i++) {

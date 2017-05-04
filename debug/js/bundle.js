@@ -609,8 +609,6 @@ function Entity(service, settings) {
     this.speedX = null;
     this.speedY = null;
 
-    this.newGrid = false;
-
     let tileManager = new TileManager(this.service);
 
     tileManager.addSettings({
@@ -682,19 +680,6 @@ function Entity(service, settings) {
 
     // Get all tiles from tile manager to easily check if all tiles have been loaded
     this.allTiles = tileManager.getAllTiles();
-}
-
-/**
- * Returns true if entity has been loaded
- */
-Entity.prototype.isLoaded = function() {
-    for (let i = 0; i < this.allTiles.length; i++) {
-        if (this.allTiles[i].isLoaded() === false) {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 Entity.prototype._setSpeed = function() {
@@ -772,58 +757,6 @@ Entity.prototype._detectCollision = function() {
     }
 }
 
-/**
- * Updates the col and row position
- * Returns true if entering a new grid, otherwise false
- * Sets newGrid to true if entering a new grid
- */
-Entity.prototype._updateGridPosition = function() {
-    let oldColumn = this.col;
-    let oldRow = this.row;
-
-    let x = this.x + this.collisionSquare / 2;
-    let y = this.y + this.collisionSquare / 2;
-
-    let newColumn = Math.floor((x + this.speedX) / this.service.map.gridSize);
-    let newRow = Math.floor((y + this.speedY) / this.service.map.gridSize);
-
-    if (oldColumn !== newColumn || oldRow !== newRow) {
-        this.col = newColumn;
-        this.row = newRow;
-
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Every grid on the map has an event!
- * Check the events and set the state depending on event
- */
-// Entity.prototype._checkEvents = function() {
-//     // Only check for events if entered a new grid
-//     // if (this.newGrid === false) {
-//     //     return;
-//     // }
-
-//     // this.newGrid = false;
-
-//     // State is 'walking' by default
-//     // this.state = "walking";
-
-//     // Get event on position
-//     let event = this.service.map.getEvent(this.col, this.row);
-
-//     // If there is no event -> exit
-//     if (typeof event !== "object") {
-//         return;
-//     }
-
-//     // Emit the event!
-//     this.service.event(event);
-// }
-
 Entity.prototype._setActiveTile = function() {
     if (this.direction === "left")
     {
@@ -889,9 +822,6 @@ Entity.prototype._setActiveTile = function() {
 
 Entity.prototype.update = function() {
     if (this.service.listeners.mousedown) {
-        // if (this.state === "grass") {
-        //     game.event("grass");
-        // }
 
         // Use the mouse position to determine the entity speed
         this._setSpeed();
@@ -903,28 +833,28 @@ Entity.prototype.update = function() {
         // If collision is detected -> set the speed to 0
         this._detectCollision();
 
-        // Update entity position on the grid
-        // Determine if entity is entering a new grid
-        let newGrid = this._updateGridPosition();
-
         // Finally, add the speed to the position
         this.x += this.speedX;
         this.y += this.speedY;
 
-        // If entering a new grid -> check for events
-        if (newGrid === true) {
+        // Update grid position
+        let oldCol = this.col;
+        let oldRow = this.row;
+
+        this.col = Math.floor((this.x + this.collisionSquare / 2 + this.speedX) / this.service.map.gridSize);
+        this.row = Math.floor((this.y + this.collisionSquare / 2 + this.speedY) / this.service.map.gridSize);
+
+        // If entering a new grid -> push the new grid event to service.events
+        if (this.col !== oldCol || this.row !== oldRow) {
             let event = this.service.map.getEvent(this.col, this.row);
 
             this.service.events.push(event);
         }
 
-        // Check for events
-        // this._checkEvents(game);
-
         // Set the active tile depending on direction and events
         this._setActiveTile();
 
-        // Update tile animation
+        // Update tile animation (walking animation etc...)
         this.activeTile.update();
 
         return;
@@ -994,6 +924,8 @@ function Game() {
             this.service.map = this.service.mapManager.getMap("startMap");
 
             this.service.state = "world";
+
+            this.service.battle = new Battle(service, {});
         });
     });
 
@@ -1244,12 +1176,14 @@ function Loader(service, settings)
         }
     }.bind(this);
 
-    this.images = [
-        "img/character7_walking.png",
-        "img/Sea.png",
-        "img/map1layer1.png",
-        "img/map1layer2.png"
-    ];
+    this.tiles = [];
+
+    // this.images = [
+    //     "img/character7_walking.png",
+    //     "img/Sea.png",
+    //     "img/map1layer1.png",
+    //     "img/map1layer2.png"
+    // ];
 
     this.audios = [
         "audio/music1.mp3"
@@ -1258,14 +1192,49 @@ function Loader(service, settings)
     this.loadEssentialResources();
 }
 
+Loader.prototype._loadTiles = function() {
+    // Takes a sprite and return tiles
+    let spriteToTiles = function(sprite) {
+        let tiles = [];
+
+        for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
+            for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
+                let tile = new Tile(Object.assign(seaSprite, {
+                    spriteCol: x,
+                    spriteRow: y
+                }));
+            }
+        }
+
+        return tiles;
+    };
+
+    let seaSprite = {
+        src: "img/Sea.png",
+        tileWidth: 16,
+        tileHeight: 16,
+        spriteWidth: 96,
+        spriteHeight: 128,
+        numberOfFrames: 8,
+        updateFrequency: 7,
+        renderWidth: 32,
+        renderHeight: 32,
+    };
+
+    let tiles = [];
+    
+    tiles.push(spriteToTiles(seasSprite));
+}
+
 Loader.prototype.loadEssentialResources = function() {
-    // Load images
-    for (let i = 0; i < this.images.length; i++) {
-        let src = this.images[i];
-        this.images[i] = new Image();
-        this.images[i].addEventListener("load", this.loadEvent);
-        this.images[i].src = src;
-    }
+    // Load tiles
+    this._loadTiles();
+    // for (let i = 0; i < this.images.length; i++) {
+    //     let src = this.images[i];
+    //     this.images[i] = new Image();
+    //     this.images[i].addEventListener("load", this.loadEvent);
+    //     this.images[i].src = src;
+    // }
 
     // Load audios
     for (let i = 0; i < this.audios.length; i++) {
@@ -1421,6 +1390,7 @@ module.exports = Map;
 const Map = require("./Map.js");
 // const TileManager = require("./TileManager.js");
 const Tile = require("./Tile.js");
+const Battle = require("./Battle.js");
 
 function MapManager(service) {
     this.service = service;
@@ -1652,10 +1622,8 @@ MapManager.prototype.createStartMap = function() {
 
         this.service.map = this.service.mapManager.getMap(mapName);
 
-        this.service.coolguy.x = x;
-        this.service.coolguy.y = y;
-
-        console.log(mapName);
+        this.service.coolguy.x = x * 32;
+        this.service.coolguy.y = y * 32;
     };
     let grassEvent = function() {
         this.service.coolguy.state = "grass";
@@ -1663,7 +1631,7 @@ MapManager.prototype.createStartMap = function() {
         // Find the tile coolguy is standing on
         let tile = this.service.map.tiles.find(tile => tile.renderCol === this.service.coolguy.col && tile.renderRow === this.service.coolguy.row);
 
-        tile.pause = false;
+        // tile.pause = false;
 
         this.service.battle = new Battle();
     };
@@ -1681,7 +1649,7 @@ MapManager.prototype.createStartMap = function() {
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, newMapEvent.bind(this, "startMap", x, y));
+                map.attachEvent(x, y, newMapEvent.bind(this, "startMap", 3, 3));
             }
 
             // Grass!
@@ -1751,10 +1719,8 @@ MapManager.prototype.createHouse1Map = function() {
 
 module.exports = MapManager;
 
-},{"./Map.js":6,"./Tile.js":8}],8:[function(require,module,exports){
-function Tile(service, settings) {
-    this.service = service;
-
+},{"./Battle.js":1,"./Map.js":6,"./Tile.js":8}],8:[function(require,module,exports){
+function Tile(settings) {
     this.image = new Image();
     this.image.src = settings.src;
 
@@ -1773,7 +1739,7 @@ function Tile(service, settings) {
     this.tileWidth = settings.tileWidth;
     this.tileHeight = settings.tileHeight;
 
-    this.offset = settings.offset ? settings.offset : 0;
+    this.spriteWidth = settings.spriteWidth ? settings.spriteWidth : 0;
 
     this.numberOfFrames = settings.numberOfFrames ? settings.numberOfFrames : 1;
 
@@ -1804,7 +1770,7 @@ Tile.prototype.isLoaded = function() {
 
 Tile.prototype.setFrame = function(framenumber) {
     this.animationCounter = framenumber;
-    this.spriteOffset = framenumber * this.offset;
+    this.spriteOffset = framenumber * this.spriteWidth;
 }
 
 Tile.prototype.update = function() {
@@ -1821,7 +1787,7 @@ Tile.prototype.update = function() {
     if (this.service.tick % this.updateFrequency === 0) {
         this.animationCounter += 1;
 
-        this.spriteOffset = this.offset * (this.animationCounter % this.numberOfFrames);
+        this.spriteOffset = this.spriteWidth * (this.animationCounter % this.numberOfFrames);
 
         // If no looping and at the first frame of the animation -> pause animation
         if (this.loop === false && this.animationCounter % this.numberOfFrames === 0) {

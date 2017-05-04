@@ -1,6 +1,7 @@
 const Map = require("./Map.js");
 // const TileManager = require("./TileManager.js");
 const Tile = require("./Tile.js");
+const Battle = require("./Battle.js");
 
 function MapManager(service) {
     this.service = service;
@@ -232,10 +233,8 @@ MapManager.prototype.createStartMap = function() {
 
         this.service.map = this.service.mapManager.getMap(mapName);
 
-        this.service.coolguy.x = x;
-        this.service.coolguy.y = y;
-
-        console.log(mapName);
+        this.service.coolguy.x = x * 32;
+        this.service.coolguy.y = y * 32;
     };
     let grassEvent = function() {
         this.service.coolguy.state = "grass";
@@ -243,7 +242,7 @@ MapManager.prototype.createStartMap = function() {
         // Find the tile coolguy is standing on
         let tile = this.service.map.tiles.find(tile => tile.renderCol === this.service.coolguy.col && tile.renderRow === this.service.coolguy.row);
 
-        tile.pause = false;
+        // tile.pause = false;
 
         this.service.battle = new Battle();
     };
@@ -261,7 +260,7 @@ MapManager.prototype.createStartMap = function() {
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, newMapEvent.bind(this, "startMap", x, y));
+                map.attachEvent(x, y, newMapEvent.bind(this, "startMap", 3, 3));
             }
 
             // Grass!
