@@ -1,6 +1,9 @@
 function Tile(service, settings) {
     this.service = service;
 
+    this.image = new Image();
+    this.image.src = settings.src;
+
     this.renderCol = settings.renderCol ? settings.renderCol : 0;
     this.renderRow = settings.renderRow ? settings.renderRow : 0;
 
@@ -21,9 +24,6 @@ function Tile(service, settings) {
     this.numberOfFrames = settings.numberOfFrames ? settings.numberOfFrames : 1;
 
     this.updateFrequency = settings.updateFrequency ? settings.updateFrequency : null;
-
-    this.image = new Image();
-    this.image.src = settings.src;
 
     this.loop = settings.loop === undefined ? true : settings.loop;
 

@@ -10,26 +10,49 @@ function Loader(service, settings)
 
     this.loadEssentialCounter = 0;
 
+    this.loadEvent = function() {
+        this.loadEssentialCounter += 1;
+
+        if (this.loadEssentialCounter === this.images.length + this.audios.length) {
+            this.endTick = this.tick + 30;
+        }
+    }.bind(this);
+
     this.images = [
-        "img/character7_walking.png"
+        "img/character7_walking.png",
+        "img/Sea.png",
+        "img/map1layer1.png",
+        "img/map1layer2.png"
+    ];
+
+    this.audios = [
+        "audio/music1.mp3"
     ];
 
     this.loadEssentialResources();
 }
 
 Loader.prototype.loadEssentialResources = function() {
+    // Load images
     for (let i = 0; i < this.images.length; i++) {
         let src = this.images[i];
         this.images[i] = new Image();
-        this.images[i].addEventListener("load", function() {
-            this.loadEssentialCounter += 1;
-        }.bind(this));
+        this.images[i].addEventListener("load", this.loadEvent);
         this.images[i].src = src;
+    }
+
+    // Load audios
+    for (let i = 0; i < this.audios.length; i++) {
+        let src = this.audios[i];
+        this.audios[i] = new Audio();
+        this.audios[i].addEventListener("loadeddata", this.loadEvent);
+        this.audios[i].src = src;
     }
 
     this.service.resources = {};
 
     this.service.resources.images = this.images;
+    this.service.resources.audios = this.audios;
 }
 
 /**
@@ -49,15 +72,17 @@ Loader.prototype.update = function()
     this.tick += 1;
 
     // Do not update while essential resources is loading
-    if (this.loadEssentialCounter !== this.images.length) {
+    if (this.loadEssentialCounter !== this.images.length + this.audios.length) {
         return;
     }
 
-    // If 30 ticks have passed since loading started -> call the callable
+    // If 30 ticks have passed since loading started -> add the callable to the events queue
     if (this.tick === 30) {
-        this.loadCallable();
+        console.log(this.images);
 
-        this.endTick = this.tick + 10 + 30;
+        this.service.events.push(this.loadCallable);
+
+        this.endTick = this.tick;
     }
 }
 

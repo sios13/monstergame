@@ -218,28 +218,28 @@ Entity.prototype._updateGridPosition = function() {
  * Every grid on the map has an event!
  * Check the events and set the state depending on event
  */
-Entity.prototype._checkEvents = function() {
-    // Only check for events if entered a new grid
-    // if (this.newGrid === false) {
-    //     return;
-    // }
+// Entity.prototype._checkEvents = function() {
+//     // Only check for events if entered a new grid
+//     // if (this.newGrid === false) {
+//     //     return;
+//     // }
 
-    // this.newGrid = false;
+//     // this.newGrid = false;
 
-    // State is 'walking' by default
-    // this.state = "walking";
+//     // State is 'walking' by default
+//     // this.state = "walking";
 
-    // Get event on position
-    let event = this.service.map.getEvent(this.col, this.row);
+//     // Get event on position
+//     let event = this.service.map.getEvent(this.col, this.row);
 
-    // If there is no event -> exit
-    if (typeof event !== "object") {
-        return;
-    }
+//     // If there is no event -> exit
+//     if (typeof event !== "object") {
+//         return;
+//     }
 
-    // Emit the event!
-    this.service.event(event);
-}
+//     // Emit the event!
+//     this.service.event(event);
+// }
 
 Entity.prototype._setActiveTile = function() {
     if (this.direction === "left")
@@ -330,7 +330,9 @@ Entity.prototype.update = function() {
 
         // If entering a new grid -> check for events
         if (newGrid === true) {
-            this._checkEvents();
+            let event = this.service.map.getEvent(this.col, this.row);
+
+            this.service.events.push(event);
         }
 
         // Check for events

@@ -9,35 +9,42 @@ function Game() {
     this.last = Date.now();
     this.step = 1/30;
 
-    // Initialize serivce
+    /**
+     * Initialize service
+     */
     this.service = {};
 
     this.service.tick = 0;
 
     this.service.state = "loading";
 
+    this.service.events = [];
+
     // Loading
     // Load resources to service.resouces
     this.loader = new Loader(this.service, {});
     // Initialize world state
-    this.loader.load(function() {
-        this.service.coolguy = new Entity(this.service, {
-            x: 14*32,                       // x position on map
-            y: 35*32,                       // y position on map
-            canvasX: 512,                   // x position on canvas
-            canvasY: 384,                   // y position on canvas
-            collisionSquare: 20,            // width and height of collision square
-            renderWidth: 32,                // render width
-            renderHeight: 48,               // render height
-            speed: 4                        // speed
+    this.service.events.push(function() {
+        this.loader.load(function() {
+            this.service.coolguy = new Entity(this.service, {
+                x: 14*32,                       // x position on map
+                y: 35*32,                       // y position on map
+                canvasX: 512,                   // x position on canvas
+                canvasY: 384,                   // y position on canvas
+                collisionSquare: 20,            // width and height of collision square
+                renderWidth: 32,                // render width
+                renderHeight: 48,               // render height
+                speed: 4                        // speed
+            });
+
+            this.service.mapManager = new MapManager(this.service, {});
+
+            this.service.map = this.service.mapManager.getMap("startMap");
+
+            this.service.state = "world";
         });
-
-        this.service.mapManager = new MapManager(this.service, {});
-
-        this.service.map = this.service.mapManager.getMap("startMap");
-
-        this.service.state = "world";
     });
+
 
     // Battle
 
@@ -94,8 +101,10 @@ Game.prototype.startGame = function() {
 Game.prototype.update = function() {
     this.service.tick += 1;
 
-    // Do not update while system is loading
-    // if (!this.isLoaded()) {return;}
+    // console.log(this.service.state);
+
+    // Check for events in service.events
+    this.checkEvents();
 
     if (this.service.state === "loading") {
         // Update resorce loader
@@ -145,20 +154,20 @@ Game.prototype.render = function() {
         this.battle.render(context);
     }
 
-    if (this.state === "world") {
-        let context = this.worldContext;
+    if (this.service.state === "world") {
+        let context = this.service.worldContext;
 
-        context.clearRect(0, 0, this.worldCanvas.width, this.worldCanvas.height);
+        context.clearRect(0, 0, this.service.worldCanvas.width, this.service.worldCanvas.height);
 
-        this.map.renderLayer1(context);
+        this.service.map.renderLayer1(context);
 
-        this.map.renderTiles(context);
+        this.service.map.renderTiles(context);
 
-        this.coolguy.render(context);
+        this.service.coolguy.render(context);
 
-        this.map.renderLayer2(context);
+        this.service.map.renderLayer2(context);
 
-        this.map.render(context);
+        this.service.map.render(context);
     }
 
     // If system was recently loaded -> tone from black screen to game
@@ -170,46 +179,65 @@ Game.prototype.render = function() {
     // }
 }
 
-Game.prototype.event = function(event) {
-    // Walking!
-    if (event.id === 1) {
-        this.coolguy.state = "walking";
-
+/**
+ * Iterates and executes all events in service.events
+ */
+Game.prototype.checkEvents = function() {
+    // Do not check for events if there are no events!
+    if (this.service.events.length === 0) {
         return;
     }
+    
+    for (let i = 0; i < this.service.events.length; i++) {
+        let event = this.service.events[i];
 
-    // Change map!
-    if (event.id === 2) {
-        this.loadedTick = null;
-
-        this.map.destroy();
-
-        this.map = MapInitializer.getMap(event.data.mapName);
-
-        this.coolguy.x = event.data.spawnX;
-        this.coolguy.y = event.data.spawnY;
-
-        return;
+        event.call(this);
     }
 
-    // Grass!
-    if (event.id === 3) {
-        this.coolguy.state = "grass";
-
-        event.data.tile.pause = false;
-
-        this.startBattle();
-
-        return;
-    }
-
-    // Water!
-    if (event.id === 4) {
-        this.coolguy.state = "water";
-
-        return;
-    }
+    // All events have been checked -> make the events array empty
+    this.service.events = [];
 }
+
+// Game.prototype.event = function(event) {
+//     // Walking!
+//     if (event.id === 1) {
+//         this.coolguy.state = "walking";
+
+//         return;
+//     }
+
+//     // Change map!
+//     if (event.id === 2) {
+//         this.loadedTick = null;
+
+//         this.map.destroy();
+
+//         this.map = MapInitializer.getMap(event.data.mapName);
+
+//         this.coolguy.x = event.data.spawnX;
+//         this.coolguy.y = event.data.spawnY;
+
+//         return;
+//     }
+
+//     // Grass!
+//     if (event.id === 3) {
+//         this.coolguy.state = "grass";
+
+//         event.data.tile.pause = false;
+
+//         this.startBattle();
+
+//         return;
+//     }
+
+//     // Water!
+//     if (event.id === 4) {
+//         this.coolguy.state = "water";
+
+//         return;
+//     }
+// }
 
 // Game.prototype.startBattle = function(settings) {
 //     this.map.audio.pause();

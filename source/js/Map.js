@@ -1,57 +1,36 @@
-function Map(service, x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles) {
+function Map(service, settings) {
     this.service = service;
 
-    this.x = x;
-    this.y = y;
+    this.x = settings.x ? settings.x : 0;
+    this.y = settings.y ? settings.y : 0;
 
-    this.collisionMap = collisionMap;
+    this.collisionMap = settings.collisionMap;
 
-    this.gridSize = gridSize;
+    this.gridSize = settings.gridSize ? settings.gridSize : 32;
 
-    this.tickCounter = 0;
+    this.layer1Image = this.service.resources.images.find(x => x.getAttribute("src") === settings.layer1Src);
 
-    this.loadCounter = 0;
+    this.layer2Image = this.service.resources.images.find(x => x.getAttribute("src") === settings.layer2Src);
 
-    this.loadCounterFinish = 3;
-
-    function loadEvent() {this.loadCounter += 1;}
-
-    this.layer1Image = new Image();
-    this.layer1Image.addEventListener("load", loadEvent.bind(this));
-    this.layer1Image.src = layer1Src;
-
-    this.layer2Image = new Image();
-    this.layer2Image.addEventListener("load", loadEvent.bind(this));
-    this.layer2Image.src = layer2Src;
-
-    this.audio = new Audio(audioSrc);
-    this.audio.addEventListener("loadeddata", loadEvent.bind(this));
+    this.audio = this.service.resources.audios.find(x => x.getAttribute("src") === settings.audioSrc);
     this.audio.loop = true;
     this.audio.play();
 
-    this.tiles = tiles;
+    // this.layer1Image = new Image();
+    // this.layer1Image.addEventListener("load", loadEvent.bind(this));
+    // this.layer1Image.src = layer1Src;
+
+    // this.layer2Image = new Image();
+    // this.layer2Image.addEventListener("load", loadEvent.bind(this));
+    // this.layer2Image.src = layer2Src;
+
+    // this.audio = new Audio(audioSrc);
+    // this.audio.addEventListener("loadeddata", loadEvent.bind(this));
+    // this.audio.loop = true;
+    // this.audio.play();
+
+    this.tiles = settings.tiles;
 }
-
-/**
- * Returns true if map has been loaded
- */
-// Map.prototype.isLoaded = function() {
-//     // If the two map layers and audio has been loaded
-//     if (this.loadCounter === this.loadCounterFinish) {
-//         for (let i = 0; i < this.tiles.length; i++) {
-
-//             // Return false if a tile has not been loaded
-//             if (this.tiles[i].image.complete === false) {
-//                 return false;
-//             }
-//         }
-
-//         // If all tiles also has been loaded
-//         return true;
-//     }
-
-//     return false;
-// }
 
 Map.prototype.attachEvent = function(col, row, event) {
     this.collisionMap[row][col] = event;
@@ -62,8 +41,6 @@ Map.prototype.getEvent = function(col, row) {
 }
 
 Map.prototype.update = function() {
-    this.tickCounter += 1;
-
     // Update map position
     this.x = this.service.coolguy.canvasX - this.service.coolguy.x;
     this.y = this.service.coolguy.canvasY - this.service.coolguy.y;
