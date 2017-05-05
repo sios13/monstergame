@@ -65,7 +65,7 @@ Loader.prototype._loadTiles = function() {
 
     let tiles = [];
     
-    tiles.push(spriteToTiles(seasSprite));
+    tiles.push(spriteToTiles(seaSprite));
 }
 
 Loader.prototype.loadEssentialResources = function() {
