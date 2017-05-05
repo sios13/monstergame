@@ -68,10 +68,11 @@ MapManager.prototype.createStartMap = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    let layer1Src = "img/map1layer1.png";
-    let layer2Src = "img/map1layer2.png";
+    let layer1Tile = this.service.resources.tiles.find(tile => tile.name === "map1layer1");
 
-    let audioSrc = "audio/music1.mp3";
+    let layer2Tile = this.service.resources.tiles.find(tile => tile.name === "map1layer2");
+
+    let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
     // let tileManager = new TileManager(this.service, [{
     //         identifier: "sea",  // identifier
@@ -134,93 +135,16 @@ MapManager.prototype.createStartMap = function() {
     // });
 
     let tiles = [
-        new Tile(this.service, {
-            src: "img/Sea.png",
-            renderCol: 16,
-            renderRow: 32,
-            renderWidth: 32,
-            renderHeight: 32,
-            spriteCol: 1,
-            spriteRow: 2,
-            tileWidth: 32,
-            tileHeight: 32,
-            offset: 96,
-            numberOfFrames: 8,
-            updateFrequency: 7
-        }),
-        // tileManager.getTile(
-        //     "sea",  // identifier
-        //     15,     // column where to render
-        //     32,     // row where to render
-        //     0,      // column of tile in sprite
-        //     2       // row of tile in sprite
-        // ),
-        // tileManager.getTile("sea", 16, 32, 1, 2),
-        // tileManager.getTile("sea", 17, 32, 2, 2),
-        // tileManager.getTile("sea", 18, 32, 3, 2),
-        // tileManager.getTile("sea", 19, 32, 4, 2),
-        // tileManager.getTile("sea", 20, 32, 5, 2),
-        // tileManager.getTile("sea", 15, 33, 0, 3),
-        // tileManager.getTile("sea", 16, 33, 1, 3),
-        // tileManager.getTile("sea", 17, 33, 2, 3),
-        // tileManager.getTile("sea", 18, 33, 3, 3),
-        // tileManager.getTile("sea", 19, 33, 4, 3),
-        // tileManager.getTile("sea", 20, 33, 5, 3),
-        // tileManager.getTile("sea", 15, 34, 0, 4),
-        // tileManager.getTile("sea", 16, 34, 1, 4),
-        // tileManager.getTile("sea", 17, 34, 2, 4),
-        // tileManager.getTile("sea", 18, 34, 3, 4),
-        // tileManager.getTile("sea", 19, 34, 4, 4),
-        // tileManager.getTile("sea", 20, 34, 5, 4),
-        // tileManager.getTile("sea", 15, 35, 0, 5),
-        // tileManager.getTile("sea", 16, 35, 1, 5),
-        // tileManager.getTile("sea", 17, 35, 2, 5),
-        // tileManager.getTile("sea", 18, 35, 3, 5),
-        // tileManager.getTile("sea", 19, 35, 4, 5),
-        // tileManager.getTile("sea", 20, 35, 5, 5),
-        // tileManager.getTile("sea", 15, 36, 0, 6),
-        // tileManager.getTile("sea", 16, 36, 1, 6),
-        // tileManager.getTile("sea", 17, 36, 2, 6),
-        // tileManager.getTile("sea", 18, 36, 3, 6),
-        // tileManager.getTile("sea", 19, 36, 4, 6),
-        // tileManager.getTile("sea", 20, 36, 5, 6),
-        // tileManager.getTile("sea", 15, 37, 0, 7),
-        // tileManager.getTile("sea", 16, 37, 1, 7),
-        // tileManager.getTile("sea", 17, 37, 2, 7),
-        // tileManager.getTile("sea", 18, 37, 3, 7),
-        // tileManager.getTile("sea", 19, 37, 4, 7),
-        // tileManager.getTile("sea", 20, 37, 5, 7),
-
-        // tileManager.getTile("flower", 15, 30, 0, 0),
-        // tileManager.getTile("nice", 12, 31, 0, 0),
-
-        // tileManager.getTile("sea", 0, 4, 1, 2),
-        // tileManager.getTile("seashore", 0, 5, 1, 2),
-
-        // tileManager.getTile("grass", 8, 27, 0, 0),
-        // tileManager.getTile("grass", 9, 27, 0, 0),
-        // tileManager.getTile("grass", 10, 27, 0, 0),
-        // tileManager.getTile("grass", 11, 27, 0, 0),
-        // tileManager.getTile("grass", 8, 28, 0, 0),
-        // tileManager.getTile("grass", 9, 28, 0, 0),
-        // tileManager.getTile("grass", 10, 28, 0, 0),
-        // tileManager.getTile("grass", 11, 28, 0, 0),
-        // tileManager.getTile("grass", 8, 29, 0, 0),
-        // tileManager.getTile("grass", 9, 29, 0, 0),
-        // tileManager.getTile("grass", 10, 29, 0, 0),
-        // tileManager.getTile("grass", 11, 29, 0, 0),
-        // tileManager.getTile("grass", 9, 30, 0, 0),
-        // tileManager.getTile("grass", 10, 30, 0, 0),
-        // tileManager.getTile("grass", 11, 30, 0, 0)
+        this.service.resources.tiles.find(tile => tile.name === "sea(3,3)")
     ];
 
     let map = new Map(this.service, {
         x: 0,
         y: 0,
         collisionMap: collisionMap,
-        layer1Src: layer1Src,
-        layer2Src: layer2Src,
-        audioSrc: audioSrc,
+        layer1Tile: layer1Tile,
+        layer2Tile: layer2Tile,
+        audio: audio,
         tiles: tiles
     });
 

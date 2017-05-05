@@ -8,26 +8,13 @@ function Map(service, settings) {
 
     this.gridSize = settings.gridSize ? settings.gridSize : 32;
 
-    this.layer1Image = this.service.resources.images.find(x => x.getAttribute("src") === settings.layer1Src);
+    this.layer1Tile = settings.layer1Tile;
 
-    this.layer2Image = this.service.resources.images.find(x => x.getAttribute("src") === settings.layer2Src);
+    this.layer2Tile = settings.layer2Tile;
 
-    this.audio = this.service.resources.audios.find(x => x.getAttribute("src") === settings.audioSrc);
+    this.audio = settings.audio;
     this.audio.loop = true;
     this.audio.play();
-
-    // this.layer1Image = new Image();
-    // this.layer1Image.addEventListener("load", loadEvent.bind(this));
-    // this.layer1Image.src = layer1Src;
-
-    // this.layer2Image = new Image();
-    // this.layer2Image.addEventListener("load", loadEvent.bind(this));
-    // this.layer2Image.src = layer2Src;
-
-    // this.audio = new Audio(audioSrc);
-    // this.audio.addEventListener("loadeddata", loadEvent.bind(this));
-    // this.audio.loop = true;
-    // this.audio.play();
 
     this.tiles = settings.tiles;
 }
@@ -44,15 +31,21 @@ Map.prototype.update = function() {
     // Update map position
     this.x = this.service.coolguy.canvasX - this.service.coolguy.x;
     this.y = this.service.coolguy.canvasY - this.service.coolguy.y;
+    // this.layer1Tile.renderX = this.service.coolguy.canvasX - this.service.coolguy.x;
+    // this.layer1Tile.renderY = this.service.coolguy.canvasY - this.service.coolguy.y;
+
+    // this.layer2Tile.renderX = this.service.coolguy.canvasX - this.service.coolguy.x;
+    // this.layer2Tile.renderY = this.service.coolguy.canvasY - this.service.coolguy.y;
 
     for (let i = 0; i < this.tiles.length; i++) {
         this.tiles[i].update();
     }
 }
 
-Map.prototype.renderTiles = function(context) {
+Map.prototype.renderTiles = function() {
+    console.log(this.tiles);
     for (let i = 0; i < this.tiles.length; i++) {
-        this.tiles[i].render(context, this.x, this.y);
+        this.tiles[i].render(this.service.worldContext, this.x, this.y);
     }
 }
 
@@ -68,17 +61,14 @@ Map.prototype.render = function(context) {
     }
 }
 
-Map.prototype.renderLayer1 = function(context) {
-    context.beginPath();
-    context.fillStyle = "rgb(255, 255, 255)";
-    context.fillRect(this.x, this.y, 580, 450);
-    context.stroke();
-
-    context.drawImage(this.layer1Image, this.x, this.y);
+Map.prototype.renderLayer1 = function() {
+    this.layer1Tile.render(this.service.worldContext, this.x, this.y);
+    // context.drawImage(this.layer1Image, this.x, this.y);
 }
 
 Map.prototype.renderLayer2 = function(context) {
-    context.drawImage(this.layer2Image, this.x, this.y);
+    this.layer2Tile.render(this.service.worldContext, this.x, this.y);
+    // context.drawImage(this.layer2Image, this.x, this.y);
 }
 
 Map.prototype.destroy = function() {

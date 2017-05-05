@@ -3,35 +3,39 @@ const Tile = require("./Tile.js");
 function Loader(service, settings)
 {
     this.service = service;
+
+    this.service.resources = {};
     
     this.tick = 0;
 
     this.endTick = null;
 
-    this.loadEssentialCounter = 0;
+    // this.loadCounter = 0;
 
-    this.loadEvent = function() {
-        this.loadEssentialCounter += 1;
+    // this.loadEvent = function() {
+    //     this.loadCounter += 1;
 
-        if (this.loadEssentialCounter === this.images.length + this.audios.length) {
-            this.endTick = this.tick + 30;
-        }
-    }.bind(this);
+    //     if (this.loadCounter === this.images.length + this.audios.length) {
+    //         this.endTick = this.tick + 30;
+    //     }
+    // }.bind(this);
 
     this.tiles = [];
 
-    // this.images = [
-    //     "img/character7_walking.png",
-    //     "img/Sea.png",
-    //     "img/map1layer1.png",
-    //     "img/map1layer2.png"
-    // ];
+    this.audios = [];
+}
 
-    this.audios = [
+Loader.prototype._loadAudios = function() {
+    let audioSrcs = [
         "audio/music1.mp3"
     ];
 
-    this.loadEssentialResources();
+    for (let i = 0; i < audioSrcs.length; i++) {
+        let audio = new Audio(audioSrcs[i]);
+        this.audios.push(audio);
+    }
+
+    this.service.resources.audios = this.audios;
 }
 
 Loader.prototype._loadTiles = function() {
@@ -41,10 +45,14 @@ Loader.prototype._loadTiles = function() {
 
         for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
             for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
-                let tile = new Tile(Object.assign(seaSprite, {
+                let tile = new Tile(Object.assign({}, sprite, {
+                    name: sprite.name + "(" + x + "," + y + ")",
                     spriteCol: x,
                     spriteRow: y
                 }));
+
+                tiles.push(tile);
+                console.log(tile.name);
             }
         }
 
@@ -52,44 +60,28 @@ Loader.prototype._loadTiles = function() {
     };
 
     let seaSprite = {
+        name: "sea",
         src: "img/Sea.png",
         tileWidth: 16,
         tileHeight: 16,
         spriteWidth: 96,
         spriteHeight: 128,
-        numberOfFrames: 8,
-        updateFrequency: 7,
         renderWidth: 32,
         renderHeight: 32,
+        numberOfFrames: 8,
+        updateFrequency: 7,
     };
 
+    let map1layer1Tile = new Tile({name: "map1layer1", src: "img/map1layer1.png", tileWidth: 3200, tileHeight: 3200});
+    let map1layer2Tile = new Tile({name: "map1layer2", src: "img/map1layer2.png", tileWidth: 3200, tileHeight: 3200});
+
     let tiles = [];
-    
-    tiles.push(spriteToTiles(seaSprite));
-}
 
-Loader.prototype.loadEssentialResources = function() {
-    // Load tiles
-    this._loadTiles();
-    // for (let i = 0; i < this.images.length; i++) {
-    //     let src = this.images[i];
-    //     this.images[i] = new Image();
-    //     this.images[i].addEventListener("load", this.loadEvent);
-    //     this.images[i].src = src;
-    // }
+    tiles.push(...spriteToTiles(seaSprite));
+    tiles.push(map1layer1Tile);
+    tiles.push(map1layer2Tile);
 
-    // Load audios
-    for (let i = 0; i < this.audios.length; i++) {
-        let src = this.audios[i];
-        this.audios[i] = new Audio();
-        this.audios[i].addEventListener("loadeddata", this.loadEvent);
-        this.audios[i].src = src;
-    }
-
-    this.service.resources = {};
-
-    this.service.resources.images = this.images;
-    this.service.resources.audios = this.audios;
+    this.service.resources.tiles = tiles;
 }
 
 /**
@@ -99,7 +91,7 @@ Loader.prototype.load = function(callable)
 {
     this.tick = 0;
 
-    this.endTick = null;
+    this.loading = true;
 
     this.loadCallable = callable;
 }
@@ -108,19 +100,40 @@ Loader.prototype.update = function()
 {
     this.tick += 1;
 
-    // Do not update while essential resources is loading
-    if (this.loadEssentialCounter !== this.images.length + this.audios.length) {
+    // If there is no loading currently happening -> exit
+    if (this.loading === false) {
+        return;
+    }
+    
+    // Start the actual loading only if 30 ticks have passed
+    if (this.tick < 30) {
         return;
     }
 
-    // If 30 ticks have passed since loading started -> add the callable to the events queue
-    if (this.tick === 30) {
-        console.log(this.images);
+    this._loadTiles();
 
-        this.service.events.push(this.loadCallable);
+    this._loadAudios();
 
-        this.endTick = this.tick;
+    this.service.events.push(this.loadCallable);
+
+    // If a tile is loading -> exit
+    for (let i = 0; i < this.tiles.length; i++) {
+        if (this.tiles[i].loading === true) {
+            return;
+        }
     }
+
+    // If an audio is loading -> exit
+    for (let i = 0; i < this.audios.length; i++) {
+        if (this.audios[i].readyState !== 4) {
+            return;
+        }
+    }
+    
+    // If everything is loaded -> stop loading and set end tick
+    this.loading = false;
+
+    this.endTick = this.tick + 30;
 }
 
 Loader.prototype.render = function(context)

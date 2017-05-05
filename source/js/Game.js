@@ -43,7 +43,7 @@ function Game() {
 
             this.service.state = "world";
 
-            this.service.battle = new Battle(service, {});
+            this.service.battle = new Battle(this.service, {});
         });
     });
 
@@ -67,9 +67,6 @@ function Game() {
     require("./listeners.js").addListeners(this.service);
 
     this.startGame();
-
-    // The tick when system was loaded
-    // this.loadedTick = null;
 }
 
 Game.prototype.setState = function(state) {
@@ -145,7 +142,9 @@ Game.prototype.render = function() {
     // }
 
     if (this.state === "loading") {
-        this.resourceLoader.render(this.loadContext);
+        let context = this.loadContext;
+
+        this.resourceLoader.render(context);
     }
 
     if (this.state === "battle") {
