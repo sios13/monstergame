@@ -21,6 +21,8 @@ function Loader(service, settings)
     // }.bind(this);
 
     this.tiles = [];
+    // when an image has been loaded -> give the image to all associated tiles (tiles with the same src)
+    this.images = [];
 
     this.audios = [];
 }
@@ -38,6 +40,26 @@ Loader.prototype._loadAudios = function() {
     this.service.resources.audios = this.audios;
 }
 
+Load.prototype._loadImages = function() {
+    // List of all image srcs to ever be used in the game
+    let imageSrcs = [];
+
+    // Create image elements for all images
+    for (let i = 0; i < imageSrcs.length; i++) {
+        let image = new Image();
+        image.src = imageSrcs[i];
+        this.images.push(image);
+    }
+}
+
+Loader.prototype._getImage = function(imageSrc) {
+    let image = new Image();
+
+    image.src = imageSrc;
+
+    return image;
+}
+
 Loader.prototype._loadTiles = function() {
     // Takes a sprite and return tiles
     let spriteToTiles = function(sprite) {
@@ -45,14 +67,13 @@ Loader.prototype._loadTiles = function() {
 
         for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
             for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
-                let tile = new Tile(Object.assign({}, sprite, {
+                let tile = new Tile(Object.assign({placeholderImage: placeholderImage}, sprite, {
                     name: sprite.name + "(" + x + "," + y + ")",
                     spriteCol: x,
                     spriteRow: y
                 }));
 
                 tiles.push(tile);
-                console.log(tile.name);
             }
         }
 
@@ -61,7 +82,7 @@ Loader.prototype._loadTiles = function() {
 
     let seaSprite = {
         name: "sea",
-        src: "img/Sea.png",
+        image: this._getImage("img/Sea.png"),
         tileWidth: 16,
         tileHeight: 16,
         spriteWidth: 96,
@@ -72,8 +93,8 @@ Loader.prototype._loadTiles = function() {
         updateFrequency: 7,
     };
 
-    let map1layer1Tile = new Tile({name: "map1layer1", src: "img/map1layer1.png", tileWidth: 3200, tileHeight: 3200});
-    let map1layer2Tile = new Tile({name: "map1layer2", src: "img/map1layer2.png", tileWidth: 3200, tileHeight: 3200});
+    let map1layer1Tile = new Tile({name: "map1layer1", image: this._getImage("img/map1layer1.png"), tileWidth: 3200, tileHeight: 3200});
+    let map1layer2Tile = new Tile({name: "map1layer2", image: this._getImage("img/map1layer2.png"), tileWidth: 3200, tileHeight: 3200});
 
     let tiles = [];
 
