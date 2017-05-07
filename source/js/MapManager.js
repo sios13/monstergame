@@ -1,10 +1,37 @@
 const Map = require("./Map.js");
-// const TileManager = require("./TileManager.js");
 const Tile = require("./Tile.js");
 const Battle = require("./Battle.js");
 
 function MapManager(service) {
     this.service = service;
+
+    // Some nice events
+    this.normalEvent = function() {
+        this.service.coolguy.setState("walking");
+    };
+    this.newMapEvent = function(mapName, x, y) {
+        this.loader.load(function() {
+            this.service.map.destroy();
+
+            this.service.map = this.service.mapManager.getMap(mapName);
+
+            this.service.coolguy.x = x * 32;
+            this.service.coolguy.y = y * 32;
+        });
+    };
+    this.grassEvent = function() {
+        this.service.coolguy.setState("grass");
+
+        // Find the tile coolguy is standing on
+        let tile = this.service.map.tiles.find(tile => tile.renderCol === this.service.coolguy.col && tile.renderRow === this.service.coolguy.row);
+
+        // tile.pause = false;
+
+        this.service.battle = new Battle();
+    };
+    this.waterEvent = function() {
+        this.service.coolguy.setState("water");
+    }
 }
 
 MapManager.prototype.getMap = function(mapName) {
@@ -74,68 +101,43 @@ MapManager.prototype.createStartMap = function() {
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
-    // let tileManager = new TileManager(this.service, [{
-    //         identifier: "sea",  // identifier
-    //         src: "img/Sea.png", // image source
-    //         renderWidth: 32,    // width when rendering
-    //         renderHeight: 32,   // height when rendering
-    //         tileWidth: 16,      // width of tile in image
-    //         tileHeight: 16,     // height of tile in image
-    //         offset: 96,         // offset for every tick
-    //         numberOfFrames: 8,  // number of frames/ticks
-    //         updateFrequency: 7, // specifies how often to update (5 is every fifth tick, 2 is every other tick, 1 is every tick etc...)
-    //     },
-    //     {
-    //         identifier: "nice",
-    //         src: "img/007.png",
-    //         renderWidth: 48,
-    //         renderHeight: 48,
-    //         tileWidth: 42,
-    //         tileHeight: 42,
-    //         offset: 43,
-    //         numberOfFrames: 51,
-    //         updateFrequency: 2
-    //     },
-    //     {
-    //         identifier: "seashore",
-    //         src: "img/seashore.png",
-    //         renderWidth: 32,
-    //         renderHeight: 32,
-    //         tileWidth: 16,
-    //         tileHeight: 16,
-    //         offset: 96,
-    //         numberOfFrames: 8,
-    //         updateFrequency: 7
-    //     },
-    //     {
-    //         identifier: "grass",
-    //         src: "img/grass2.png",
-    //         renderWidth: 32,
-    //         renderHeight: 32,
-    //         tileWidth: 16,
-    //         tileHeight: 16,
-    //         offset: 16,
-    //         numberOfFrames: 2,
-    //         updateFrequency: 4,
-    //         loop: false,
-    //         pause: true
-    //     }
-    // ]);
-
-    // tileManager.addSettings({
-    //     identifier: "flower",
-    //     src: "img/Flowers2.png",
-    //     renderWidth: 32,
-    //     renderHeight: 32,
-    //     tileWidth: 32,
-    //     tileHeight: 32,
-    //     offset: 32,
-    //     numberOfFrames: 4,
-    //     updateFrequency: 10
-    // });
-
     let tiles = [
-        this.service.resources.tiles.find(tile => tile.name === "sea(3,3)")
+        this.service.resources.getTile("sea(0,2)", 15*32, 32*32),
+        this.service.resources.getTile("sea(1,2)", 16*32, 32*32),
+        this.service.resources.getTile("sea(2,2)", 17*32, 32*32),
+        this.service.resources.getTile("sea(3,2)", 18*32, 32*32),
+        this.service.resources.getTile("sea(4,2)", 19*32, 32*32),
+        this.service.resources.getTile("sea(5,2)", 20*32, 32*32),
+        this.service.resources.getTile("sea(0,3)", 15*32, 33*32),
+        this.service.resources.getTile("sea(1,3)", 16*32, 33*32),
+        this.service.resources.getTile("sea(2,3)", 17*32, 33*32),
+        this.service.resources.getTile("sea(3,3)", 18*32, 33*32),
+        this.service.resources.getTile("sea(4,3)", 19*32, 33*32),
+        this.service.resources.getTile("sea(5,3)", 20*32, 33*32),
+        this.service.resources.getTile("sea(0,4)", 15*32, 34*32),
+        this.service.resources.getTile("sea(1,4)", 16*32, 34*32),
+        this.service.resources.getTile("sea(2,4)", 17*32, 34*32),
+        this.service.resources.getTile("sea(3,4)", 18*32, 34*32),
+        this.service.resources.getTile("sea(4,4)", 19*32, 34*32),
+        this.service.resources.getTile("sea(5,4)", 20*32, 34*32),
+        this.service.resources.getTile("sea(0,5)", 15*32, 35*32),
+        this.service.resources.getTile("sea(1,5)", 16*32, 35*32),
+        this.service.resources.getTile("sea(2,5)", 17*32, 35*32),
+        this.service.resources.getTile("sea(3,5)", 18*32, 35*32),
+        this.service.resources.getTile("sea(4,5)", 19*32, 35*32),
+        this.service.resources.getTile("sea(5,5)", 20*32, 35*32),
+        this.service.resources.getTile("sea(0,6)", 15*32, 36*32),
+        this.service.resources.getTile("sea(1,6)", 16*32, 36*32),
+        this.service.resources.getTile("sea(2,6)", 17*32, 36*32),
+        this.service.resources.getTile("sea(3,6)", 18*32, 36*32),
+        this.service.resources.getTile("sea(4,6)", 19*32, 36*32),
+        this.service.resources.getTile("sea(5,6)", 20*32, 36*32),
+        this.service.resources.getTile("sea(0,7)", 15*32, 37*32),
+        this.service.resources.getTile("sea(1,7)", 16*32, 37*32),
+        this.service.resources.getTile("sea(2,7)", 17*32, 37*32),
+        this.service.resources.getTile("sea(3,7)", 18*32, 37*32),
+        this.service.resources.getTile("sea(4,7)", 19*32, 37*32),
+        this.service.resources.getTile("sea(5,7)", 20*32, 37*32)
     ];
 
     let map = new Map(this.service, {
@@ -148,53 +150,27 @@ MapManager.prototype.createStartMap = function() {
         tiles: tiles
     });
 
-    // Create some nice events
-    let normalEvent = function() {
-        this.service.coolguy.state = "walking";
-    };
-    let newMapEvent = function(mapName, x, y) {
-        this.service.map.destroy();
-
-        this.service.map = this.service.mapManager.getMap(mapName);
-
-        this.service.coolguy.x = x * 32;
-        this.service.coolguy.y = y * 32;
-    };
-    let grassEvent = function() {
-        this.service.coolguy.state = "grass";
-
-        // Find the tile coolguy is standing on
-        let tile = this.service.map.tiles.find(tile => tile.renderCol === this.service.coolguy.col && tile.renderRow === this.service.coolguy.row);
-
-        // tile.pause = false;
-
-        this.service.battle = new Battle();
-    };
-    let waterEvent = function() {
-        this.service.coolguy.state = "water";
-    }
-
     // Attach map events!
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {
             // Normal state!
             if (collisionMap[y][x] === 0) {
-                map.attachEvent(x, y, normalEvent);
+                map.attachEvent(x, y, this.normalEvent);
             }
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, newMapEvent.bind(this, "startMap", 3, 3));
+                map.attachEvent(x, y, this.newMapEvent.bind(this, "house1Map", 3, 3));
             }
 
             // Grass!
             if (collisionMap[y][x] === 3) {
-                map.attachEvent(x, y, grassEvent);
+                map.attachEvent(x, y, this.grassEvent);
             }
 
             // Water! Swim!
             if (collisionMap[y][x] === 4) {
-                map.attachEvent(x, y, waterEvent);
+                map.attachEvent(x, y, this.waterEvent);
             }
         }
     }
@@ -223,28 +199,45 @@ MapManager.prototype.createHouse1Map = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    let gridSize = 32;
+    let layer1Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer1");
+    console.log(this.service.resources.tiles);
 
-    let layer1Src = "img/house1layer1.png";
-    let layer2Src = "img/house1layer2.png";
+    let layer2Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer2");
 
-    let audioSrc = "audio/music2.mp3";
+    let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music2.mp3");
 
     let tiles = [];
 
-    let map = new Map(this.service, x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
+    let map = new Map(this.service, {
+        x: 0,
+        y: 0,
+        collisionMap: collisionMap,
+        layer1Tile: layer1Tile,
+        layer2Tile: layer2Tile,
+        audio: audio,
+        tiles: tiles
+    });
 
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {
+            // Normal state!
+            if (collisionMap[y][x] === 0) {
+                map.attachEvent(x, y, this.normalEvent);
+            }
+
+            // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, {
-                    id: 2,
-                    data: {
-                        mapName: "startMap",
-                        spawnX: 6*32,
-                        spawnY: 39*32
-                    }
-                });
+                map.attachEvent(x, y, this.newMapEvent.bind(this, "startMap", 3, 3));
+            }
+
+            // Grass!
+            if (collisionMap[y][x] === 3) {
+                map.attachEvent(x, y, this.grassEvent);
+            }
+
+            // Water! Swim!
+            if (collisionMap[y][x] === 4) {
+                map.attachEvent(x, y, this.waterEvent);
             }
         }
     }

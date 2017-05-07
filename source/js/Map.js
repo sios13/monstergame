@@ -43,7 +43,6 @@ Map.prototype.update = function() {
 }
 
 Map.prototype.renderTiles = function() {
-    console.log(this.tiles);
     for (let i = 0; i < this.tiles.length; i++) {
         this.tiles[i].render(this.service.worldContext, this.x, this.y);
     }

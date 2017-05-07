@@ -581,105 +581,57 @@ Conversation.prototype.render = function(context) {
 module.exports = Conversation;
 
 },{"./Tile.js":8}],3:[function(require,module,exports){
-const TileManager = require("./TileManager.js");
-
 function Entity(service, settings) {
     this.service = service;
 
-    this.x = settings.x;
-    this.y = settings.y;
+    this.x = 14*32;
+    this.y = 35*32;
 
-    this.canvasX = settings.canvasX;
-    this.canvasY = settings.canvasY;
+    this.collisionSquare = 20;
 
-    this.collisionSquare = settings.collisionSquare;
+    this.speed = 4;
 
-    // this.renderWidth = settings.renderWidth;
-    // this.renderHeight = settings.renderHeight;
-
-    this.speed = settings.speed;
-
-    this.direction = null;
+    this.direction = 0;
 
     this.state = "walking";
 
     this.col = Math.floor(this.x / 32);
     this.row = Math.floor(this.y / 32);
 
-    this.speedX = null;
-    this.speedY = null;
-
-    let tileManager = new TileManager(this.service);
-
-    tileManager.addSettings({
-        identifier: "playerWalk",
-        src: "img/character7_walking.png",
-        // image: this.service.resources.images.find(x => x.src === "img/character7_walking.png"),
-        renderWidth: settings.renderWidth,
-        renderHeight: settings.renderHeight,
-        tileWidth: 32,
-        tileHeight: 48,
-        offset: 32,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    });
-
-    tileManager.addSettings({
-        identifier: "playerWater",
-        src: "img/character_water.png",
-        renderWidth: 64,
-        renderHeight: 64,
-        tileWidth: 64,
-        tileHeight: 64,
-        offset: 64,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    });
-
-    tileManager.addSettings({
-        identifier: "playerGrass",
-        src: "img/character7_grass.png",
-        renderWidth: settings.renderWidth,
-        renderHeight: settings.renderHeight,
-        tileWidth: 32,
-        tileHeight: 48,
-        offset: 32,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    });
+    this.speedX = 0;
+    this.speedY = 0;
 
     // left, up, right, down
     this.walkTiles = [
-        tileManager.getTile("playerWalk", this.canvasX/32, this.canvasY/32, 0, 1),
-        tileManager.getTile("playerWalk", this.canvasX/32, this.canvasY/32, 0, 3),
-        tileManager.getTile("playerWalk", this.canvasX/32, this.canvasY/32, 0, 2),
-        tileManager.getTile(
-            "playerWalk",       // identifier
-            this.canvasX/32,    // column where to render
-            this.canvasY/32,    // row where to render
-            0,                  // column of tile in sprite
-            0                   // row of tile in sprite
-        )
+        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,1)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,3)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,2)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,0)")
     ];
-
-    this.waterTiles = [
-        tileManager.getTile("playerWater", this.canvasX/32, this.canvasY/32, 0, 1),
-        tileManager.getTile("playerWater", this.canvasX/32, this.canvasY/32, 0, 3),
-        tileManager.getTile("playerWater", this.canvasX/32, this.canvasY/32, 0, 2),
-        tileManager.getTile("playerWater", this.canvasX/32, this.canvasY/32, 0, 0),
-    ];
-
     this.grassTiles = [
-        tileManager.getTile("playerGrass", this.canvasX/32, this.canvasY/32, 0, 1),
-        tileManager.getTile("playerGrass", this.canvasX/32, this.canvasY/32, 0, 3),
-        tileManager.getTile("playerGrass", this.canvasX/32, this.canvasY/32, 0, 2),
-        tileManager.getTile("playerGrass", this.canvasX/32, this.canvasY/32, 0, 0),
+        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,1)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,3)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,2)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,0)")
     ];
+    this.waterTiles = [
+        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,1)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,3)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,2)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,0)")
+    ];
+
+    this.activeTiles = this.walkTiles;
 
     this.activeTile = this.walkTiles[3];
 
-    // Get all tiles from tile manager to easily check if all tiles have been loaded
-    this.allTiles = tileManager.getAllTiles();
+    // Make sure collision square always is in center of entity!
+    // Render width and render height should always be > collision square !!
+    this.renderX = this.service.worldCanvas.width/2 - (this.activeTile.renderWidth - this.collisionSquare) / 2;
+    this.renderY = this.service.worldCanvas.height/2 - (this.activeTile.renderHeight - this.collisionSquare);
+    
+    this.canvasX = 512; // x position on canvas
+    this.canvasY = 384; // y position on canvas
 }
 
 Entity.prototype._setSpeed = function() {
@@ -692,20 +644,30 @@ Entity.prototype._setSpeed = function() {
     this.speedY = deltaY/distance*this.speed;
 }
 
+/**
+ * Sets the direction
+ * 0 = left, 1 = up, 2 = right, 3 = down
+ */
 Entity.prototype._setDirection = function() {
     let radians = Math.atan2(this.speedY, this.speedX);
 
     let degrees = radians * (180 / Math.PI);
 
     if (degrees < -135 || degrees > 135) {
-        this.direction = "left";
+        this.direction = 0;
+        // this.direction = "left";
     } else if (degrees < -45) {
-        this.direction = "up";
+        this.direction = 1;
+        // this.direction = "up";
     } else if (degrees < 45) {
-        this.direction = "right";
+        this.direction = 2;
+        // this.direction = "right";
     } else if (degrees < 135) {
-        this.direction = "down";
+        this.direction = 3;
+        // this.direction = "down";
     }
+
+    this.activeTile = this.activeTiles[this.direction];
 }
 
 Entity.prototype._detectCollision = function() {
@@ -757,73 +719,30 @@ Entity.prototype._detectCollision = function() {
     }
 }
 
-Entity.prototype._setActiveTile = function() {
-    if (this.direction === "left")
-    {
-        if (this.state === "walking")
-        {
-            this.activeTile = this.walkTiles[0];
-        }
-        else if (this.state === "grass")
-        {
-            this.activeTile = this.grassTiles[0];
-        }
-        else if (this.state === "water")
-        {
-            this.activeTile = this.waterTiles[0];
-        }
+Entity.prototype.setState = function(state) {
+    if (state === "walking") {
+        this.activeTiles = this.walkTiles;
     }
-    else if (this.direction === "up")
-    {
-        if (this.state === "walking")
-        {
-            this.activeTile = this.walkTiles[1];
-        }
-        else if (this.state === "grass")
-        {
-            this.activeTile = this.grassTiles[1];
-        }
-        else if (this.state === "water")
-        {
-            this.activeTile = this.waterTiles[1];
-        }
+
+    if (state === "grass") {
+        this.activeTiles = this.grassTiles;
     }
-    else if (this.direction === "right")
-    {
-        if (this.state === "walking")
-        {
-            this.activeTile = this.walkTiles[2];
-        }
-        else if (this.state === "grass")
-        {
-            this.activeTile = this.grassTiles[2];
-        }
-        else if (this.state === "water")
-        {
-            this.activeTile = this.waterTiles[2];
-        }
+
+    if (state === "water") {
+        this.activeTiles = this.waterTiles;
     }
-    else if (this.direction === "down")
-    {
-        if (this.state === "walking")
-        {
-            this.activeTile = this.walkTiles[3];
-        }
-        else if (this.state === "grass")
-        {
-            this.activeTile = this.grassTiles[3];
-        }
-        else if (this.state === "water")
-        {
-            this.activeTile = this.waterTiles[3];
-        }
-    }
+
+    this.state = state;
+
+    this.renderX = this.service.worldCanvas.width/2 - (this.activeTiles[0].renderWidth - this.collisionSquare) / 2;
+    this.renderY = this.service.worldCanvas.height/2 - (this.activeTiles[0].renderHeight - this.collisionSquare);
+
+    console.log(this.state);
 }
 
 Entity.prototype.update = function() {
     if (this.service.listeners.mousedown) {
-
-        // Use the mouse position to determine the entity speed
+        // Use the mouse position to determine the entity speed (speedX speedY)
         this._setSpeed();
 
         // Use the speed to determine the direction
@@ -851,9 +770,6 @@ Entity.prototype.update = function() {
             this.service.events.push(event);
         }
 
-        // Set the active tile depending on direction and events
-        this._setActiveTile();
-
         // Update tile animation (walking animation etc...)
         this.activeTile.update();
 
@@ -864,22 +780,17 @@ Entity.prototype.update = function() {
     this.activeTile.setFrame(0);
 }
 
-Entity.prototype.render = function(context) {
-    // Make sure collision square always is in center of entity!
-    // Render width and render height should always be > collision square !!
-    let renderOffsetX = (this.activeTile.renderWidth - this.collisionSquare) / 2;
-    let renderOffsetY = (this.activeTile.renderHeight - this.collisionSquare);
+Entity.prototype.render = function() {
+    this.activeTile.render(this.service.worldContext, this.renderX, this.renderY);
 
-    this.activeTile.render(context, 0 - renderOffsetX, 0 - renderOffsetY);
-
-    // context.beginPath();
-    // context.rect(this.canvasX, this.canvasY, this.collisionSquare, this.collisionSquare);
-    // context.stroke();
+    // this.service.worldContext.beginPath();
+    // this.service.worldContext.rect(this.canvasX, this.canvasY, this.collisionSquare, this.collisionSquare);
+    // this.service.worldContext.stroke();
 }
 
 module.exports = Entity;
 
-},{"./TileManager.js":9}],4:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 const Entity = require("./Entity.js");
 const MapManager = require("./MapManager.js");
 const Battle = require("./Battle.js");
@@ -902,22 +813,12 @@ function Game() {
 
     this.service.events = [];
 
-    // Loading
     // Load resources to service.resouces
     this.loader = new Loader(this.service, {});
     // Initialize world state
     this.service.events.push(function() {
         this.loader.load(function() {
-            this.service.coolguy = new Entity(this.service, {
-                x: 14*32,                       // x position on map
-                y: 35*32,                       // y position on map
-                canvasX: 512,                   // x position on canvas
-                canvasY: 384,                   // y position on canvas
-                collisionSquare: 20,            // width and height of collision square
-                renderWidth: 32,                // render width
-                renderHeight: 48,               // render height
-                speed: 4                        // speed
-            });
+            this.service.coolguy = new Entity(this.service, {});
 
             this.service.mapManager = new MapManager(this.service, {});
 
@@ -925,14 +826,9 @@ function Game() {
 
             this.service.state = "world";
 
-            this.service.battle = new Battle(this.service, {});
+            // this.service.battle = new Battle(this.service, {});
         });
     });
-
-
-    // Battle
-
-    // World
 
     // Loading properties
     this.service.loadCanvas = document.querySelector(".loadCanvas");
@@ -951,12 +847,12 @@ function Game() {
     this.startGame();
 }
 
-Game.prototype.setState = function(state) {
-    if (this.state = "world") {
-        this.map = this.mapManager.getMap("startMap");
-    }
-    this.state = state;
-}
+// Game.prototype.setState = function(state) {
+//     if (this.state = "world") {
+//         this.map = this.mapManager.getMap("startMap");
+//     }
+//     this.state = state;
+// }
 
 Game.prototype.startGame = function() {
     function frame() {
@@ -1026,7 +922,7 @@ Game.prototype.render = function() {
     if (this.state === "loading") {
         let context = this.loadContext;
 
-        this.resourceLoader.render(context);
+        this.loader.render();
     }
 
     if (this.state === "battle") {
@@ -1034,7 +930,7 @@ Game.prototype.render = function() {
 
         context.clearRect(0, 0, this.battleCanvas.width, this.battleCanvas.height);
 
-        this.battle.render(context);
+        this.battle.render();
     }
 
     if (this.service.state === "world") {
@@ -1042,15 +938,15 @@ Game.prototype.render = function() {
 
         context.clearRect(0, 0, this.service.worldCanvas.width, this.service.worldCanvas.height);
 
-        this.service.map.renderLayer1(context);
+        this.service.map.renderLayer1();
 
-        this.service.map.renderTiles(context);
+        this.service.map.renderTiles();
 
-        this.service.coolguy.render(context);
+        this.service.coolguy.render();
 
-        this.service.map.renderLayer2(context);
+        this.service.map.renderLayer2();
 
-        this.service.map.render(context);
+        this.service.map.render();
     }
 
     // If system was recently loaded -> tone from black screen to game
@@ -1081,80 +977,9 @@ Game.prototype.checkEvents = function() {
     this.service.events = [];
 }
 
-// Game.prototype.event = function(event) {
-//     // Walking!
-//     if (event.id === 1) {
-//         this.coolguy.state = "walking";
-
-//         return;
-//     }
-
-//     // Change map!
-//     if (event.id === 2) {
-//         this.loadedTick = null;
-
-//         this.map.destroy();
-
-//         this.map = MapInitializer.getMap(event.data.mapName);
-
-//         this.coolguy.x = event.data.spawnX;
-//         this.coolguy.y = event.data.spawnY;
-
-//         return;
-//     }
-
-//     // Grass!
-//     if (event.id === 3) {
-//         this.coolguy.state = "grass";
-
-//         event.data.tile.pause = false;
-
-//         this.startBattle();
-
-//         return;
-//     }
-
-//     // Water!
-//     if (event.id === 4) {
-//         this.coolguy.state = "water";
-
-//         return;
-//     }
-// }
-
-// Game.prototype.startBattle = function(settings) {
-//     this.map.audio.pause();
-
-//     this.battle = new Battle(settings);
-
-//     this.state = "battle";
-
-//     // this.canvas = this.battleCanvas;
-//     // this.context = this.battleContext;
-
-//     this.worldCanvas.style.zIndex = 1;
-//     this.battleCanvas.style.zIndex = 2;
-// }
-
-// Game.prototype.endBattle = function() {
-//     this.battle.audio.pause();
-
-//     this.map.audio.play();
-
-//     this.battle = null;
-
-//     this.state = "world";
-
-//     // this.canvas = this.worldCanvas;
-//     // this.context = this.worldContext;
-
-//     this.worldCanvas.style.zIndex = 2;
-//     this.battleCanvas.style.zIndex = 1;
-// }
-
 module.exports = Game;
 
-},{"./Battle.js":1,"./Entity.js":3,"./Loader.js":5,"./MapManager.js":7,"./listeners.js":11}],5:[function(require,module,exports){
+},{"./Battle.js":1,"./Entity.js":3,"./Loader.js":5,"./MapManager.js":7,"./listeners.js":10}],5:[function(require,module,exports){
 const Tile = require("./Tile.js");
 
 function Loader(service, settings)
@@ -1162,37 +987,76 @@ function Loader(service, settings)
     this.service = service;
 
     this.service.resources = {};
+
+    this.service.resources.getTile = function(tilename, renderX, renderY) {
+        let tile = this.service.resources.tiles.find(tile => tile.name === tilename);
+        tile.renderX = renderX;
+        tile.renderY = renderY;
+        return tile;
+    }.bind(this);
     
     this.tick = 0;
 
     this.endTick = null;
 
-    // this.loadCounter = 0;
+    this.placeholderImage = new Image();
+    this.placeholderImage.src = "img/placeholder.png";
 
-    // this.loadEvent = function() {
-    //     this.loadCounter += 1;
-
-    //     if (this.loadCounter === this.images.length + this.audios.length) {
-    //         this.endTick = this.tick + 30;
-    //     }
-    // }.bind(this);
-
-    this.tiles = [];
-
-    this.audios = [];
+    this.loading = false;
 }
 
 Loader.prototype._loadAudios = function() {
     let audioSrcs = [
-        "audio/music1.mp3"
+        "audio/music1.mp3",
+        "audio/music2.mp3"
     ];
+
+    let audios = [];
 
     for (let i = 0; i < audioSrcs.length; i++) {
         let audio = new Audio(audioSrcs[i]);
-        this.audios.push(audio);
+        audios.push(audio);
     }
 
-    this.service.resources.audios = this.audios;
+    this.service.resources.audios = audios;
+}
+
+Loader.prototype._loadImages = function() {
+    // List of all image srcs to ever be used in the game
+    let imageSrcs = [
+        "img/Sea.png",
+        "img/map1layer1.png",
+        "img/map1layer2.png",
+        "img/house1layer1.png",
+        "img/house1layer2.png",
+        "img/character7_walking.png",
+        "img/character_water.png",
+        "img/character7_grass.png"
+    ];
+
+    let images = [];
+
+    // Create image elements for all images
+    for (let i = 0; i < imageSrcs.length; i++) {
+        let image = new Image();
+
+        image.addEventListener("load", function(event) {
+            let image2 = event.path[0];
+            // Add this image to all tiles that should have this image
+            for (let i = 0; i < this.service.resources.tiles.length; i++) {
+                let tile = this.service.resources.tiles[i];
+                if (tile.src === image2.getAttribute("src")) {
+                    tile.image = image2;
+                }
+            }
+        }.bind(this));
+
+        image.src = imageSrcs[i];
+
+        images.push(image);
+    }
+
+    this.service.resources.images = images;
 }
 
 Loader.prototype._loadTiles = function() {
@@ -1203,17 +1067,58 @@ Loader.prototype._loadTiles = function() {
         for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
             for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
                 let tile = new Tile(Object.assign({}, sprite, {
+                    placeholderImage: this.placeholderImage,
                     name: sprite.name + "(" + x + "," + y + ")",
                     spriteCol: x,
                     spriteRow: y
                 }));
-
                 tiles.push(tile);
-                console.log(tile.name);
             }
         }
 
         return tiles;
+    }.bind(this);
+
+    /**
+     * Sprites
+     */
+    let playerWalkingSprite = {
+        name: "playerWalk",
+        src: "img/character7_walking.png",
+        tileWidth: 32,
+        tileHeight: 48,
+        spriteWidth: 32,
+        spriteHeight: 192,
+        renderWidth: 32,
+        renderHeight: 48,
+        numberOfFrames: 4,
+        updateFrequency: 7
+    };
+
+    let playerWaterSprite = {
+        name: "playerWater",
+        src: "img/character_water.png",
+        tileWidth: 64,
+        tileHeight: 64,
+        spriteWidth: 64,
+        spriteHeight: 256,
+        renderWidth: 64,
+        renderHeight: 64,
+        numberOfFrames: 4,
+        updateFrequency: 7
+    };
+
+    let playerGrassSprite = {
+        name: "playerGrass",
+        src: "img/character7_grass.png",
+        tileWidth: 32,
+        tileHeight: 48,
+        spriteWidth: 32,
+        spriteHeight: 192,
+        renderWidth: 32,
+        renderHeight: 48,
+        numberOfFrames: 4,
+        updateFrequency: 7
     };
 
     let seaSprite = {
@@ -1229,14 +1134,31 @@ Loader.prototype._loadTiles = function() {
         updateFrequency: 7,
     };
 
-    let map1layer1Tile = new Tile({name: "map1layer1", src: "img/map1layer1.png", tileWidth: 3200, tileHeight: 3200});
-    let map1layer2Tile = new Tile({name: "map1layer2", src: "img/map1layer2.png", tileWidth: 3200, tileHeight: 3200});
+    /**
+     * Tiles
+     */
+    let map1layer1Tile = new Tile({name: "map1layer1", src: "img/map1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
 
+    let map1layer2Tile = new Tile({name: "map1layer2", src: "img/map1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+    
+    let house1layer1Tile = new Tile({name: "house1layer1", src: "img/house1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+    
+    let house1layer2Tile = new Tile({name: "house1layer2", src: "img/house1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+
+    /**
+     * Create tiles from sprites
+     * Add tiles to resources.tiles
+     */
     let tiles = [];
 
     tiles.push(...spriteToTiles(seaSprite));
+    tiles.push(...spriteToTiles(playerWalkingSprite));
+    tiles.push(...spriteToTiles(playerWaterSprite));
+    tiles.push(...spriteToTiles(playerGrassSprite));
     tiles.push(map1layer1Tile);
-    // tiles.push(map1layer2Tile);
+    tiles.push(map1layer2Tile);
+    tiles.push(house1layer1Tile);
+    tiles.push(house1layer2Tile);
 
     this.service.resources.tiles = tiles;
 }
@@ -1255,12 +1177,12 @@ Loader.prototype.load = function(callable)
 
 Loader.prototype.update = function()
 {
-    this.tick += 1;
-
     // If there is no loading currently happening -> exit
     if (this.loading === false) {
         return;
     }
+
+    this.tick += 1;
     
     // Start the actual loading only if 30 ticks have passed
     if (this.tick < 30) {
@@ -1269,23 +1191,25 @@ Loader.prototype.update = function()
 
     this._loadTiles();
 
+    this._loadImages();
+
     this._loadAudios();
 
     this.service.events.push(this.loadCallable);
 
-    // If a tile is loading -> exit
-    for (let i = 0; i < this.tiles.length; i++) {
-        if (this.tiles[i].loading === true) {
-            return;
-        }
-    }
+    // // If a tile is loading -> exit
+    // for (let i = 0; i < this.tiles.length; i++) {
+    //     if (this.tiles[i].loading === true) {
+    //         return;
+    //     }
+    // }
 
-    // If an audio is loading -> exit
-    for (let i = 0; i < this.audios.length; i++) {
-        if (this.audios[i].readyState !== 4) {
-            return;
-        }
-    }
+    // // If an audio is loading -> exit
+    // for (let i = 0; i < this.audios.length; i++) {
+    //     if (this.audios[i].readyState !== 4) {
+    //         return;
+    //     }
+    // }
     
     // If everything is loaded -> stop loading and set end tick
     this.loading = false;
@@ -1354,7 +1278,6 @@ Map.prototype.update = function() {
 }
 
 Map.prototype.renderTiles = function() {
-    console.log(this.tiles);
     for (let i = 0; i < this.tiles.length; i++) {
         this.tiles[i].render(this.service.worldContext, this.x, this.y);
     }
@@ -1390,12 +1313,40 @@ module.exports = Map;
 
 },{}],7:[function(require,module,exports){
 const Map = require("./Map.js");
-// const TileManager = require("./TileManager.js");
 const Tile = require("./Tile.js");
 const Battle = require("./Battle.js");
 
 function MapManager(service) {
     this.service = service;
+
+    // Some nice events
+    this.normalEvent = function() {
+        this.service.coolguy.setState("walking");
+    };
+    this.newMapEvent = function(mapName, x, y) {
+        console.log(this);
+        this.loader.load(function() {
+            this.service.map.destroy();
+
+            this.service.map = this.service.mapManager.getMap(mapName);
+
+            this.service.coolguy.x = x * 32;
+            this.service.coolguy.y = y * 32;
+        });
+    };
+    this.grassEvent = function() {
+        this.service.coolguy.setState("grass");
+
+        // Find the tile coolguy is standing on
+        let tile = this.service.map.tiles.find(tile => tile.renderCol === this.service.coolguy.col && tile.renderRow === this.service.coolguy.row);
+
+        // tile.pause = false;
+
+        this.service.battle = new Battle();
+    };
+    this.waterEvent = function() {
+        this.service.coolguy.setState("water");
+    }
 }
 
 MapManager.prototype.getMap = function(mapName) {
@@ -1465,68 +1416,43 @@ MapManager.prototype.createStartMap = function() {
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
-    // let tileManager = new TileManager(this.service, [{
-    //         identifier: "sea",  // identifier
-    //         src: "img/Sea.png", // image source
-    //         renderWidth: 32,    // width when rendering
-    //         renderHeight: 32,   // height when rendering
-    //         tileWidth: 16,      // width of tile in image
-    //         tileHeight: 16,     // height of tile in image
-    //         offset: 96,         // offset for every tick
-    //         numberOfFrames: 8,  // number of frames/ticks
-    //         updateFrequency: 7, // specifies how often to update (5 is every fifth tick, 2 is every other tick, 1 is every tick etc...)
-    //     },
-    //     {
-    //         identifier: "nice",
-    //         src: "img/007.png",
-    //         renderWidth: 48,
-    //         renderHeight: 48,
-    //         tileWidth: 42,
-    //         tileHeight: 42,
-    //         offset: 43,
-    //         numberOfFrames: 51,
-    //         updateFrequency: 2
-    //     },
-    //     {
-    //         identifier: "seashore",
-    //         src: "img/seashore.png",
-    //         renderWidth: 32,
-    //         renderHeight: 32,
-    //         tileWidth: 16,
-    //         tileHeight: 16,
-    //         offset: 96,
-    //         numberOfFrames: 8,
-    //         updateFrequency: 7
-    //     },
-    //     {
-    //         identifier: "grass",
-    //         src: "img/grass2.png",
-    //         renderWidth: 32,
-    //         renderHeight: 32,
-    //         tileWidth: 16,
-    //         tileHeight: 16,
-    //         offset: 16,
-    //         numberOfFrames: 2,
-    //         updateFrequency: 4,
-    //         loop: false,
-    //         pause: true
-    //     }
-    // ]);
-
-    // tileManager.addSettings({
-    //     identifier: "flower",
-    //     src: "img/Flowers2.png",
-    //     renderWidth: 32,
-    //     renderHeight: 32,
-    //     tileWidth: 32,
-    //     tileHeight: 32,
-    //     offset: 32,
-    //     numberOfFrames: 4,
-    //     updateFrequency: 10
-    // });
-
     let tiles = [
-        this.service.resources.tiles.find(tile => tile.name === "sea(3,3)")
+        this.service.resources.getTile("sea(0,2)", 15*32, 32*32),
+        this.service.resources.getTile("sea(1,2)", 16*32, 32*32),
+        this.service.resources.getTile("sea(2,2)", 17*32, 32*32),
+        this.service.resources.getTile("sea(3,2)", 18*32, 32*32),
+        this.service.resources.getTile("sea(4,2)", 19*32, 32*32),
+        this.service.resources.getTile("sea(5,2)", 20*32, 32*32),
+        this.service.resources.getTile("sea(0,3)", 15*32, 33*32),
+        this.service.resources.getTile("sea(1,3)", 16*32, 33*32),
+        this.service.resources.getTile("sea(2,3)", 17*32, 33*32),
+        this.service.resources.getTile("sea(3,3)", 18*32, 33*32),
+        this.service.resources.getTile("sea(4,3)", 19*32, 33*32),
+        this.service.resources.getTile("sea(5,3)", 20*32, 33*32),
+        this.service.resources.getTile("sea(0,4)", 15*32, 34*32),
+        this.service.resources.getTile("sea(1,4)", 16*32, 34*32),
+        this.service.resources.getTile("sea(2,4)", 17*32, 34*32),
+        this.service.resources.getTile("sea(3,4)", 18*32, 34*32),
+        this.service.resources.getTile("sea(4,4)", 19*32, 34*32),
+        this.service.resources.getTile("sea(5,4)", 20*32, 34*32),
+        this.service.resources.getTile("sea(0,5)", 15*32, 35*32),
+        this.service.resources.getTile("sea(1,5)", 16*32, 35*32),
+        this.service.resources.getTile("sea(2,5)", 17*32, 35*32),
+        this.service.resources.getTile("sea(3,5)", 18*32, 35*32),
+        this.service.resources.getTile("sea(4,5)", 19*32, 35*32),
+        this.service.resources.getTile("sea(5,5)", 20*32, 35*32),
+        this.service.resources.getTile("sea(0,6)", 15*32, 36*32),
+        this.service.resources.getTile("sea(1,6)", 16*32, 36*32),
+        this.service.resources.getTile("sea(2,6)", 17*32, 36*32),
+        this.service.resources.getTile("sea(3,6)", 18*32, 36*32),
+        this.service.resources.getTile("sea(4,6)", 19*32, 36*32),
+        this.service.resources.getTile("sea(5,6)", 20*32, 36*32),
+        this.service.resources.getTile("sea(0,7)", 15*32, 37*32),
+        this.service.resources.getTile("sea(1,7)", 16*32, 37*32),
+        this.service.resources.getTile("sea(2,7)", 17*32, 37*32),
+        this.service.resources.getTile("sea(3,7)", 18*32, 37*32),
+        this.service.resources.getTile("sea(4,7)", 19*32, 37*32),
+        this.service.resources.getTile("sea(5,7)", 20*32, 37*32)
     ];
 
     let map = new Map(this.service, {
@@ -1539,53 +1465,27 @@ MapManager.prototype.createStartMap = function() {
         tiles: tiles
     });
 
-    // Create some nice events
-    let normalEvent = function() {
-        this.service.coolguy.state = "walking";
-    };
-    let newMapEvent = function(mapName, x, y) {
-        this.service.map.destroy();
-
-        this.service.map = this.service.mapManager.getMap(mapName);
-
-        this.service.coolguy.x = x * 32;
-        this.service.coolguy.y = y * 32;
-    };
-    let grassEvent = function() {
-        this.service.coolguy.state = "grass";
-
-        // Find the tile coolguy is standing on
-        let tile = this.service.map.tiles.find(tile => tile.renderCol === this.service.coolguy.col && tile.renderRow === this.service.coolguy.row);
-
-        // tile.pause = false;
-
-        this.service.battle = new Battle();
-    };
-    let waterEvent = function() {
-        this.service.coolguy.state = "water";
-    }
-
     // Attach map events!
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {
             // Normal state!
             if (collisionMap[y][x] === 0) {
-                map.attachEvent(x, y, normalEvent);
+                map.attachEvent(x, y, this.normalEvent);
             }
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, newMapEvent.bind(this, "startMap", 3, 3));
+                map.attachEvent(x, y, this.newMapEvent.bind(this, "house1Map", 3, 3));
             }
 
             // Grass!
             if (collisionMap[y][x] === 3) {
-                map.attachEvent(x, y, grassEvent);
+                map.attachEvent(x, y, this.grassEvent);
             }
 
             // Water! Swim!
             if (collisionMap[y][x] === 4) {
-                map.attachEvent(x, y, waterEvent);
+                map.attachEvent(x, y, this.waterEvent);
             }
         }
     }
@@ -1614,28 +1514,45 @@ MapManager.prototype.createHouse1Map = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    let gridSize = 32;
+    let layer1Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer1");
+    console.log(this.service.resources.tiles);
 
-    let layer1Src = "img/house1layer1.png";
-    let layer2Src = "img/house1layer2.png";
+    let layer2Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer2");
 
-    let audioSrc = "audio/music2.mp3";
+    let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music2.mp3");
 
     let tiles = [];
 
-    let map = new Map(this.service, x, y, collisionMap, gridSize, layer1Src, layer2Src, audioSrc, tiles);
+    let map = new Map(this.service, {
+        x: 0,
+        y: 0,
+        collisionMap: collisionMap,
+        layer1Tile: layer1Tile,
+        layer2Tile: layer2Tile,
+        audio: audio,
+        tiles: tiles
+    });
 
     for (let y = 0; y < collisionMap.length; y++) {
         for (let x = 0; x < collisionMap[y].length; x++) {
+            // Normal state!
+            if (collisionMap[y][x] === 0) {
+                map.attachEvent(x, y, this.normalEvent);
+            }
+
+            // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, {
-                    id: 2,
-                    data: {
-                        mapName: "startMap",
-                        spawnX: 6*32,
-                        spawnY: 39*32
-                    }
-                });
+                map.attachEvent(x, y, this.newMapEvent.bind(this, "startMap", 3, 3));
+            }
+
+            // Grass!
+            if (collisionMap[y][x] === 3) {
+                map.attachEvent(x, y, this.grassEvent);
+            }
+
+            // Water! Swim!
+            if (collisionMap[y][x] === 4) {
+                map.attachEvent(x, y, this.waterEvent);
             }
         }
     }
@@ -1648,6 +1565,10 @@ module.exports = MapManager;
 },{"./Battle.js":1,"./Map.js":6,"./Tile.js":8}],8:[function(require,module,exports){
 function Tile(settings) {
     this.name = settings.name ? settings.name : "hehe";
+
+    this.src = settings.src;
+
+    this.placeholderImage = settings.placeholderImage;
 
     this.tileWidth = settings.tileWidth ? settings.tileWidth : 0;
     this.tileHeight = settings.tileHeight ? settings.tileHeight : 0;
@@ -1682,28 +1603,8 @@ function Tile(settings) {
 
     this.spriteOffset = 0;
 
-    // Load
-    this.loading = true;
-
-    this.image = new Image();
-    this.image.addEventListener("load", function(event) {
-        this.loading = false;
-    }.bind(this));
-    this.image.src = settings.src;
-
     // 
     this.tick = 0;
-}
-
-/**
- * Returns true if tile has been loaded
- */
-Tile.prototype.isLoaded = function() {
-    if (this.loadCounter === this.loadCounterFinish) {
-        return true;
-    }
-
-    return false;
 }
 
 Tile.prototype.setFrame = function(framenumber) {
@@ -1737,8 +1638,8 @@ Tile.prototype.update = function() {
 }
 
 Tile.prototype.render = function(context, mapX, mapY) {
-    mapX = mapX ? mapX : 0;
-    mapY = mapY ? mapY : 0;
+    mapX = mapX ? mapX : this.service.map.x;
+    mapY = mapY ? mapY : this.service.map.y;
 
     let xInImage = this.spriteCol * this.tileWidth + this.spriteOffset;
     let yInImage = this.spriteRow * this.tileHeight;
@@ -1768,77 +1669,6 @@ Tile.prototype.render = function(context, mapX, mapY) {
 module.exports = Tile;
 
 },{}],9:[function(require,module,exports){
-const Tile = require("./Tile.js");
-
-function TileManager(service, settings) {
-    this.service = service;
-
-    this.tilesSettings = [];
-
-    this.addSettings(settings);
-
-    this.tiles = [];
-}
-
-/**
- * Return all initialized tiles
- */
-TileManager.prototype.getAllTiles = function() {
-    return this.tiles;
-}
-
-TileManager.prototype.addSettings = function(settings) {
-    if (settings === undefined) {
-        return;
-    }
-
-    /**
-     * If adding settings as array
-     */
-    if (Array.isArray(settings))
-    {
-        this.tilesSettings = this.tilesSettings.concat(settings);
-    }
-    else
-    {
-        this.tilesSettings.push(settings);
-    }
-}
-
-/**
- * Initialize and return a tile
- * All initialized tiles are also saved in the tile manager!
- */
-TileManager.prototype.getTile = function(identifier, renderCol, renderRow, spriteCol, spriteRow) {
-    let settings = this.tilesSettings.find(x => x.identifier === identifier);
-
-    let tile = new Tile(this.service, {
-        renderCol: renderCol,                       // col where to render
-        renderRow: renderRow,                       // row where to render
-        renderWidth: settings.renderWidth,          // render width
-        renderHeight: settings.renderHeight,        // render height
-        spriteCol: spriteCol,                       // col of tile in spirte
-        spriteRow: spriteRow,                       // row of tile in sprite
-        tileWidth: settings.tileWidth,              // width of tile in sprite
-        tileHeight: settings.tileHeight,            // height of tile in sprite
-        offset: settings.offset,                    // offset length
-        numberOfFrames: settings.numberOfFrames,    // number of frames
-        updateFrequency: settings.updateFrequency,  // specifies how often to update (5 is every fifth tick, 2 is every other tick, 1 is every tick etc...)
-        // image: settings.image,
-        src: settings.src,                          // sprite or sprites src
-        loop: settings.loop,                        // loop
-        pause: settings.pause                       // pause
-    });
-
-    // All initialized tiles are also saved in the tile manager
-    this.tiles.push(tile);
-
-    return tile;
-}
-
-module.exports = TileManager;
-
-},{"./Tile.js":8}],10:[function(require,module,exports){
 let Game = require("./Game.js");
 
 // node_modules/.bin/browserify source/js/app.js > debug/js/bundle.js
@@ -1849,7 +1679,7 @@ window.addEventListener("load", function() {
     // game.startGame();
 });
 
-},{"./Game.js":4}],11:[function(require,module,exports){
+},{"./Game.js":4}],10:[function(require,module,exports){
 function addListeners(service) {
     service.listeners = {};
 
@@ -1906,4 +1736,4 @@ module.exports = {
     // isInsideBox: isInsideBox
 }
 
-},{}]},{},[10]);
+},{}]},{},[9]);

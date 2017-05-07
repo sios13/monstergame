@@ -1,7 +1,9 @@
 function Tile(settings) {
     this.name = settings.name ? settings.name : "hehe";
 
-    this.image = settings.image;
+    this.src = settings.src;
+
+    this.placeholderImage = settings.placeholderImage;
 
     this.tileWidth = settings.tileWidth ? settings.tileWidth : 0;
     this.tileHeight = settings.tileHeight ? settings.tileHeight : 0;
@@ -36,29 +38,8 @@ function Tile(settings) {
 
     this.spriteOffset = 0;
 
-    // Load
-    // this.loading = true;
-
-    // this.image = new Image();
-    // this.image.addEventListener("load", function(event) {
-    //     this.loading = false;
-    // }.bind(this));
-    // this.image.src = settings.src;
-
     // 
     this.tick = 0;
-}
-
-/**
- * Returns true if tile has been loaded
- */
-Tile.prototype.isLoaded = function() {
-    return this.image.complete && this.image.naturalHeight !== 0;
-    // if (this.loadCounter === this.loadCounterFinish) {
-    //     return true;
-    // }
-
-    // return false;
 }
 
 Tile.prototype.setFrame = function(framenumber) {
@@ -92,8 +73,8 @@ Tile.prototype.update = function() {
 }
 
 Tile.prototype.render = function(context, mapX, mapY) {
-    mapX = mapX ? mapX : 0;
-    mapY = mapY ? mapY : 0;
+    mapX = mapX ? mapX : this.service.map.x;
+    mapY = mapY ? mapY : this.service.map.y;
 
     let xInImage = this.spriteCol * this.tileWidth + this.spriteOffset;
     let yInImage = this.spriteRow * this.tileHeight;

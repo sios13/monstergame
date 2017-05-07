@@ -1,102 +1,54 @@
-const TileManager = require("./TileManager.js");
-
 function Entity(service, settings) {
     this.service = service;
 
-    this.x = settings.x;
-    this.y = settings.y;
+    this.x = 14*32;
+    this.y = 35*32;
 
-    this.canvasX = settings.canvasX;
-    this.canvasY = settings.canvasY;
+    this.collisionSquare = 20;
 
-    this.collisionSquare = settings.collisionSquare;
+    this.speed = 4;
 
-    // this.renderWidth = settings.renderWidth;
-    // this.renderHeight = settings.renderHeight;
-
-    this.speed = settings.speed;
-
-    this.direction = null;
+    this.direction = 0;
 
     this.state = "walking";
 
     this.col = Math.floor(this.x / 32);
     this.row = Math.floor(this.y / 32);
 
-    this.speedX = null;
-    this.speedY = null;
-
-    let tileManager = new TileManager(this.service);
-
-    tileManager.addSettings({
-        identifier: "playerWalk",
-        src: "img/character7_walking.png",
-        // image: this.service.resources.images.find(x => x.src === "img/character7_walking.png"),
-        renderWidth: settings.renderWidth,
-        renderHeight: settings.renderHeight,
-        tileWidth: 32,
-        tileHeight: 48,
-        offset: 32,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    });
-
-    tileManager.addSettings({
-        identifier: "playerWater",
-        src: "img/character_water.png",
-        renderWidth: 64,
-        renderHeight: 64,
-        tileWidth: 64,
-        tileHeight: 64,
-        offset: 64,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    });
-
-    tileManager.addSettings({
-        identifier: "playerGrass",
-        src: "img/character7_grass.png",
-        renderWidth: settings.renderWidth,
-        renderHeight: settings.renderHeight,
-        tileWidth: 32,
-        tileHeight: 48,
-        offset: 32,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    });
+    this.speedX = 0;
+    this.speedY = 0;
 
     // left, up, right, down
     this.walkTiles = [
-        tileManager.getTile("playerWalk", this.canvasX/32, this.canvasY/32, 0, 1),
-        tileManager.getTile("playerWalk", this.canvasX/32, this.canvasY/32, 0, 3),
-        tileManager.getTile("playerWalk", this.canvasX/32, this.canvasY/32, 0, 2),
-        tileManager.getTile(
-            "playerWalk",       // identifier
-            this.canvasX/32,    // column where to render
-            this.canvasY/32,    // row where to render
-            0,                  // column of tile in sprite
-            0                   // row of tile in sprite
-        )
+        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,1)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,3)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,2)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,0)")
     ];
-
-    this.waterTiles = [
-        tileManager.getTile("playerWater", this.canvasX/32, this.canvasY/32, 0, 1),
-        tileManager.getTile("playerWater", this.canvasX/32, this.canvasY/32, 0, 3),
-        tileManager.getTile("playerWater", this.canvasX/32, this.canvasY/32, 0, 2),
-        tileManager.getTile("playerWater", this.canvasX/32, this.canvasY/32, 0, 0),
-    ];
-
     this.grassTiles = [
-        tileManager.getTile("playerGrass", this.canvasX/32, this.canvasY/32, 0, 1),
-        tileManager.getTile("playerGrass", this.canvasX/32, this.canvasY/32, 0, 3),
-        tileManager.getTile("playerGrass", this.canvasX/32, this.canvasY/32, 0, 2),
-        tileManager.getTile("playerGrass", this.canvasX/32, this.canvasY/32, 0, 0),
+        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,1)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,3)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,2)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,0)")
     ];
+    this.waterTiles = [
+        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,1)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,3)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,2)"),
+        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,0)")
+    ];
+
+    this.activeTiles = this.walkTiles;
 
     this.activeTile = this.walkTiles[3];
 
-    // Get all tiles from tile manager to easily check if all tiles have been loaded
-    this.allTiles = tileManager.getAllTiles();
+    // Make sure collision square always is in center of entity!
+    // Render width and render height should always be > collision square !!
+    this.renderX = this.service.worldCanvas.width/2 - (this.activeTile.renderWidth - this.collisionSquare) / 2;
+    this.renderY = this.service.worldCanvas.height/2 - (this.activeTile.renderHeight - this.collisionSquare);
+    
+    this.canvasX = 512; // x position on canvas
+    this.canvasY = 384; // y position on canvas
 }
 
 Entity.prototype._setSpeed = function() {
@@ -109,20 +61,30 @@ Entity.prototype._setSpeed = function() {
     this.speedY = deltaY/distance*this.speed;
 }
 
+/**
+ * Sets the direction
+ * 0 = left, 1 = up, 2 = right, 3 = down
+ */
 Entity.prototype._setDirection = function() {
     let radians = Math.atan2(this.speedY, this.speedX);
 
     let degrees = radians * (180 / Math.PI);
 
     if (degrees < -135 || degrees > 135) {
-        this.direction = "left";
+        this.direction = 0;
+        // this.direction = "left";
     } else if (degrees < -45) {
-        this.direction = "up";
+        this.direction = 1;
+        // this.direction = "up";
     } else if (degrees < 45) {
-        this.direction = "right";
+        this.direction = 2;
+        // this.direction = "right";
     } else if (degrees < 135) {
-        this.direction = "down";
+        this.direction = 3;
+        // this.direction = "down";
     }
+
+    this.activeTile = this.activeTiles[this.direction];
 }
 
 Entity.prototype._detectCollision = function() {
@@ -174,73 +136,30 @@ Entity.prototype._detectCollision = function() {
     }
 }
 
-Entity.prototype._setActiveTile = function() {
-    if (this.direction === "left")
-    {
-        if (this.state === "walking")
-        {
-            this.activeTile = this.walkTiles[0];
-        }
-        else if (this.state === "grass")
-        {
-            this.activeTile = this.grassTiles[0];
-        }
-        else if (this.state === "water")
-        {
-            this.activeTile = this.waterTiles[0];
-        }
+Entity.prototype.setState = function(state) {
+    if (state === "walking") {
+        this.activeTiles = this.walkTiles;
     }
-    else if (this.direction === "up")
-    {
-        if (this.state === "walking")
-        {
-            this.activeTile = this.walkTiles[1];
-        }
-        else if (this.state === "grass")
-        {
-            this.activeTile = this.grassTiles[1];
-        }
-        else if (this.state === "water")
-        {
-            this.activeTile = this.waterTiles[1];
-        }
+
+    if (state === "grass") {
+        this.activeTiles = this.grassTiles;
     }
-    else if (this.direction === "right")
-    {
-        if (this.state === "walking")
-        {
-            this.activeTile = this.walkTiles[2];
-        }
-        else if (this.state === "grass")
-        {
-            this.activeTile = this.grassTiles[2];
-        }
-        else if (this.state === "water")
-        {
-            this.activeTile = this.waterTiles[2];
-        }
+
+    if (state === "water") {
+        this.activeTiles = this.waterTiles;
     }
-    else if (this.direction === "down")
-    {
-        if (this.state === "walking")
-        {
-            this.activeTile = this.walkTiles[3];
-        }
-        else if (this.state === "grass")
-        {
-            this.activeTile = this.grassTiles[3];
-        }
-        else if (this.state === "water")
-        {
-            this.activeTile = this.waterTiles[3];
-        }
-    }
+
+    this.state = state;
+
+    this.renderX = this.service.worldCanvas.width/2 - (this.activeTiles[0].renderWidth - this.collisionSquare) / 2;
+    this.renderY = this.service.worldCanvas.height/2 - (this.activeTiles[0].renderHeight - this.collisionSquare);
+
+    console.log(this.state);
 }
 
 Entity.prototype.update = function() {
     if (this.service.listeners.mousedown) {
-
-        // Use the mouse position to determine the entity speed
+        // Use the mouse position to determine the entity speed (speedX speedY)
         this._setSpeed();
 
         // Use the speed to determine the direction
@@ -268,9 +187,6 @@ Entity.prototype.update = function() {
             this.service.events.push(event);
         }
 
-        // Set the active tile depending on direction and events
-        this._setActiveTile();
-
         // Update tile animation (walking animation etc...)
         this.activeTile.update();
 
@@ -281,17 +197,12 @@ Entity.prototype.update = function() {
     this.activeTile.setFrame(0);
 }
 
-Entity.prototype.render = function(context) {
-    // Make sure collision square always is in center of entity!
-    // Render width and render height should always be > collision square !!
-    let renderOffsetX = (this.activeTile.renderWidth - this.collisionSquare) / 2;
-    let renderOffsetY = (this.activeTile.renderHeight - this.collisionSquare);
+Entity.prototype.render = function() {
+    this.activeTile.render(this.service.worldContext, this.renderX, this.renderY);
 
-    this.activeTile.render(context, 0 - renderOffsetX, 0 - renderOffsetY);
-
-    // context.beginPath();
-    // context.rect(this.canvasX, this.canvasY, this.collisionSquare, this.collisionSquare);
-    // context.stroke();
+    // this.service.worldContext.beginPath();
+    // this.service.worldContext.rect(this.canvasX, this.canvasY, this.collisionSquare, this.collisionSquare);
+    // this.service.worldContext.stroke();
 }
 
 module.exports = Entity;

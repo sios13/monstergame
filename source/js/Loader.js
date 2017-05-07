@@ -5,59 +5,76 @@ function Loader(service, settings)
     this.service = service;
 
     this.service.resources = {};
+
+    this.service.resources.getTile = function(tilename, renderX, renderY) {
+        let tile = this.service.resources.tiles.find(tile => tile.name === tilename);
+        tile.renderX = renderX;
+        tile.renderY = renderY;
+        return tile;
+    }.bind(this);
     
     this.tick = 0;
 
     this.endTick = null;
 
-    // this.loadCounter = 0;
+    this.placeholderImage = new Image();
+    this.placeholderImage.src = "img/placeholder.png";
 
-    // this.loadEvent = function() {
-    //     this.loadCounter += 1;
-
-    //     if (this.loadCounter === this.images.length + this.audios.length) {
-    //         this.endTick = this.tick + 30;
-    //     }
-    // }.bind(this);
-
-    this.tiles = [];
-    // when an image has been loaded -> give the image to all associated tiles (tiles with the same src)
-    this.images = [];
-
-    this.audios = [];
+    this.loading = false;
 }
 
 Loader.prototype._loadAudios = function() {
     let audioSrcs = [
-        "audio/music1.mp3"
+        "audio/music1.mp3",
+        "audio/music2.mp3"
     ];
+
+    let audios = [];
 
     for (let i = 0; i < audioSrcs.length; i++) {
         let audio = new Audio(audioSrcs[i]);
-        this.audios.push(audio);
+        audios.push(audio);
     }
 
-    this.service.resources.audios = this.audios;
+    this.service.resources.audios = audios;
 }
 
-Load.prototype._loadImages = function() {
+Loader.prototype._loadImages = function() {
     // List of all image srcs to ever be used in the game
-    let imageSrcs = [];
+    let imageSrcs = [
+        "img/Sea.png",
+        "img/map1layer1.png",
+        "img/map1layer2.png",
+        "img/house1layer1.png",
+        "img/house1layer2.png",
+        "img/character7_walking.png",
+        "img/character_water.png",
+        "img/character7_grass.png"
+    ];
+
+    let images = [];
 
     // Create image elements for all images
     for (let i = 0; i < imageSrcs.length; i++) {
         let image = new Image();
+
+        image.addEventListener("load", function(event) {
+            let image2 = event.path[0];
+            // Add this image to all tiles that should have this image
+            for (let i = 0; i < this.service.resources.tiles.length; i++) {
+                let tile = this.service.resources.tiles[i];
+                if (tile.src === image2.getAttribute("src")) {
+                    tile.image = image2;
+                }
+            }
+        }.bind(this));
+
         image.src = imageSrcs[i];
-        this.images.push(image);
+
+        images.push(image);
     }
-}
 
-Loader.prototype._getImage = function(imageSrc) {
-    let image = new Image();
-
-    image.src = imageSrc;
-
-    return image;
+    this.service.resources.images = images;
 }
 
 Loader.prototype._loadTiles = function() {
@@ -67,22 +84,64 @@ Loader.prototype._loadTiles = function() {
 
         for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
             for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
-                let tile = new Tile(Object.assign({placeholderImage: placeholderImage}, sprite, {
+                let tile = new Tile(Object.assign({}, sprite, {
+                    placeholderImage: this.placeholderImage,
                     name: sprite.name + "(" + x + "," + y + ")",
                     spriteCol: x,
                     spriteRow: y
                 }));
-
                 tiles.push(tile);
             }
         }
 
         return tiles;
+    }.bind(this);
+
+    /**
+     * Sprites
+     */
+    let playerWalkingSprite = {
+        name: "playerWalk",
+        src: "img/character7_walking.png",
+        tileWidth: 32,
+        tileHeight: 48,
+        spriteWidth: 32,
+        spriteHeight: 192,
+        renderWidth: 32,
+        renderHeight: 48,
+        numberOfFrames: 4,
+        updateFrequency: 7
+    };
+
+    let playerWaterSprite = {
+        name: "playerWater",
+        src: "img/character_water.png",
+        tileWidth: 64,
+        tileHeight: 64,
+        spriteWidth: 64,
+        spriteHeight: 256,
+        renderWidth: 64,
+        renderHeight: 64,
+        numberOfFrames: 4,
+        updateFrequency: 7
+    };
+
+    let playerGrassSprite = {
+        name: "playerGrass",
+        src: "img/character7_grass.png",
+        tileWidth: 32,
+        tileHeight: 48,
+        spriteWidth: 32,
+        spriteHeight: 192,
+        renderWidth: 32,
+        renderHeight: 48,
+        numberOfFrames: 4,
+        updateFrequency: 7
     };
 
     let seaSprite = {
         name: "sea",
-        image: this._getImage("img/Sea.png"),
+        src: "img/Sea.png",
         tileWidth: 16,
         tileHeight: 16,
         spriteWidth: 96,
@@ -93,14 +152,31 @@ Loader.prototype._loadTiles = function() {
         updateFrequency: 7,
     };
 
-    let map1layer1Tile = new Tile({name: "map1layer1", image: this._getImage("img/map1layer1.png"), tileWidth: 3200, tileHeight: 3200});
-    let map1layer2Tile = new Tile({name: "map1layer2", image: this._getImage("img/map1layer2.png"), tileWidth: 3200, tileHeight: 3200});
+    /**
+     * Tiles
+     */
+    let map1layer1Tile = new Tile({name: "map1layer1", src: "img/map1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
 
+    let map1layer2Tile = new Tile({name: "map1layer2", src: "img/map1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+    
+    let house1layer1Tile = new Tile({name: "house1layer1", src: "img/house1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+    
+    let house1layer2Tile = new Tile({name: "house1layer2", src: "img/house1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+
+    /**
+     * Create tiles from sprites
+     * Add tiles to resources.tiles
+     */
     let tiles = [];
 
     tiles.push(...spriteToTiles(seaSprite));
+    tiles.push(...spriteToTiles(playerWalkingSprite));
+    tiles.push(...spriteToTiles(playerWaterSprite));
+    tiles.push(...spriteToTiles(playerGrassSprite));
     tiles.push(map1layer1Tile);
     tiles.push(map1layer2Tile);
+    tiles.push(house1layer1Tile);
+    tiles.push(house1layer2Tile);
 
     this.service.resources.tiles = tiles;
 }
@@ -119,12 +195,12 @@ Loader.prototype.load = function(callable)
 
 Loader.prototype.update = function()
 {
-    this.tick += 1;
-
     // If there is no loading currently happening -> exit
     if (this.loading === false) {
         return;
     }
+
+    this.tick += 1;
     
     // Start the actual loading only if 30 ticks have passed
     if (this.tick < 30) {
@@ -133,23 +209,25 @@ Loader.prototype.update = function()
 
     this._loadTiles();
 
+    this._loadImages();
+
     this._loadAudios();
 
     this.service.events.push(this.loadCallable);
 
-    // If a tile is loading -> exit
-    for (let i = 0; i < this.tiles.length; i++) {
-        if (this.tiles[i].loading === true) {
-            return;
-        }
-    }
+    // // If a tile is loading -> exit
+    // for (let i = 0; i < this.tiles.length; i++) {
+    //     if (this.tiles[i].loading === true) {
+    //         return;
+    //     }
+    // }
 
-    // If an audio is loading -> exit
-    for (let i = 0; i < this.audios.length; i++) {
-        if (this.audios[i].readyState !== 4) {
-            return;
-        }
-    }
+    // // If an audio is loading -> exit
+    // for (let i = 0; i < this.audios.length; i++) {
+    //     if (this.audios[i].readyState !== 4) {
+    //         return;
+    //     }
+    // }
     
     // If everything is loaded -> stop loading and set end tick
     this.loading = false;

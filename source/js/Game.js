@@ -20,22 +20,12 @@ function Game() {
 
     this.service.events = [];
 
-    // Loading
     // Load resources to service.resouces
     this.loader = new Loader(this.service, {});
     // Initialize world state
     this.service.events.push(function() {
         this.loader.load(function() {
-            this.service.coolguy = new Entity(this.service, {
-                x: 14*32,                       // x position on map
-                y: 35*32,                       // y position on map
-                canvasX: 512,                   // x position on canvas
-                canvasY: 384,                   // y position on canvas
-                collisionSquare: 20,            // width and height of collision square
-                renderWidth: 32,                // render width
-                renderHeight: 48,               // render height
-                speed: 4                        // speed
-            });
+            this.service.coolguy = new Entity(this.service, {});
 
             this.service.mapManager = new MapManager(this.service, {});
 
@@ -43,14 +33,9 @@ function Game() {
 
             this.service.state = "world";
 
-            this.service.battle = new Battle(this.service, {});
+            // this.service.battle = new Battle(this.service, {});
         });
     });
-
-
-    // Battle
-
-    // World
 
     // Loading properties
     this.service.loadCanvas = document.querySelector(".loadCanvas");
@@ -69,12 +54,12 @@ function Game() {
     this.startGame();
 }
 
-Game.prototype.setState = function(state) {
-    if (this.state = "world") {
-        this.map = this.mapManager.getMap("startMap");
-    }
-    this.state = state;
-}
+// Game.prototype.setState = function(state) {
+//     if (this.state = "world") {
+//         this.map = this.mapManager.getMap("startMap");
+//     }
+//     this.state = state;
+// }
 
 Game.prototype.startGame = function() {
     function frame() {
@@ -144,7 +129,7 @@ Game.prototype.render = function() {
     if (this.state === "loading") {
         let context = this.loadContext;
 
-        this.resourceLoader.render(context);
+        this.loader.render();
     }
 
     if (this.state === "battle") {
@@ -152,7 +137,7 @@ Game.prototype.render = function() {
 
         context.clearRect(0, 0, this.battleCanvas.width, this.battleCanvas.height);
 
-        this.battle.render(context);
+        this.battle.render();
     }
 
     if (this.service.state === "world") {
@@ -160,15 +145,15 @@ Game.prototype.render = function() {
 
         context.clearRect(0, 0, this.service.worldCanvas.width, this.service.worldCanvas.height);
 
-        this.service.map.renderLayer1(context);
+        this.service.map.renderLayer1();
 
-        this.service.map.renderTiles(context);
+        this.service.map.renderTiles();
 
-        this.service.coolguy.render(context);
+        this.service.coolguy.render();
 
-        this.service.map.renderLayer2(context);
+        this.service.map.renderLayer2();
 
-        this.service.map.render(context);
+        this.service.map.render();
     }
 
     // If system was recently loaded -> tone from black screen to game
@@ -198,76 +183,5 @@ Game.prototype.checkEvents = function() {
     // All events have been checked -> make the events array empty
     this.service.events = [];
 }
-
-// Game.prototype.event = function(event) {
-//     // Walking!
-//     if (event.id === 1) {
-//         this.coolguy.state = "walking";
-
-//         return;
-//     }
-
-//     // Change map!
-//     if (event.id === 2) {
-//         this.loadedTick = null;
-
-//         this.map.destroy();
-
-//         this.map = MapInitializer.getMap(event.data.mapName);
-
-//         this.coolguy.x = event.data.spawnX;
-//         this.coolguy.y = event.data.spawnY;
-
-//         return;
-//     }
-
-//     // Grass!
-//     if (event.id === 3) {
-//         this.coolguy.state = "grass";
-
-//         event.data.tile.pause = false;
-
-//         this.startBattle();
-
-//         return;
-//     }
-
-//     // Water!
-//     if (event.id === 4) {
-//         this.coolguy.state = "water";
-
-//         return;
-//     }
-// }
-
-// Game.prototype.startBattle = function(settings) {
-//     this.map.audio.pause();
-
-//     this.battle = new Battle(settings);
-
-//     this.state = "battle";
-
-//     // this.canvas = this.battleCanvas;
-//     // this.context = this.battleContext;
-
-//     this.worldCanvas.style.zIndex = 1;
-//     this.battleCanvas.style.zIndex = 2;
-// }
-
-// Game.prototype.endBattle = function() {
-//     this.battle.audio.pause();
-
-//     this.map.audio.play();
-
-//     this.battle = null;
-
-//     this.state = "world";
-
-//     // this.canvas = this.worldCanvas;
-//     // this.context = this.worldContext;
-
-//     this.worldCanvas.style.zIndex = 2;
-//     this.battleCanvas.style.zIndex = 1;
-// }
 
 module.exports = Game;
