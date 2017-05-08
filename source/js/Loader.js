@@ -21,6 +21,16 @@ function Loader(service, settings)
     this.placeholderImage.src = "img/placeholder.png";
 
     this.loading = false;
+
+    this.loadCallable1 = null;
+    this.loadCallable2 = null;
+    this.loadCallable3 = null;
+
+    this._loadTiles();
+
+    this._loadImages();
+
+    this._loadAudios();
 }
 
 Loader.prototype._loadAudios = function() {
@@ -59,7 +69,8 @@ Loader.prototype._loadImages = function() {
         let image = new Image();
 
         image.addEventListener("load", function(event) {
-            let image2 = event.path[0];
+            let image2 = event.target;
+            // let image2 = event.path[0];
             // Add this image to all tiles that should have this image
             for (let i = 0; i < this.service.resources.tiles.length; i++) {
                 let tile = this.service.resources.tiles[i];
@@ -184,7 +195,7 @@ Loader.prototype._loadTiles = function() {
 /**
  * Starts a new loading
  */
-Loader.prototype.load = function(callable)
+Loader.prototype.load = function(callable1, callable2, callable3)
 {
     this.service.loadCanvas.style.zIndex = 1;
 
@@ -196,27 +207,24 @@ Loader.prototype.load = function(callable)
 
     this.loading = true;
 
-    this.loadCallable = callable;
+    this.loadCallable1 = callable1;
+    this.loadCallable2 = callable2;
+    this.loadCallable3 = callable3;
+
+    if (this.loadCallable1) {
+        this.service.events.push(this.loadCallable1);
+    }
 }
 
 Loader.prototype.update = function()
 {
-    // If there is no loading currently happening -> exit
-    if (this.loading === false) {
-        // return;
-    }
-
     this.tick += 1;
-    
+
     // Start the actual loading only if 30 ticks have passed
     if (this.tick === 10) {
-        this._loadTiles();
-
-        this._loadImages();
-
-        this._loadAudios();
-
-        this.service.events.push(this.loadCallable);
+        if (this.loadCallable2) {
+            this.service.events.push(this.loadCallable2);
+        }
 
         this.endTick = this.tick + 10;
     }
@@ -231,6 +239,10 @@ Loader.prototype.update = function()
         this.loading = false;
 
         this.service.loadCanvas.style.zIndex = -1;
+
+        if (this.loadCallable3) {
+            this.service.events.push(this.loadCallable3);
+        }
     }
 }
 
@@ -242,19 +254,21 @@ Loader.prototype.render = function()
 
     context.beginPath();
 
+    let alpha = 1;
     if (this.endTick) {
-        context.fillStyle = "rgba(0, 0, 0, " + 10/10 + ")";
+        alpha = this.endTick/10;
     }
     else
     {
-        context.fillStyle = "rgba(0, 0, 0, " + 10/10 + ")";
+        alpha = this.tick/10;
     }
+    context.fillStyle = "rgba(0, 0, 0, " + alpha + ")";
     context.fillRect(0, 0, 2000, 2000);
     context.stroke();
 
-    context.font = "26px Georgia";
-    context.fillStyle = "#DDDDDD";
-    context.fillText("Loading!", context.canvas.width/2 - 50, context.canvas.height/2 - 10);
+    // context.font = "26px Georgia";
+    // context.fillStyle = "rgba(255, 255, 255, " + alpha + ")";
+    // context.fillText("Loading!", context.canvas.width/2 - 50, context.canvas.height/2 - 10);
 }
 
 module.exports = Loader;

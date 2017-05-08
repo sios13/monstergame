@@ -835,8 +835,6 @@ function Game() {
             this.service.map = this.service.mapManager.getMap("startMap");
 
             this.service.state = "world";
-
-            // this.service.battle = new Battle(this.service, {});
         });
     });
 
@@ -856,13 +854,6 @@ function Game() {
 
     this.startGame();
 }
-
-// Game.prototype.setState = function(state) {
-//     if (this.state = "world") {
-//         this.map = this.mapManager.getMap("startMap");
-//     }
-//     this.state = state;
-// }
 
 Game.prototype.startGame = function() {
     function frame() {
@@ -914,19 +905,6 @@ Game.prototype.update = function() {
 }
 
 Game.prototype.render = function() {
-    // Render 'loading screen' while system is loading
-    // if (!this.isLoaded()) {
-    //     this.context.beginPath();
-
-    //     this.context.font = "26px Georgia";
-    //     this.context.fillStyle = "#DDDDDD";
-    //     this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
-
-    //     // this.context.stroke();
-
-    //     return;
-    // }
-
     this.loader.render();
 
     if (this.state === "battle") {
@@ -948,14 +926,6 @@ Game.prototype.render = function() {
 
         this.service.map.renderLayer2();
     }
-
-    // If system was recently loaded -> tone from black screen to game
-    // if (this.tickCounter - this.loadedTick < 20) {
-    //     this.context.beginPath();
-    //     this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
-    //     this.context.fillRect(0, 0, 2000, 2000);
-    //     this.context.stroke();
-    // }
 }
 
 /**
@@ -1003,6 +973,16 @@ function Loader(service, settings)
     this.placeholderImage.src = "img/placeholder.png";
 
     this.loading = false;
+
+    this.loadCallable1 = null;
+    this.loadCallable2 = null;
+    this.loadCallable3 = null;
+
+    this._loadTiles();
+
+    this._loadImages();
+
+    this._loadAudios();
 }
 
 Loader.prototype._loadAudios = function() {
@@ -1041,7 +1021,8 @@ Loader.prototype._loadImages = function() {
         let image = new Image();
 
         image.addEventListener("load", function(event) {
-            let image2 = event.path[0];
+            let image2 = event.target;
+            // let image2 = event.path[0];
             // Add this image to all tiles that should have this image
             for (let i = 0; i < this.service.resources.tiles.length; i++) {
                 let tile = this.service.resources.tiles[i];
@@ -1166,7 +1147,7 @@ Loader.prototype._loadTiles = function() {
 /**
  * Starts a new loading
  */
-Loader.prototype.load = function(callable)
+Loader.prototype.load = function(callable1, callable2, callable3)
 {
     this.service.loadCanvas.style.zIndex = 1;
 
@@ -1178,27 +1159,24 @@ Loader.prototype.load = function(callable)
 
     this.loading = true;
 
-    this.loadCallable = callable;
+    this.loadCallable1 = callable1;
+    this.loadCallable2 = callable2;
+    this.loadCallable3 = callable3;
+
+    if (this.loadCallable1) {
+        this.service.events.push(this.loadCallable1);
+    }
 }
 
 Loader.prototype.update = function()
 {
-    // If there is no loading currently happening -> exit
-    if (this.loading === false) {
-        // return;
-    }
-
     this.tick += 1;
-    
+
     // Start the actual loading only if 30 ticks have passed
     if (this.tick === 10) {
-        this._loadTiles();
-
-        this._loadImages();
-
-        this._loadAudios();
-
-        this.service.events.push(this.loadCallable);
+        if (this.loadCallable2) {
+            this.service.events.push(this.loadCallable2);
+        }
 
         this.endTick = this.tick + 10;
     }
@@ -1213,6 +1191,10 @@ Loader.prototype.update = function()
         this.loading = false;
 
         this.service.loadCanvas.style.zIndex = -1;
+
+        if (this.loadCallable3) {
+            this.service.events.push(this.loadCallable3);
+        }
     }
 }
 
@@ -1224,19 +1206,21 @@ Loader.prototype.render = function()
 
     context.beginPath();
 
+    let alpha = 1;
     if (this.endTick) {
-        context.fillStyle = "rgba(0, 0, 0, " + 10/10 + ")";
+        alpha = this.endTick/10;
     }
     else
     {
-        context.fillStyle = "rgba(0, 0, 0, " + 10/10 + ")";
+        alpha = this.tick/10;
     }
+    context.fillStyle = "rgba(0, 0, 0, " + alpha + ")";
     context.fillRect(0, 0, 2000, 2000);
     context.stroke();
 
-    context.font = "26px Georgia";
-    context.fillStyle = "#DDDDDD";
-    context.fillText("Loading!", context.canvas.width/2 - 50, context.canvas.height/2 - 10);
+    // context.font = "26px Georgia";
+    // context.fillStyle = "rgba(255, 255, 255, " + alpha + ")";
+    // context.fillText("Loading!", context.canvas.width/2 - 50, context.canvas.height/2 - 10);
 }
 
 module.exports = Loader;
@@ -1332,16 +1316,24 @@ function MapManager(service) {
         this.service.coolguy.setState("walking");
     };
     this.newMapEvent = function(mapName, x, y) {
-        this.loader.load(function() {
-            this.service.map.destroy();
+        this.loader.load(
+            function() {
+                this.service.util.pauseAudio(this.service.map.audio);
+            },
+            function() {
+                this.service.map.destroy();
 
-            this.service.map = this.service.mapManager.getMap(mapName);
+                this.service.map = this.service.mapManager.getMap(mapName);
 
-            this.service.coolguy.x = x * 32;
-            this.service.coolguy.y = y * 32;
+                this.service.coolguy.x = x * 32;
+                this.service.coolguy.y = y * 32;
 
-            this.service.state = "world";
-        });
+                this.service.state = "world";
+            },
+            function() {
+                this.service.util.playAudio(this.service.map.audio);
+            }
+        );
     };
     this.grassEvent = function() {
         this.service.coolguy.setState("grass");
@@ -1484,7 +1476,7 @@ MapManager.prototype.createStartMap = function() {
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, this.newMapEvent.bindArgs("house1Map", 3, 3));
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("house1Map", 10, 10));
             }
 
             // Grass!
@@ -1550,7 +1542,7 @@ MapManager.prototype.createHouse1Map = function() {
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 3, 3));
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 13, 37));
             }
 
             // Grass!
@@ -1572,7 +1564,12 @@ module.exports = MapManager;
 
 },{"./Battle.js":1,"./Map.js":6,"./Tile.js":9}],8:[function(require,module,exports){
 module.exports = {
-    
+    pauseAudio: function(audio) {
+        audio.pause();
+    },
+    playAudio: function(audio) {
+        audio.play();
+    }
 };
 
 },{}],9:[function(require,module,exports){
@@ -1688,8 +1685,6 @@ let Game = require("./Game.js");
 
 window.addEventListener("load", function() {
     let game = new Game();
-
-    // game.startGame();
 });
 
 },{"./Game.js":4}],11:[function(require,module,exports){

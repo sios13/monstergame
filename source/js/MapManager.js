@@ -10,16 +10,24 @@ function MapManager(service) {
         this.service.coolguy.setState("walking");
     };
     this.newMapEvent = function(mapName, x, y) {
-        this.loader.load(function() {
-            this.service.map.destroy();
+        this.loader.load(
+            function() {
+                this.service.util.pauseAudio(this.service.map.audio);
+            },
+            function() {
+                this.service.map.destroy();
 
-            this.service.map = this.service.mapManager.getMap(mapName);
+                this.service.map = this.service.mapManager.getMap(mapName);
 
-            this.service.coolguy.x = x * 32;
-            this.service.coolguy.y = y * 32;
+                this.service.coolguy.x = x * 32;
+                this.service.coolguy.y = y * 32;
 
-            this.service.state = "world";
-        });
+                this.service.state = "world";
+            },
+            function() {
+                this.service.util.playAudio(this.service.map.audio);
+            }
+        );
     };
     this.grassEvent = function() {
         this.service.coolguy.setState("grass");
@@ -162,7 +170,7 @@ MapManager.prototype.createStartMap = function() {
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, this.newMapEvent.bindArgs("house1Map", 3, 3));
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("house1Map", 10, 10));
             }
 
             // Grass!
@@ -228,7 +236,7 @@ MapManager.prototype.createHouse1Map = function() {
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 3, 3));
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 13, 37));
             }
 
             // Grass!

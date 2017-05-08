@@ -40,8 +40,6 @@ function Game() {
             this.service.map = this.service.mapManager.getMap("startMap");
 
             this.service.state = "world";
-
-            // this.service.battle = new Battle(this.service, {});
         });
     });
 
@@ -61,13 +59,6 @@ function Game() {
 
     this.startGame();
 }
-
-// Game.prototype.setState = function(state) {
-//     if (this.state = "world") {
-//         this.map = this.mapManager.getMap("startMap");
-//     }
-//     this.state = state;
-// }
 
 Game.prototype.startGame = function() {
     function frame() {
@@ -119,19 +110,6 @@ Game.prototype.update = function() {
 }
 
 Game.prototype.render = function() {
-    // Render 'loading screen' while system is loading
-    // if (!this.isLoaded()) {
-    //     this.context.beginPath();
-
-    //     this.context.font = "26px Georgia";
-    //     this.context.fillStyle = "#DDDDDD";
-    //     this.context.fillText("Loading!", this.canvas.width/2 - 50, this.canvas.height/2 - 10);
-
-    //     // this.context.stroke();
-
-    //     return;
-    // }
-
     this.loader.render();
 
     if (this.state === "battle") {
@@ -153,14 +131,6 @@ Game.prototype.render = function() {
 
         this.service.map.renderLayer2();
     }
-
-    // If system was recently loaded -> tone from black screen to game
-    // if (this.tickCounter - this.loadedTick < 20) {
-    //     this.context.beginPath();
-    //     this.context.fillStyle = "rgba(0, 0, 0, " + (1 - (this.tickCounter - this.loadedTick)/20) + ")";
-    //     this.context.fillRect(0, 0, 2000, 2000);
-    //     this.context.stroke();
-    // }
 }
 
 /**
