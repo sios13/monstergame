@@ -443,7 +443,7 @@ Battle.prototype.render = function(context) {
 
 module.exports = Battle;
 
-},{"./Conversation.js":2,"./Tile.js":8}],2:[function(require,module,exports){
+},{"./Conversation.js":2,"./Tile.js":9}],2:[function(require,module,exports){
 const Tile = require("./Tile.js");
 
 function Conversation(settings) {
@@ -580,7 +580,7 @@ Conversation.prototype.render = function(context) {
 
 module.exports = Conversation;
 
-},{"./Tile.js":8}],3:[function(require,module,exports){
+},{"./Tile.js":9}],3:[function(require,module,exports){
 function Entity(service, settings) {
     this.service = service;
 
@@ -591,7 +591,7 @@ function Entity(service, settings) {
 
     this.speed = 4;
 
-    this.direction = 0;
+    this.direction = 3;
 
     this.state = "walking";
 
@@ -666,8 +666,6 @@ Entity.prototype._setDirection = function() {
         this.direction = 3;
         // this.direction = "down";
     }
-
-    this.activeTile = this.activeTiles[this.direction];
 }
 
 Entity.prototype._detectCollision = function() {
@@ -741,7 +739,11 @@ Entity.prototype.setState = function(state) {
 }
 
 Entity.prototype.update = function() {
-    if (this.service.listeners.mousedown) {
+
+    this.activeTile = this.activeTiles[this.direction];
+
+    if (this.service.listeners.mousedown)
+    {
         // Use the mouse position to determine the entity speed (speedX speedY)
         this._setSpeed();
 
@@ -796,6 +798,12 @@ const MapManager = require("./MapManager.js");
 const Battle = require("./Battle.js");
 const Loader = require("./Loader.js");
 
+Function.prototype.bindArgs = function(...boundArgs)
+{
+    let context = this;
+    return function(...args) { return context.call(this, ...boundArgs, ...args); };
+};
+
 function Game() {
     this.now = null;
     this.deltaTime = 0;
@@ -806,6 +814,8 @@ function Game() {
      * Initialize service
      */
     this.service = {};
+
+    this.service.util = require("./NiceFunctions.js");
 
     this.service.tick = 0;
 
@@ -883,10 +893,8 @@ Game.prototype.update = function() {
     // Check for events in service.events
     this.checkEvents();
 
-    if (this.service.state === "loading") {
-        // Update resorce loader
-        this.loader.update();
-    }
+    // Update resorce loader
+    this.loader.update();
 
     if (this.service.state === "battle") {
         // Update battle
@@ -919,11 +927,7 @@ Game.prototype.render = function() {
     //     return;
     // }
 
-    if (this.state === "loading") {
-        let context = this.loadContext;
-
-        this.loader.render();
-    }
+    this.loader.render();
 
     if (this.state === "battle") {
         let context = this.battleContext;
@@ -940,13 +944,9 @@ Game.prototype.render = function() {
 
         this.service.map.renderLayer1();
 
-        this.service.map.renderTiles();
-
         this.service.coolguy.render();
 
         this.service.map.renderLayer2();
-
-        this.service.map.render();
     }
 
     // If system was recently loaded -> tone from black screen to game
@@ -979,7 +979,7 @@ Game.prototype.checkEvents = function() {
 
 module.exports = Game;
 
-},{"./Battle.js":1,"./Entity.js":3,"./Loader.js":5,"./MapManager.js":7,"./listeners.js":10}],5:[function(require,module,exports){
+},{"./Battle.js":1,"./Entity.js":3,"./Loader.js":5,"./MapManager.js":7,"./NiceFunctions.js":8,"./listeners.js":11}],5:[function(require,module,exports){
 const Tile = require("./Tile.js");
 
 function Loader(service, settings)
@@ -1168,7 +1168,13 @@ Loader.prototype._loadTiles = function() {
  */
 Loader.prototype.load = function(callable)
 {
+    this.service.loadCanvas.style.zIndex = 1;
+
+    this.service.state = "loading";
+
     this.tick = 0;
+
+    this.endTick = null;
 
     this.loading = true;
 
@@ -1179,49 +1185,52 @@ Loader.prototype.update = function()
 {
     // If there is no loading currently happening -> exit
     if (this.loading === false) {
-        return;
+        // return;
     }
 
     this.tick += 1;
     
     // Start the actual loading only if 30 ticks have passed
-    if (this.tick < 30) {
-        return;
+    if (this.tick === 10) {
+        this._loadTiles();
+
+        this._loadImages();
+
+        this._loadAudios();
+
+        this.service.events.push(this.loadCallable);
+
+        this.endTick = this.tick + 10;
     }
 
-    this._loadTiles();
+    if (this.endTick > 0) {
+        this.endTick -= 1;
+    }
 
-    this._loadImages();
+    if (this.endTick === 0) {
+        this.endTick = null;
 
-    this._loadAudios();
+        this.loading = false;
 
-    this.service.events.push(this.loadCallable);
-
-    // // If a tile is loading -> exit
-    // for (let i = 0; i < this.tiles.length; i++) {
-    //     if (this.tiles[i].loading === true) {
-    //         return;
-    //     }
-    // }
-
-    // // If an audio is loading -> exit
-    // for (let i = 0; i < this.audios.length; i++) {
-    //     if (this.audios[i].readyState !== 4) {
-    //         return;
-    //     }
-    // }
-    
-    // If everything is loaded -> stop loading and set end tick
-    this.loading = false;
-
-    this.endTick = this.tick + 30;
+        this.service.loadCanvas.style.zIndex = -1;
+    }
 }
 
-Loader.prototype.render = function(context)
+Loader.prototype.render = function()
 {
+    let context = this.service.loadContext;
+
+    context.clearRect(0, 0, this.service.loadCanvas.width, this.service.loadCanvas.height);
+
     context.beginPath();
 
-    context.fillStyle = "rgba(0, 0, 0, " + this.tick + ")";
+    if (this.endTick) {
+        context.fillStyle = "rgba(0, 0, 0, " + 10/10 + ")";
+    }
+    else
+    {
+        context.fillStyle = "rgba(0, 0, 0, " + 10/10 + ")";
+    }
     context.fillRect(0, 0, 2000, 2000);
     context.stroke();
 
@@ -1232,7 +1241,7 @@ Loader.prototype.render = function(context)
 
 module.exports = Loader;
 
-},{"./Tile.js":8}],6:[function(require,module,exports){
+},{"./Tile.js":9}],6:[function(require,module,exports){
 function Map(service, settings) {
     this.service = service;
 
@@ -1266,43 +1275,42 @@ Map.prototype.update = function() {
     // Update map position
     this.x = this.service.coolguy.canvasX - this.service.coolguy.x;
     this.y = this.service.coolguy.canvasY - this.service.coolguy.y;
-    // this.layer1Tile.renderX = this.service.coolguy.canvasX - this.service.coolguy.x;
-    // this.layer1Tile.renderY = this.service.coolguy.canvasY - this.service.coolguy.y;
-
-    // this.layer2Tile.renderX = this.service.coolguy.canvasX - this.service.coolguy.x;
-    // this.layer2Tile.renderY = this.service.coolguy.canvasY - this.service.coolguy.y;
 
     for (let i = 0; i < this.tiles.length; i++) {
         this.tiles[i].update();
     }
 }
 
-Map.prototype.renderTiles = function() {
+Map.prototype.renderLayer1 = function() {
+    let context = this.service.worldContext;
+
+    this.layer1Tile.render(context, this.x, this.y);
+
+    /**
+     * Render tiles!
+     */
     for (let i = 0; i < this.tiles.length; i++) {
-        this.tiles[i].render(this.service.worldContext, this.x, this.y);
+        this.tiles[i].render(context, this.x, this.y);
     }
 }
 
-Map.prototype.render = function(context) {
+Map.prototype.renderLayer2 = function() {
+    let context = this.service.worldContext;
+
+    this.layer2Tile.render(context, this.x, this.y);
+
+    /**
+     * Render squares!
+     */
     for (let y = 0; y < this.collisionMap.length; y++) {
         for (let x = 0; x < this.collisionMap[y].length; x++) {
             if (this.collisionMap[y][x] !== 0) {
                 // context.beginPath();
-                // context.rect(this.x + x*this.gridSize, this.y + y*this.gridSize, this.gridSize, this.gridSize);
+                // context.rect(this.x + x*32, this.y + y*32, 32, 32);
                 // context.stroke();
             }
         }
     }
-}
-
-Map.prototype.renderLayer1 = function() {
-    this.layer1Tile.render(this.service.worldContext, this.x, this.y);
-    // context.drawImage(this.layer1Image, this.x, this.y);
-}
-
-Map.prototype.renderLayer2 = function(context) {
-    this.layer2Tile.render(this.service.worldContext, this.x, this.y);
-    // context.drawImage(this.layer2Image, this.x, this.y);
 }
 
 Map.prototype.destroy = function() {
@@ -1324,7 +1332,6 @@ function MapManager(service) {
         this.service.coolguy.setState("walking");
     };
     this.newMapEvent = function(mapName, x, y) {
-        console.log(this);
         this.loader.load(function() {
             this.service.map.destroy();
 
@@ -1332,6 +1339,8 @@ function MapManager(service) {
 
             this.service.coolguy.x = x * 32;
             this.service.coolguy.y = y * 32;
+
+            this.service.state = "world";
         });
     };
     this.grassEvent = function() {
@@ -1475,7 +1484,7 @@ MapManager.prototype.createStartMap = function() {
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, this.newMapEvent.bind(this, "house1Map", 3, 3));
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("house1Map", 3, 3));
             }
 
             // Grass!
@@ -1515,7 +1524,6 @@ MapManager.prototype.createHouse1Map = function() {
     ];
 
     let layer1Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer1");
-    console.log(this.service.resources.tiles);
 
     let layer2Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer2");
 
@@ -1542,7 +1550,7 @@ MapManager.prototype.createHouse1Map = function() {
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, this.newMapEvent.bind(this, "startMap", 3, 3));
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 3, 3));
             }
 
             // Grass!
@@ -1562,7 +1570,12 @@ MapManager.prototype.createHouse1Map = function() {
 
 module.exports = MapManager;
 
-},{"./Battle.js":1,"./Map.js":6,"./Tile.js":8}],8:[function(require,module,exports){
+},{"./Battle.js":1,"./Map.js":6,"./Tile.js":9}],8:[function(require,module,exports){
+module.exports = {
+    
+};
+
+},{}],9:[function(require,module,exports){
 function Tile(settings) {
     this.name = settings.name ? settings.name : "hehe";
 
@@ -1652,7 +1665,7 @@ Tile.prototype.render = function(context, mapX, mapY) {
     context.globalAlpha = this.alpha;
 
     context.drawImage(
-        this.image,
+        this.image ? this.image : this.placeholderImage,
         xInImage,
         yInImage,
         this.tileWidth,
@@ -1668,7 +1681,7 @@ Tile.prototype.render = function(context, mapX, mapY) {
 
 module.exports = Tile;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 let Game = require("./Game.js");
 
 // node_modules/.bin/browserify source/js/app.js > debug/js/bundle.js
@@ -1679,7 +1692,7 @@ window.addEventListener("load", function() {
     // game.startGame();
 });
 
-},{"./Game.js":4}],10:[function(require,module,exports){
+},{"./Game.js":4}],11:[function(require,module,exports){
 function addListeners(service) {
     service.listeners = {};
 
@@ -1736,4 +1749,4 @@ module.exports = {
     // isInsideBox: isInsideBox
 }
 
-},{}]},{},[9]);
+},{}]},{},[10]);

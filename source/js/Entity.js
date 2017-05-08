@@ -8,7 +8,7 @@ function Entity(service, settings) {
 
     this.speed = 4;
 
-    this.direction = 0;
+    this.direction = 3;
 
     this.state = "walking";
 
@@ -83,8 +83,6 @@ Entity.prototype._setDirection = function() {
         this.direction = 3;
         // this.direction = "down";
     }
-
-    this.activeTile = this.activeTiles[this.direction];
 }
 
 Entity.prototype._detectCollision = function() {
@@ -158,7 +156,11 @@ Entity.prototype.setState = function(state) {
 }
 
 Entity.prototype.update = function() {
-    if (this.service.listeners.mousedown) {
+
+    this.activeTile = this.activeTiles[this.direction];
+
+    if (this.service.listeners.mousedown)
+    {
         // Use the mouse position to determine the entity speed (speedX speedY)
         this._setSpeed();
 

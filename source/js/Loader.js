@@ -186,7 +186,13 @@ Loader.prototype._loadTiles = function() {
  */
 Loader.prototype.load = function(callable)
 {
+    this.service.loadCanvas.style.zIndex = 1;
+
+    this.service.state = "loading";
+
     this.tick = 0;
+
+    this.endTick = null;
 
     this.loading = true;
 
@@ -197,49 +203,52 @@ Loader.prototype.update = function()
 {
     // If there is no loading currently happening -> exit
     if (this.loading === false) {
-        return;
+        // return;
     }
 
     this.tick += 1;
     
     // Start the actual loading only if 30 ticks have passed
-    if (this.tick < 30) {
-        return;
+    if (this.tick === 10) {
+        this._loadTiles();
+
+        this._loadImages();
+
+        this._loadAudios();
+
+        this.service.events.push(this.loadCallable);
+
+        this.endTick = this.tick + 10;
     }
 
-    this._loadTiles();
+    if (this.endTick > 0) {
+        this.endTick -= 1;
+    }
 
-    this._loadImages();
+    if (this.endTick === 0) {
+        this.endTick = null;
 
-    this._loadAudios();
+        this.loading = false;
 
-    this.service.events.push(this.loadCallable);
-
-    // // If a tile is loading -> exit
-    // for (let i = 0; i < this.tiles.length; i++) {
-    //     if (this.tiles[i].loading === true) {
-    //         return;
-    //     }
-    // }
-
-    // // If an audio is loading -> exit
-    // for (let i = 0; i < this.audios.length; i++) {
-    //     if (this.audios[i].readyState !== 4) {
-    //         return;
-    //     }
-    // }
-    
-    // If everything is loaded -> stop loading and set end tick
-    this.loading = false;
-
-    this.endTick = this.tick + 30;
+        this.service.loadCanvas.style.zIndex = -1;
+    }
 }
 
-Loader.prototype.render = function(context)
+Loader.prototype.render = function()
 {
+    let context = this.service.loadContext;
+
+    context.clearRect(0, 0, this.service.loadCanvas.width, this.service.loadCanvas.height);
+
     context.beginPath();
 
-    context.fillStyle = "rgba(0, 0, 0, " + this.tick + ")";
+    if (this.endTick) {
+        context.fillStyle = "rgba(0, 0, 0, " + 10/10 + ")";
+    }
+    else
+    {
+        context.fillStyle = "rgba(0, 0, 0, " + 10/10 + ")";
+    }
     context.fillRect(0, 0, 2000, 2000);
     context.stroke();
 

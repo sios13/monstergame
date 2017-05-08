@@ -87,7 +87,7 @@ Tile.prototype.render = function(context, mapX, mapY) {
     context.globalAlpha = this.alpha;
 
     context.drawImage(
-        this.image,
+        this.image ? this.image : this.placeholderImage,
         xInImage,
         yInImage,
         this.tileWidth,

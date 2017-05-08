@@ -8,12 +8,12 @@ canvas {
     left:10;
 }
 
-.battleCanvas {z-index:3;}
+.loadCanvas {}
 
 .battleCanvas {}
 
 .worldCanvas {
-    /*background-color:black;*/
+    background-color:black;
 }
 
 .info {position:absolute; top:780; left:10;}

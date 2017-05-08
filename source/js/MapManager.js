@@ -17,6 +17,8 @@ function MapManager(service) {
 
             this.service.coolguy.x = x * 32;
             this.service.coolguy.y = y * 32;
+
+            this.service.state = "world";
         });
     };
     this.grassEvent = function() {
@@ -160,7 +162,7 @@ MapManager.prototype.createStartMap = function() {
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, this.newMapEvent.bind(this, "house1Map", 3, 3));
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("house1Map", 3, 3));
             }
 
             // Grass!
@@ -200,7 +202,6 @@ MapManager.prototype.createHouse1Map = function() {
     ];
 
     let layer1Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer1");
-    console.log(this.service.resources.tiles);
 
     let layer2Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer2");
 
@@ -227,7 +228,7 @@ MapManager.prototype.createHouse1Map = function() {
 
             // Teleport!
             if (collisionMap[y][x] === 2) {
-                map.attachEvent(x, y, this.newMapEvent.bind(this, "startMap", 3, 3));
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 3, 3));
             }
 
             // Grass!

@@ -3,6 +3,12 @@ const MapManager = require("./MapManager.js");
 const Battle = require("./Battle.js");
 const Loader = require("./Loader.js");
 
+Function.prototype.bindArgs = function(...boundArgs)
+{
+    let context = this;
+    return function(...args) { return context.call(this, ...boundArgs, ...args); };
+};
+
 function Game() {
     this.now = null;
     this.deltaTime = 0;
@@ -13,6 +19,8 @@ function Game() {
      * Initialize service
      */
     this.service = {};
+
+    this.service.util = require("./NiceFunctions.js");
 
     this.service.tick = 0;
 
@@ -90,10 +98,8 @@ Game.prototype.update = function() {
     // Check for events in service.events
     this.checkEvents();
 
-    if (this.service.state === "loading") {
-        // Update resorce loader
-        this.loader.update();
-    }
+    // Update resorce loader
+    this.loader.update();
 
     if (this.service.state === "battle") {
         // Update battle
@@ -126,11 +132,7 @@ Game.prototype.render = function() {
     //     return;
     // }
 
-    if (this.state === "loading") {
-        let context = this.loadContext;
-
-        this.loader.render();
-    }
+    this.loader.render();
 
     if (this.state === "battle") {
         let context = this.battleContext;
@@ -147,13 +149,9 @@ Game.prototype.render = function() {
 
         this.service.map.renderLayer1();
 
-        this.service.map.renderTiles();
-
         this.service.coolguy.render();
 
         this.service.map.renderLayer2();
-
-        this.service.map.render();
     }
 
     // If system was recently loaded -> tone from black screen to game
