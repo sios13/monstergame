@@ -24,7 +24,7 @@ function Game() {
 
     this.service.tick = 0;
 
-    this.service.state = "loading";
+    this.service.state = "";
 
     this.service.events = [];
 
@@ -32,15 +32,22 @@ function Game() {
     this.loader = new Loader(this.service, {});
     // Initialize world state
     this.service.events.push(function() {
-        this.loader.load(function() {
-            this.service.coolguy = new Entity(this.service, {});
+        this.loader.load(
+            undefined,
+            function() {
+                this.service.coolguy = new Entity(this.service, {});
 
-            this.service.mapManager = new MapManager(this.service, {});
+                this.service.mapManager = new MapManager(this.service, {});
 
-            this.service.map = this.service.mapManager.getMap("startMap");
+                this.service.map = this.service.mapManager.getMap("startMap");
 
-            this.service.state = "world";
-        });
+                this.service.state = "world";
+            },
+            function() {
+                this.service.map.audio.volume = 0;
+                this.service.util.playAudio(this.service.map.audio);
+            }
+        );
     });
 
     // Loading properties
@@ -84,13 +91,14 @@ Game.prototype.startGame = function() {
 Game.prototype.update = function() {
     this.service.tick += 1;
 
-    // console.log(this.service.state);
-
     // Check for events in service.events
     this.checkEvents();
 
-    // Update resorce loader
+    // Update loader
     this.loader.update();
+
+    if (this.service.state === "loading") {
+    }
 
     if (this.service.state === "battle") {
         // Update battle

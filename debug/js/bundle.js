@@ -601,6 +601,8 @@ function Entity(service, settings) {
     this.speedX = 0;
     this.speedY = 0;
 
+    this.stop = false;
+
     // left, up, right, down
     this.walkTiles = [
         this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,1)"),
@@ -754,6 +756,11 @@ Entity.prototype.update = function() {
         // If collision is detected -> set the speed to 0
         this._detectCollision();
 
+        if (this.stop === true) {
+            this.speedX = 0;
+            this.speedY = 0;
+        }
+
         // Finally, add the speed to the position
         this.x += this.speedX;
         this.y += this.speedY;
@@ -819,7 +826,7 @@ function Game() {
 
     this.service.tick = 0;
 
-    this.service.state = "loading";
+    this.service.state = "";
 
     this.service.events = [];
 
@@ -827,15 +834,22 @@ function Game() {
     this.loader = new Loader(this.service, {});
     // Initialize world state
     this.service.events.push(function() {
-        this.loader.load(function() {
-            this.service.coolguy = new Entity(this.service, {});
+        this.loader.load(
+            undefined,
+            function() {
+                this.service.coolguy = new Entity(this.service, {});
 
-            this.service.mapManager = new MapManager(this.service, {});
+                this.service.mapManager = new MapManager(this.service, {});
 
-            this.service.map = this.service.mapManager.getMap("startMap");
+                this.service.map = this.service.mapManager.getMap("startMap");
 
-            this.service.state = "world";
-        });
+                this.service.state = "world";
+            },
+            function() {
+                this.service.map.audio.volume = 0;
+                this.service.util.playAudio(this.service.map.audio);
+            }
+        );
     });
 
     // Loading properties
@@ -879,13 +893,14 @@ Game.prototype.startGame = function() {
 Game.prototype.update = function() {
     this.service.tick += 1;
 
-    // console.log(this.service.state);
-
     // Check for events in service.events
     this.checkEvents();
 
-    // Update resorce loader
+    // Update loader
     this.loader.update();
+
+    if (this.service.state === "loading") {
+    }
 
     if (this.service.state === "battle") {
         // Update battle
@@ -1151,8 +1166,6 @@ Loader.prototype.load = function(callable1, callable2, callable3)
 {
     this.service.loadCanvas.style.zIndex = 1;
 
-    this.service.state = "loading";
-
     this.tick = 0;
 
     this.endTick = null;
@@ -1242,7 +1255,7 @@ function Map(service, settings) {
 
     this.audio = settings.audio;
     this.audio.loop = true;
-    this.audio.play();
+    // this.audio.play();
 
     this.tiles = settings.tiles;
 }
@@ -1315,23 +1328,25 @@ function MapManager(service) {
     this.normalEvent = function() {
         this.service.coolguy.setState("walking");
     };
-    this.newMapEvent = function(mapName, x, y) {
+    this.newMapEvent = function(newMapName, newX, newY) {
         this.loader.load(
             function() {
                 this.service.util.pauseAudio(this.service.map.audio);
+
+                this.service.coolguy.stop = true;
             },
             function() {
                 this.service.map.destroy();
 
-                this.service.map = this.service.mapManager.getMap(mapName);
+                this.service.map = this.service.mapManager.getMap(newMapName);
 
-                this.service.coolguy.x = x * 32;
-                this.service.coolguy.y = y * 32;
-
-                this.service.state = "world";
+                this.service.coolguy.x = newX * 32;
+                this.service.coolguy.y = newY * 32;
             },
             function() {
                 this.service.util.playAudio(this.service.map.audio);
+
+                this.service.coolguy.stop = false;
             }
         );
     };
@@ -1343,7 +1358,7 @@ function MapManager(service) {
 
         // tile.pause = false;
 
-        this.service.battle = new Battle();
+        this.service.battle = new Battle(this.service, {});
     };
     this.waterEvent = function() {
         this.service.coolguy.setState("water");
@@ -1565,10 +1580,30 @@ module.exports = MapManager;
 },{"./Battle.js":1,"./Map.js":6,"./Tile.js":9}],8:[function(require,module,exports){
 module.exports = {
     pauseAudio: function(audio) {
-        audio.pause();
+        let fadeAudio1 = setInterval(function() {
+            if (audio.volume <= 0.025) {
+                audio.pause();
+
+                clearInterval(fadeAudio1);
+
+                return;
+            }
+
+            audio.volume -= 0.025;
+        }, 25);
     },
     playAudio: function(audio) {
         audio.play();
+
+        let fadeAudio2 = setInterval(function() {
+            if (audio.volume >= 0.975) {
+                clearInterval(fadeAudio2);
+
+                return;
+            }
+
+            audio.volume += 0.025;
+        }, 25);
     }
 };
 

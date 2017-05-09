@@ -14,7 +14,7 @@ function Map(service, settings) {
 
     this.audio = settings.audio;
     this.audio.loop = true;
-    this.audio.play();
+    // this.audio.play();
 
     this.tiles = settings.tiles;
 }

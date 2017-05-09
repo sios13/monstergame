@@ -18,6 +18,8 @@ function Entity(service, settings) {
     this.speedX = 0;
     this.speedY = 0;
 
+    this.stop = false;
+
     // left, up, right, down
     this.walkTiles = [
         this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,1)"),
@@ -170,6 +172,11 @@ Entity.prototype.update = function() {
         // Detect collision.
         // If collision is detected -> set the speed to 0
         this._detectCollision();
+
+        if (this.stop === true) {
+            this.speedX = 0;
+            this.speedY = 0;
+        }
 
         // Finally, add the speed to the position
         this.x += this.speedX;

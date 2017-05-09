@@ -9,23 +9,25 @@ function MapManager(service) {
     this.normalEvent = function() {
         this.service.coolguy.setState("walking");
     };
-    this.newMapEvent = function(mapName, x, y) {
+    this.newMapEvent = function(newMapName, newX, newY) {
         this.loader.load(
             function() {
                 this.service.util.pauseAudio(this.service.map.audio);
+
+                this.service.coolguy.stop = true;
             },
             function() {
                 this.service.map.destroy();
 
-                this.service.map = this.service.mapManager.getMap(mapName);
+                this.service.map = this.service.mapManager.getMap(newMapName);
 
-                this.service.coolguy.x = x * 32;
-                this.service.coolguy.y = y * 32;
-
-                this.service.state = "world";
+                this.service.coolguy.x = newX * 32;
+                this.service.coolguy.y = newY * 32;
             },
             function() {
                 this.service.util.playAudio(this.service.map.audio);
+
+                this.service.coolguy.stop = false;
             }
         );
     };
@@ -37,7 +39,7 @@ function MapManager(service) {
 
         // tile.pause = false;
 
-        this.service.battle = new Battle();
+        this.service.battle = new Battle(this.service, {});
     };
     this.waterEvent = function() {
         this.service.coolguy.setState("water");

@@ -199,8 +199,6 @@ Loader.prototype.load = function(callable1, callable2, callable3)
 {
     this.service.loadCanvas.style.zIndex = 1;
 
-    this.service.state = "loading";
-
     this.tick = 0;
 
     this.endTick = null;
