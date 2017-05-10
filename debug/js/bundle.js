@@ -1191,7 +1191,8 @@ Loader.prototype.update = function()
             this.service.events.push(this.loadCallable2);
         }
 
-        this.endTick = this.tick + 10;
+        // this.endTick = this.tick + 10;
+        this.endTick = 20;
     }
 
     if (this.endTick > 0) {
@@ -1220,13 +1221,14 @@ Loader.prototype.render = function()
     context.beginPath();
 
     let alpha = 1;
-    if (this.endTick) {
+    if (this.endTick > 0) {
         alpha = this.endTick/10;
     }
-    else
+    else if (this.tick > 0)
     {
         alpha = this.tick/10;
     }
+
     context.fillStyle = "rgba(0, 0, 0, " + alpha + ")";
     context.fillRect(0, 0, 2000, 2000);
     context.stroke();
@@ -1310,10 +1312,6 @@ Map.prototype.renderLayer2 = function() {
     }
 }
 
-Map.prototype.destroy = function() {
-    this.audio.pause();
-}
-
 module.exports = Map;
 
 },{}],7:[function(require,module,exports){
@@ -1336,8 +1334,6 @@ function MapManager(service) {
                 this.service.coolguy.stop = true;
             },
             function() {
-                this.service.map.destroy();
-
                 this.service.map = this.service.mapManager.getMap(newMapName);
 
                 this.service.coolguy.x = newX * 32;

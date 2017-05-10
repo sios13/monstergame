@@ -17,8 +17,6 @@ function MapManager(service) {
                 this.service.coolguy.stop = true;
             },
             function() {
-                this.service.map.destroy();
-
                 this.service.map = this.service.mapManager.getMap(newMapName);
 
                 this.service.coolguy.x = newX * 32;

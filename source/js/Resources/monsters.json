@@ -1,0 +1,9 @@
+{
+    "name": "HAUNTER",
+    "frontTile": {
+        "src": "img/monsters/haunter_front.png"
+    },
+    "backTile": {
+        "src": "img/monsters/haunter_back.png"
+    }
+}

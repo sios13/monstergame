@@ -224,7 +224,8 @@ Loader.prototype.update = function()
             this.service.events.push(this.loadCallable2);
         }
 
-        this.endTick = this.tick + 10;
+        // this.endTick = this.tick + 10;
+        this.endTick = 10 + 10; // Black screen duration + tone duration
     }
 
     if (this.endTick > 0) {
@@ -253,13 +254,14 @@ Loader.prototype.render = function()
     context.beginPath();
 
     let alpha = 1;
-    if (this.endTick) {
+    if (this.endTick > 0) {
         alpha = this.endTick/10;
     }
-    else
+    else if (this.tick > 0)
     {
         alpha = this.tick/10;
     }
+
     context.fillStyle = "rgba(0, 0, 0, " + alpha + ")";
     context.fillRect(0, 0, 2000, 2000);
     context.stroke();

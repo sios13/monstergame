@@ -69,8 +69,4 @@ Map.prototype.renderLayer2 = function() {
     }
 }
 
-Map.prototype.destroy = function() {
-    this.audio.pause();
-}
-
 module.exports = Map;
