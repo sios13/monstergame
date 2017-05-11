@@ -31,24 +31,41 @@ function Loader(service, settings)
     this._loadImages();
 
     this._loadAudios();
+
+    this._createMonsterTiles();
+}
+
+Loader.prototype._createMonsterTiles = function() {
+    let monsters = require("./resources/monsters.json");
+
+    for (let i = 0; i < monsters.length; i++) {
+        monsters[i].tileFront = new Tile(monsters[i].tileFront);
+    }
+
+    this.service.resources.monsters = monsters;
+
+    console.log(this.service.resources.monsters);
 }
 
 Loader.prototype._loadAudios = function() {
-    let audioSrcs = [
+    let audiosSrc = [
         "audio/music1.mp3",
         "audio/music2.mp3"
     ];
 
     let audios = [];
 
-    for (let i = 0; i < audioSrcs.length; i++) {
-        let audio = new Audio(audioSrcs[i]);
+    for (let i = 0; i < audiosSrc.length; i++) {
+        let audio = new Audio(audiosSrc[i]);
         audios.push(audio);
     }
 
     this.service.resources.audios = audios;
 }
 
+/**
+ * Iterate all tiles and load their image srcs
+ */
 Loader.prototype._loadImages = function() {
     // List of all image srcs to ever be used in the game
     let imageSrcs = [
@@ -59,7 +76,8 @@ Loader.prototype._loadImages = function() {
         "img/house1layer2.png",
         "img/character7_walking.png",
         "img/character_water.png",
-        "img/character7_grass.png"
+        "img/character7_grass.png",
+        "img/monsters/haunter_front.png"
     ];
 
     let images = [];

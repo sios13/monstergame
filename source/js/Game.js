@@ -102,7 +102,7 @@ Game.prototype.update = function() {
 
     if (this.service.state === "battle") {
         // Update battle
-        this.battle.update();
+        this.service.battle.update();
     }
 
     if (this.service.state === "world") {
@@ -120,12 +120,12 @@ Game.prototype.update = function() {
 Game.prototype.render = function() {
     this.loader.render();
 
-    if (this.state === "battle") {
-        let context = this.battleContext;
+    if (this.service.state === "battle") {
+        let context = this.service.battleContext;
 
-        context.clearRect(0, 0, this.battleCanvas.width, this.battleCanvas.height);
+        context.clearRect(0, 0, this.service.battleCanvas.width, this.service.battleCanvas.height);
 
-        this.battle.render();
+        this.service.battle.render();
     }
 
     if (this.service.state === "world") {

@@ -2,7 +2,7 @@ const Map = require("./Map.js");
 const Tile = require("./Tile.js");
 const Battle = require("./Battle.js");
 
-function MapManager(service) {
+function MapManager(service, {}) {
     this.service = service;
 
     // Some nice events
@@ -37,7 +37,15 @@ function MapManager(service) {
 
         // tile.pause = false;
 
-        this.service.battle = new Battle(this.service, {});
+        if (true) {
+            this.service.state = "battle";
+
+            let monsters = this.service.resources.monsters;
+            this.service.battle = new Battle(this.service, {opponent: monsters[this.service.tick % monsters.length]});
+
+            this.service.worldCanvas.style.zIndex = -1;
+            this.service.battleCanvas.style.zIndex = 1;
+        }
     };
     this.waterEvent = function() {
         this.service.coolguy.setState("water");
