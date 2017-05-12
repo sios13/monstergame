@@ -1,0 +1,42 @@
+[
+    {
+        "name": "playerWalk",
+        "src": "img/character7_walking.png",
+        "tileWidth": 32,
+        "tileHeight": 48,
+        "spriteWidth": 32,
+        "spriteHeight": 192,
+        "numberOfFrames": 4,
+        "updateFrequency": 7
+    },
+    {
+        "name": "playerWater",
+        "src": "img/character_water.png",
+        "tileWidth": 64,
+        "tileHeight": 64,
+        "spriteWidth": 64,
+        "spriteHeight": 256,
+        "numberOfFrames": 4,
+        "updateFrequency": 7
+    },
+    {
+        "name": "playerGrass",
+        "src": "img/character7_grass.png",
+        "tileWidth": 32,
+        "tileHeight": 48,
+        "spriteWidth": 32,
+        "spriteHeight": 192,
+        "numberOfFrames": 4,
+        "updateFrequency": 7
+    },
+    {
+        "name": "sea",
+        "src": "img/Sea.png",
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "spriteWidth": 96,
+        "spriteHeight": 128,
+        "numberOfFrames": 8,
+        "updateFrequency": 7
+    }
+]

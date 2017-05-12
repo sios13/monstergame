@@ -26,25 +26,17 @@ function Loader(service, settings)
     this.loadCallable2 = null;
     this.loadCallable3 = null;
 
-    this._loadTiles();
+    /**
+     * Create the tiles
+     */
+    this._createTiles();
 
+    /**
+     * Add the images to the tiles
+     */
     this._loadImages();
 
     this._loadAudios();
-
-    this._createMonsterTiles();
-}
-
-Loader.prototype._createMonsterTiles = function() {
-    let monsters = require("./resources/monsters.json");
-
-    for (let i = 0; i < monsters.length; i++) {
-        monsters[i].tileFront = new Tile(monsters[i].tileFront);
-    }
-
-    this.service.resources.monsters = monsters;
-
-    console.log(this.service.resources.monsters);
 }
 
 Loader.prototype._loadAudios = function() {
@@ -106,108 +98,135 @@ Loader.prototype._loadImages = function() {
     this.service.resources.images = images;
 }
 
-Loader.prototype._loadTiles = function() {
-    // Takes a sprite and return tiles
-    let spriteToTiles = function(sprite) {
-        let tiles = [];
-
-        for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
-            for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
-                let tile = new Tile(Object.assign({}, sprite, {
-                    placeholderImage: this.placeholderImage,
-                    name: sprite.name + "(" + x + "," + y + ")",
-                    spriteCol: x,
-                    spriteRow: y
-                }));
-                tiles.push(tile);
-            }
-        }
-
-        return tiles;
-    }.bind(this);
-
+Loader.prototype._createTiles = function() {
     /**
      * Sprites
      */
-    let playerWalkingSprite = {
-        name: "playerWalk",
-        src: "img/character7_walking.png",
-        tileWidth: 32,
-        tileHeight: 48,
-        spriteWidth: 32,
-        spriteHeight: 192,
-        renderWidth: 32,
-        renderHeight: 48,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    };
+    let sprites = require("./resources/sprites.json");
 
-    let playerWaterSprite = {
-        name: "playerWater",
-        src: "img/character_water.png",
-        tileWidth: 64,
-        tileHeight: 64,
-        spriteWidth: 64,
-        spriteHeight: 256,
-        renderWidth: 64,
-        renderHeight: 64,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    };
-
-    let playerGrassSprite = {
-        name: "playerGrass",
-        src: "img/character7_grass.png",
-        tileWidth: 32,
-        tileHeight: 48,
-        spriteWidth: 32,
-        spriteHeight: 192,
-        renderWidth: 32,
-        renderHeight: 48,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    };
-
-    let seaSprite = {
-        name: "sea",
-        src: "img/Sea.png",
-        tileWidth: 16,
-        tileHeight: 16,
-        spriteWidth: 96,
-        spriteHeight: 128,
-        renderWidth: 32,
-        renderHeight: 32,
-        numberOfFrames: 8,
-        updateFrequency: 7,
-    };
+    for (let i = 0; i < sprites.length; i++) {
+        
+    }
 
     /**
      * Tiles
      */
-    let map1layer1Tile = new Tile({name: "map1layer1", src: "img/map1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
-
-    let map1layer2Tile = new Tile({name: "map1layer2", src: "img/map1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
-    
-    let house1layer1Tile = new Tile({name: "house1layer1", src: "img/house1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
-    
-    let house1layer2Tile = new Tile({name: "house1layer2", src: "img/house1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+    let tiles = require("./resources/tiles.json");
 
     /**
-     * Create tiles from sprites
-     * Add tiles to resources.tiles
+     * Monster tiles
      */
-    let tiles = [];
+    let monsters = require("./resources/monsters.json");
 
-    tiles.push(...spriteToTiles(seaSprite));
-    tiles.push(...spriteToTiles(playerWalkingSprite));
-    tiles.push(...spriteToTiles(playerWaterSprite));
-    tiles.push(...spriteToTiles(playerGrassSprite));
-    tiles.push(map1layer1Tile);
-    tiles.push(map1layer2Tile);
-    tiles.push(house1layer1Tile);
-    tiles.push(house1layer2Tile);
+    for (let i = 0; i < monsters.length; i++) {
+        monsters[i].tileFront = new Tile(monsters[i].tileFront);
+    }
 
-    this.service.resources.tiles = tiles;
+    this.service.resources.monsters = monsters;
+
+    console.log(this.service.resources.monsters);
+
+    // Takes a sprite and return tiles
+    // let spriteToTiles = function(sprite) {
+    //     let tiles = [];
+
+    //     for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
+    //         for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
+    //             let tile = new Tile(Object.assign({}, sprite, {
+    //                 placeholderImage: this.placeholderImage,
+    //                 name: sprite.name + "(" + x + "," + y + ")",
+    //                 spriteCol: x,
+    //                 spriteRow: y
+    //             }));
+    //             tiles.push(tile);
+    //         }
+    //     }
+
+    //     return tiles;
+    // }.bind(this);
+
+    // /**
+    //  * Sprites
+    //  */
+    // let playerWalkingSprite = {
+    //     name: "playerWalk",
+    //     src: "img/character7_walking.png",
+    //     tileWidth: 32,
+    //     tileHeight: 48,
+    //     spriteWidth: 32,
+    //     spriteHeight: 192,
+    //     renderWidth: 32,
+    //     renderHeight: 48,
+    //     numberOfFrames: 4,
+    //     updateFrequency: 7
+    // };
+
+    // let playerWaterSprite = {
+    //     name: "playerWater",
+    //     src: "img/character_water.png",
+    //     tileWidth: 64,
+    //     tileHeight: 64,
+    //     spriteWidth: 64,
+    //     spriteHeight: 256,
+    //     renderWidth: 64,
+    //     renderHeight: 64,
+    //     numberOfFrames: 4,
+    //     updateFrequency: 7
+    // };
+
+    // let playerGrassSprite = {
+    //     name: "playerGrass",
+    //     src: "img/character7_grass.png",
+    //     tileWidth: 32,
+    //     tileHeight: 48,
+    //     spriteWidth: 32,
+    //     spriteHeight: 192,
+    //     renderWidth: 32,
+    //     renderHeight: 48,
+    //     numberOfFrames: 4,
+    //     updateFrequency: 7
+    // };
+
+    // let seaSprite = {
+    //     name: "sea",
+    //     src: "img/Sea.png",
+    //     tileWidth: 16,
+    //     tileHeight: 16,
+    //     spriteWidth: 96,
+    //     spriteHeight: 128,
+    //     renderWidth: 32,
+    //     renderHeight: 32,
+    //     numberOfFrames: 8,
+    //     updateFrequency: 7,
+    // };
+
+    // /**
+    //  * Tiles
+    //  */
+    // let map1layer1Tile = new Tile({name: "map1layer1", src: "img/map1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+
+    // let map1layer2Tile = new Tile({name: "map1layer2", src: "img/map1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+    
+    // let house1layer1Tile = new Tile({name: "house1layer1", src: "img/house1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+    
+    // let house1layer2Tile = new Tile({name: "house1layer2", src: "img/house1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+
+    // /**
+    //  * Create tiles from sprites
+    //  * Add tiles to resources.tiles
+    //  */
+    // let tiles = [];
+
+    // tiles.push(...spriteToTiles(seaSprite));
+    // tiles.push(...spriteToTiles(playerWalkingSprite));
+    // tiles.push(...spriteToTiles(playerWaterSprite));
+    // tiles.push(...spriteToTiles(playerGrassSprite));
+    // tiles.push(map1layer1Tile);
+    // tiles.push(map1layer2Tile);
+    // tiles.push(house1layer1Tile);
+    // tiles.push(house1layer2Tile);
+
+    // this.service.resources.tiles = tiles;
 }
 
 /**

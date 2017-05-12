@@ -933,7 +933,7 @@ Game.prototype.render = function() {
         let context = this.service.battleContext;
 
         context.clearRect(0, 0, this.service.battleCanvas.width, this.service.battleCanvas.height);
-        console.log("hej!");
+
         this.service.battle.render();
     }
 
@@ -1000,25 +1000,17 @@ function Loader(service, settings)
     this.loadCallable2 = null;
     this.loadCallable3 = null;
 
-    this._loadTiles();
+    /**
+     * Create the tiles
+     */
+    this._createTiles();
 
+    /**
+     * Add the images to the tiles
+     */
     this._loadImages();
 
     this._loadAudios();
-
-    this._loadMonsters();
-}
-
-Loader.prototype._loadMonsters = function() {
-    let monsters = require("./resources/monsters.json");
-
-    for (let i = 0; i < monsters.length; i++) {
-        monsters[i].tileFront = new Tile(monsters[i].tileFront);
-    }
-
-    this.service.resources.monsters = monsters;
-
-    console.log(this.service.resources.monsters);
 }
 
 Loader.prototype._loadAudios = function() {
@@ -1037,6 +1029,9 @@ Loader.prototype._loadAudios = function() {
     this.service.resources.audios = audios;
 }
 
+/**
+ * Iterate all tiles and load their image srcs
+ */
 Loader.prototype._loadImages = function() {
     // List of all image srcs to ever be used in the game
     let imageSrcs = [
@@ -1047,7 +1042,8 @@ Loader.prototype._loadImages = function() {
         "img/house1layer2.png",
         "img/character7_walking.png",
         "img/character_water.png",
-        "img/character7_grass.png"
+        "img/character7_grass.png",
+        "img/monsters/haunter_front.png"
     ];
 
     let images = [];
@@ -1076,7 +1072,17 @@ Loader.prototype._loadImages = function() {
     this.service.resources.images = images;
 }
 
-Loader.prototype._loadTiles = function() {
+Loader.prototype._createTiles = function() {
+    let monsters = require("./resources/monsters.json");
+
+    for (let i = 0; i < monsters.length; i++) {
+        monsters[i].tileFront = new Tile(monsters[i].tileFront);
+    }
+
+    this.service.resources.monsters = monsters;
+
+    console.log(this.service.resources.monsters);
+
     // Takes a sprite and return tiles
     let spriteToTiles = function(sprite) {
         let tiles = [];
@@ -1606,7 +1612,7 @@ module.exports = MapManager;
 module.exports = {
     pauseAudio: function(audio) {
         let fadeAudio1 = setInterval(function() {
-            if (audio.volume <= 0.025) {
+            if (audio.volume <= 0.010) {
                 audio.pause();
 
                 clearInterval(fadeAudio1);
@@ -1614,20 +1620,20 @@ module.exports = {
                 return;
             }
 
-            audio.volume -= 0.025;
-        }, 25);
+            audio.volume -= 0.010;
+        }, 10);
     },
     playAudio: function(audio) {
         audio.play();
 
         let fadeAudio2 = setInterval(function() {
-            if (audio.volume >= 0.975) {
+            if (audio.volume >= 0.990) {
                 clearInterval(fadeAudio2);
 
                 return;
             }
 
-            audio.volume += 0.025;
+            audio.volume += 0.010;
         }, 25);
     }
 };

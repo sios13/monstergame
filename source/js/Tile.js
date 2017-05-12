@@ -1,5 +1,5 @@
 function Tile(settings) {
-    this.name = settings.name ? settings.name : "hehe";
+    this.name = settings.name ? settings.name : "tilename";
 
     this.src = settings.src;
 
@@ -27,8 +27,8 @@ function Tile(settings) {
 
     this.alpha = settings.alpha ? settings.alpha : 1;
 
-    this.renderCol = settings.renderCol ? settings.renderCol : 0;
-    this.renderRow = settings.renderRow ? settings.renderRow : 0;
+    // this.renderCol = settings.renderCol ? settings.renderCol : 0;
+    // this.renderRow = settings.renderRow ? settings.renderRow : 0;
 
     this.renderX = settings.renderX ? settings.renderX : 0;
     this.renderY = settings.renderY ? settings.renderY : 0;
@@ -79,8 +79,8 @@ Tile.prototype.render = function(context, mapX, mapY) {
     let xInImage = this.spriteCol * this.tileWidth + this.spriteOffset;
     let yInImage = this.spriteRow * this.tileHeight;
 
-    let renderX = this.renderCol ? this.renderCol * 32 : this.renderX;
-    let renderY = this.renderRow ? this.renderRow * 32 : this.renderY;
+    // let renderX = this.renderCol ? this.renderCol * 32 : this.renderX;
+    // let renderY = this.renderRow ? this.renderRow * 32 : this.renderY;
 
     context.save();
 
@@ -92,8 +92,8 @@ Tile.prototype.render = function(context, mapX, mapY) {
         yInImage,
         this.tileWidth,
         this.tileHeight,
-        mapX + renderX,
-        mapY + renderY,
+        mapX + this.renderX,
+        mapY + this.renderY,
         this.renderWidth,
         this.renderHeight
     );

@@ -1,0 +1,26 @@
+[
+    {
+        "name": "map1layer1",
+        "src": "img/map1layer1.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "map1layer2",
+        "src": "img/map1layer2.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "house1layer1",
+        "src": "img/house1layer1.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "house1layer2",
+        "src": "img/house1layer2.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    }
+]
