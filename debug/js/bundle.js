@@ -10,8 +10,6 @@ function Battle(service, settings) {
 
     this.opponent = settings.opponent;
 
-    console.log(this.opponent);
-
     // this.screenWidth = 1024;
     // this.screenHeight = 768;
 
@@ -24,180 +22,31 @@ function Battle(service, settings) {
     //     hidden: true,
     //     nextable: false
     // });
+
+    this.flashTile = this.service.resources.getTile("flash", 0, 0, 1024, 768);
+    this.flashTile.alpha = 0;
+
+    this.backgroundTile = this.service.resources.getTile("battleBgForestEve", 0, 0, 1024, 768);
+
+    this.playerTile = this.service.resources.getTile("battlePlayer", 1024 + 170, 768 - 192 - 230, 230, 230);
+
+    this.playerbaseTile = this.service.resources.getTile("battlePlayerbase", 1024, 768 - 192 - 64, 512, 64);
+
+    this.opponentbaseTile = this.service.resources.getTile("battleOpponentbase", -512, 200, 512, 256);
+
+    this.ballTile = this.service.resources.getTile("battleBall", 0, 410, 48, 48);
+
+    this.bottombarTile = this.service.resources.getTile("battleBottombar", 0, 768 - 192, 1028, 192);
+
+    this.fightbtnTile = this.service.resources.getTile("battleFightbtn", 514, 768 - 192 + 10, 256, 92);
     
-    // this.flash = new Tile({
-    //     renderWidth: 1024,
-    //     renderHeight: 768,
-    //     tileWidth: 1024,
-    //     tileHeight: 768,
-    //     alpha: 0,
-    //     src: "img/battle/flash.png"
-    // });
-    // this.flash.alpha = 0;
+    this.bagbtnTile = this.service.resources.getTile("battleBagbtn", 770, 768 - 192 + 10, 256, 92);
 
-    // this.background = new Tile({
-    //     renderX: -10000,
-    //     renderY: 0,
-    //     renderWidth: this.screenWidth,
-    //     renderHeight: this.screenHeight,
-    //     tileWidth: 512,
-    //     tileHeight: 288,
-    //     src: "img/battle/battlebgForestEve.png"
-    // });
+    this.pokemonbtnTile = this.service.resources.getTile("battlePokemonbtn", 514, 768 - 192 + 92, 256, 92);
+    
+    this.runbtnTile = this.service.resources.getTile("battleRunbtn", 770, 768 - 192 + 92, 256, 92);
 
-    // this.player = {
-    //     name: "player",
-    //     audio: new Audio("audio/monster/130Cry.wav"),
-    //     player_tile: new Tile({
-    //         renderX: 1024 + 170,
-    //         renderY: 768 - 192 - 230,
-    //         renderWidth: 230,
-    //         renderHeight: 230,
-    //         spriteCol: 0,
-    //         spriteRow: 0,
-    //         tileWidth: 128,
-    //         tileHeight: 128,
-    //         offset: 128,
-    //         numberOfFrames: 5,
-    //         updateFrequency: 5,
-    //         src: "img/battle/player_back.png",
-    //         loop: false,
-    //         pause: true
-    //     }),
-    //     monster_tile: new Tile({
-    //         renderX: 512/2 - 350/2,
-    //         renderY: 310,
-    //         renderWidth: 350,
-    //         renderHeight: 350,
-    //         spriteCol: 0,
-    //         spriteRow: 0,
-    //         tileWidth: 108,
-    //         tileHeight: 108,
-    //         offset: 108,
-    //         numberOfFrames: 87,
-    //         updateFrequency: 1,
-    //         src: "img/battle/player_monster_shiny.png",
-    //         loop: false,
-    //         pause: true
-    //     }),
-    //     base_tile: new Tile({
-    //         renderX: 1024,
-    //         renderY: this.screenHeight - 192 - 64,
-    //         renderWidth: 512,
-    //         renderHeight: 64,
-    //         tileWidth: 408,
-    //         tileHeight: 64,
-    //         src: "img/battle/playerbaseFieldGrassEve.png"
-    //     })
-    // };
-    // this.player.monster_tile.alpha = 0;
-
-    // this.enemy = {
-    //     name: "HEJ",
-    //     audio: new Audio("audio/monster/093Cry.wav"),
-    //     monster_tile: new Tile({
-    //         renderX: 0 - 512/2 - 350/2,
-    //         renderY: 75,
-    //         renderWidth: 350,
-    //         renderHeight: 350,
-    //         spriteCol: 0,
-    //         spriteRow: 0,
-    //         tileWidth: 85,
-    //         tileHeight: 85,
-    //         offset: 85,
-    //         numberOfFrames: 25,
-    //         updateFrequency: 1,
-    //         src: "img/battle/enemy_monster.png",
-    //         loop: false,
-    //         pause: true
-    //     }),
-    //     base_tile: new Tile({
-    //         renderX: 0 - 512,
-    //         renderY: 200,
-    //         renderWidth: 512,
-    //         renderHeight: 256,
-    //         tileWidth: 256,
-    //         tileHeight: 128,
-    //         src: "img/battle/enemybaseFieldGrassEve.png"
-    //     })
-    // };
-
-    // this.ball = new Tile({
-    //     renderX: -500,
-    //     renderY: 410,
-    //     renderWidth: 48,
-    //     renderHeight: 48,
-    //     spriteCol: 0,
-    //     spriteRow: 0,
-    //     tileWidth: 32,
-    //     tileHeight: 32,
-    //     offset: 32,
-    //     numberOfFrames: 4,
-    //     updateFrequency: 3,
-    //     src: "img/battle/ball.png",
-    //     loop: true,
-    //     pause: false
-    // });
-
-    // this.bottombar = new Tile({renderX: -10000, renderY: this.screenHeight - 192, renderWidth: 1028, renderHeight: 192, tileWidth: 512, tileHeight: 96, src: "img/battle/bottombar.png"});
-
-    // // this.textbox = new Tile({renderX: -10000, renderY: this.screenHeight - 192 + 10, renderWidth: 481, renderHeight: 176, tileWidth: 244, tileHeight: 88, src: "img/battle/textbox.png"});
-
-    // this.fightbtn = new Tile({
-    //     renderX: 514,
-    //     renderY: this.screenHeight - 192 + 10,
-    //     renderWidth: 256,
-    //     renderHeight: 92,
-    //     tileWidth: 130,
-    //     tileHeight: 46,
-    //     offset: 130,
-    //     numberOfFrames: 2,
-    //     src: "img/battle/fightbtn.png",
-    //     loop: false,
-    //     pause: true
-    // });
-
-    // this.bagbtn = new Tile({
-    //     renderX: 770,
-    //     renderY: this.screenHeight - 192 + 10,
-    //     renderWidth: 256,
-    //     renderHeight: 92,
-    //     tileWidth: 130,
-    //     tileHeight: 46,
-    //     offset: 130,
-    //     numberOfFrames: 2,
-    //     src: "img/battle/bagbtn.png",
-    //     loop: false,
-    //     pause: true
-    // });
-
-    // this.pokemonbtn = new Tile({
-    //     renderX: 514,
-    //     renderY: this.screenHeight - 192 + 10 + 92 - 8,
-    //     renderWidth: 256,
-    //     renderHeight: 92,
-    //     tileWidth: 130,
-    //     tileHeight: 46,
-    //     offset: 130,
-    //     numberOfFrames: 2,
-    //     src: "img/battle/pokemonbtn.png",
-    //     loop: false,
-    //     pause: true
-    // });
-
-    // this.runbtn = new Tile({
-    //     renderX: 770,
-    //     renderY: this.screenHeight - 192 + 10 + 92 - 8,
-    //     renderWidth: 256,
-    //     renderHeight: 92,
-    //     tileWidth: 130,
-    //     tileHeight: 46,
-    //     offset: 130,
-    //     numberOfFrames: 2,
-    //     src: "img/battle/runbtn.png",
-    //     loop: false,
-    //     pause: true
-    // });
+    console.log(this.runbtnTile);
 }
 
 Battle.prototype._playIntro1 = function() {
@@ -416,7 +265,7 @@ Battle.prototype.update = function(ame) {
 Battle.prototype.render = function() {
     let context = this.service.battleContext;
 
-    this.opponent.tileFront.render(context, 100, 100);
+    this.runbtnTile.render(context);
     // this.flash.render(context);
 
     // this.background.render(context);
@@ -979,11 +828,20 @@ function Loader(service, settings)
     this.service = service;
 
     this.service.resources = {};
+    this.service.resources.tiles = [];
+    this.service.resources.monsters = [];
 
-    this.service.resources.getTile = function(tilename, renderX, renderY) {
+    this.service.resources.getTile = function(tilename, renderX, renderY, renderWidth, renderHeight) {
         let tile = this.service.resources.tiles.find(tile => tile.name === tilename);
+
+        // Where to render tile
         tile.renderX = renderX;
         tile.renderY = renderY;
+
+        // Render size
+        tile.renderWidth = renderWidth;
+        tile.renderHeight = renderHeight;
+
         return tile;
     }.bind(this);
     
@@ -1008,6 +866,7 @@ function Loader(service, settings)
     /**
      * Add the images to the tiles
      */
+
     this._loadImages();
 
     this._loadAudios();
@@ -1033,56 +892,46 @@ Loader.prototype._loadAudios = function() {
  * Iterate all tiles and load their image srcs
  */
 Loader.prototype._loadImages = function() {
-    // List of all image srcs to ever be used in the game
-    let imageSrcs = [
-        "img/Sea.png",
-        "img/map1layer1.png",
-        "img/map1layer2.png",
-        "img/house1layer1.png",
-        "img/house1layer2.png",
-        "img/character7_walking.png",
-        "img/character_water.png",
-        "img/character7_grass.png",
-        "img/monsters/haunter_front.png"
-    ];
+    // Create a unique array of all images used in the game
+    let imagesSrc = [];
 
-    let images = [];
+    for (let i = 0; i < this.service.resources.tiles.length; i++) {
+        let tile = this.service.resources.tiles[i];
 
-    // Create image elements for all images
-    for (let i = 0; i < imageSrcs.length; i++) {
+        imagesSrc.push(tile.src);
+    }
+
+    imagesSrc = [...new Set(imagesSrc)];
+
+    // Create an image element for every src
+    for (let i = 0; i < imagesSrc.length; i++) {
+        let imageSrc = imagesSrc[i];
+
         let image = new Image();
 
+        // When the image has finished loading...
         image.addEventListener("load", function(event) {
-            let image2 = event.target;
-            // let image2 = event.path[0];
-            // Add this image to all tiles that should have this image
+            let img = event.target;
+
+            // ...add the image element to all tiles with the same src
             for (let i = 0; i < this.service.resources.tiles.length; i++) {
                 let tile = this.service.resources.tiles[i];
-                if (tile.src === image2.getAttribute("src")) {
-                    tile.image = image2;
+
+                if (tile.src === img.getAttribute("src")) {
+                    tile.image = img;
                 }
             }
         }.bind(this));
 
-        image.src = imageSrcs[i];
-
-        images.push(image);
+        image.src = imageSrc;
     }
-
-    this.service.resources.images = images;
 }
 
 Loader.prototype._createTiles = function() {
-    let monsters = require("./resources/monsters.json");
-
-    for (let i = 0; i < monsters.length; i++) {
-        monsters[i].tileFront = new Tile(monsters[i].tileFront);
-    }
-
-    this.service.resources.monsters = monsters;
-
-    console.log(this.service.resources.monsters);
-
+    /**
+     * Sprites
+     * (Sprite has many tiles)
+     */
     // Takes a sprite and return tiles
     let spriteToTiles = function(sprite) {
         let tiles = [];
@@ -1090,7 +939,7 @@ Loader.prototype._createTiles = function() {
         for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
             for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
                 let tile = new Tile(Object.assign({}, sprite, {
-                    placeholderImage: this.placeholderImage,
+                    // placeholderImage: this.placeholderImage,
                     name: sprite.name + "(" + x + "," + y + ")",
                     spriteCol: x,
                     spriteRow: y
@@ -1102,88 +951,35 @@ Loader.prototype._createTiles = function() {
         return tiles;
     }.bind(this);
 
-    /**
-     * Sprites
-     */
-    let playerWalkingSprite = {
-        name: "playerWalk",
-        src: "img/character7_walking.png",
-        tileWidth: 32,
-        tileHeight: 48,
-        spriteWidth: 32,
-        spriteHeight: 192,
-        renderWidth: 32,
-        renderHeight: 48,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    };
+    let sprites = require("./resources/sprites.json");
 
-    let playerWaterSprite = {
-        name: "playerWater",
-        src: "img/character_water.png",
-        tileWidth: 64,
-        tileHeight: 64,
-        spriteWidth: 64,
-        spriteHeight: 256,
-        renderWidth: 64,
-        renderHeight: 64,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    };
+    for (let i = 0; i < sprites.length; i++) {
+        let tiles = spriteToTiles(sprites[i]);
 
-    let playerGrassSprite = {
-        name: "playerGrass",
-        src: "img/character7_grass.png",
-        tileWidth: 32,
-        tileHeight: 48,
-        spriteWidth: 32,
-        spriteHeight: 192,
-        renderWidth: 32,
-        renderHeight: 48,
-        numberOfFrames: 4,
-        updateFrequency: 7
-    };
-
-    let seaSprite = {
-        name: "sea",
-        src: "img/Sea.png",
-        tileWidth: 16,
-        tileHeight: 16,
-        spriteWidth: 96,
-        spriteHeight: 128,
-        renderWidth: 32,
-        renderHeight: 32,
-        numberOfFrames: 8,
-        updateFrequency: 7,
-    };
+        this.service.resources.tiles.push(...tiles);
+    }
 
     /**
      * Tiles
      */
-    let map1layer1Tile = new Tile({name: "map1layer1", src: "img/map1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+    let tiles = require("./resources/tiles.json");
 
-    let map1layer2Tile = new Tile({name: "map1layer2", src: "img/map1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
-    
-    let house1layer1Tile = new Tile({name: "house1layer1", src: "img/house1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
-    
-    let house1layer2Tile = new Tile({name: "house1layer2", src: "img/house1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
+    for (let i = 0; i < tiles.length; i++) {
+        tiles[i].placeholderImage = this.placeholderImage;
+
+        this.service.resources.tiles.push(new Tile(tiles[i]));
+    }
 
     /**
-     * Create tiles from sprites
-     * Add tiles to resources.tiles
+     * Monster tiles
      */
-    let tiles = [];
+    let monsters = require("./resources/monsters.json");
 
-    tiles.push(...spriteToTiles(seaSprite));
-    tiles.push(...spriteToTiles(playerWalkingSprite));
-    tiles.push(...spriteToTiles(playerWaterSprite));
-    tiles.push(...spriteToTiles(playerGrassSprite));
-    tiles.push(map1layer1Tile);
-    tiles.push(map1layer2Tile);
-    tiles.push(house1layer1Tile);
-    tiles.push(house1layer2Tile);
+    for (let i = 0; i < monsters.length; i++) {
+        monsters[i].tileFront = new Tile(monsters[i].tileFront);
+    }
 
-    this.service.resources.tiles = tiles;
+    this.service.resources.monsters = monsters;
 }
 
 /**
@@ -1257,7 +1053,7 @@ Loader.prototype.render = function()
     }
 
     context.fillStyle = "rgba(0, 0, 0, " + alpha + ")";
-    context.fillRect(0, 0, 2000, 2000);
+    context.fillRect(0, 0, this.service.loadCanvas.width, this.service.loadCanvas.height);
     context.stroke();
 
     // context.font = "26px Georgia";
@@ -1267,7 +1063,7 @@ Loader.prototype.render = function()
 
 module.exports = Loader;
 
-},{"./Tile.js":9,"./resources/monsters.json":12}],6:[function(require,module,exports){
+},{"./Tile.js":9,"./resources/monsters.json":12,"./resources/sprites.json":13,"./resources/tiles.json":14}],6:[function(require,module,exports){
 function Map(service, settings) {
     this.service = service;
 
@@ -1464,42 +1260,42 @@ MapManager.prototype.createStartMap = function() {
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
     let tiles = [
-        this.service.resources.getTile("sea(0,2)", 15*32, 32*32),
-        this.service.resources.getTile("sea(1,2)", 16*32, 32*32),
-        this.service.resources.getTile("sea(2,2)", 17*32, 32*32),
-        this.service.resources.getTile("sea(3,2)", 18*32, 32*32),
-        this.service.resources.getTile("sea(4,2)", 19*32, 32*32),
-        this.service.resources.getTile("sea(5,2)", 20*32, 32*32),
-        this.service.resources.getTile("sea(0,3)", 15*32, 33*32),
-        this.service.resources.getTile("sea(1,3)", 16*32, 33*32),
-        this.service.resources.getTile("sea(2,3)", 17*32, 33*32),
-        this.service.resources.getTile("sea(3,3)", 18*32, 33*32),
-        this.service.resources.getTile("sea(4,3)", 19*32, 33*32),
-        this.service.resources.getTile("sea(5,3)", 20*32, 33*32),
-        this.service.resources.getTile("sea(0,4)", 15*32, 34*32),
-        this.service.resources.getTile("sea(1,4)", 16*32, 34*32),
-        this.service.resources.getTile("sea(2,4)", 17*32, 34*32),
-        this.service.resources.getTile("sea(3,4)", 18*32, 34*32),
-        this.service.resources.getTile("sea(4,4)", 19*32, 34*32),
-        this.service.resources.getTile("sea(5,4)", 20*32, 34*32),
-        this.service.resources.getTile("sea(0,5)", 15*32, 35*32),
-        this.service.resources.getTile("sea(1,5)", 16*32, 35*32),
-        this.service.resources.getTile("sea(2,5)", 17*32, 35*32),
-        this.service.resources.getTile("sea(3,5)", 18*32, 35*32),
-        this.service.resources.getTile("sea(4,5)", 19*32, 35*32),
-        this.service.resources.getTile("sea(5,5)", 20*32, 35*32),
-        this.service.resources.getTile("sea(0,6)", 15*32, 36*32),
-        this.service.resources.getTile("sea(1,6)", 16*32, 36*32),
-        this.service.resources.getTile("sea(2,6)", 17*32, 36*32),
-        this.service.resources.getTile("sea(3,6)", 18*32, 36*32),
-        this.service.resources.getTile("sea(4,6)", 19*32, 36*32),
-        this.service.resources.getTile("sea(5,6)", 20*32, 36*32),
-        this.service.resources.getTile("sea(0,7)", 15*32, 37*32),
-        this.service.resources.getTile("sea(1,7)", 16*32, 37*32),
-        this.service.resources.getTile("sea(2,7)", 17*32, 37*32),
-        this.service.resources.getTile("sea(3,7)", 18*32, 37*32),
-        this.service.resources.getTile("sea(4,7)", 19*32, 37*32),
-        this.service.resources.getTile("sea(5,7)", 20*32, 37*32)
+        this.service.resources.getTile("sea(0,2)", 15*32, 32*32, 32, 32),
+        this.service.resources.getTile("sea(1,2)", 16*32, 32*32, 32, 32),
+        this.service.resources.getTile("sea(2,2)", 17*32, 32*32, 32, 32),
+        this.service.resources.getTile("sea(3,2)", 18*32, 32*32, 32, 32),
+        this.service.resources.getTile("sea(4,2)", 19*32, 32*32, 32, 32),
+        this.service.resources.getTile("sea(5,2)", 20*32, 32*32, 32, 32),
+        this.service.resources.getTile("sea(0,3)", 15*32, 33*32, 32, 32),
+        this.service.resources.getTile("sea(1,3)", 16*32, 33*32, 32, 32),
+        this.service.resources.getTile("sea(2,3)", 17*32, 33*32, 32, 32),
+        this.service.resources.getTile("sea(3,3)", 18*32, 33*32, 32, 32),
+        this.service.resources.getTile("sea(4,3)", 19*32, 33*32, 32, 32),
+        this.service.resources.getTile("sea(5,3)", 20*32, 33*32, 32, 32),
+        this.service.resources.getTile("sea(0,4)", 15*32, 34*32, 32, 32),
+        this.service.resources.getTile("sea(1,4)", 16*32, 34*32, 32, 32),
+        this.service.resources.getTile("sea(2,4)", 17*32, 34*32, 32, 32),
+        this.service.resources.getTile("sea(3,4)", 18*32, 34*32, 32, 32),
+        this.service.resources.getTile("sea(4,4)", 19*32, 34*32, 32, 32),
+        this.service.resources.getTile("sea(5,4)", 20*32, 34*32, 32, 32),
+        this.service.resources.getTile("sea(0,5)", 15*32, 35*32, 32, 32),
+        this.service.resources.getTile("sea(1,5)", 16*32, 35*32, 32, 32),
+        this.service.resources.getTile("sea(2,5)", 17*32, 35*32, 32, 32),
+        this.service.resources.getTile("sea(3,5)", 18*32, 35*32, 32, 32),
+        this.service.resources.getTile("sea(4,5)", 19*32, 35*32, 32, 32),
+        this.service.resources.getTile("sea(5,5)", 20*32, 35*32, 32, 32),
+        this.service.resources.getTile("sea(0,6)", 15*32, 36*32, 32, 32),
+        this.service.resources.getTile("sea(1,6)", 16*32, 36*32, 32, 32),
+        this.service.resources.getTile("sea(2,6)", 17*32, 36*32, 32, 32),
+        this.service.resources.getTile("sea(3,6)", 18*32, 36*32, 32, 32),
+        this.service.resources.getTile("sea(4,6)", 19*32, 36*32, 32, 32),
+        this.service.resources.getTile("sea(5,6)", 20*32, 36*32, 32, 32),
+        this.service.resources.getTile("sea(0,7)", 15*32, 37*32, 32, 32),
+        this.service.resources.getTile("sea(1,7)", 16*32, 37*32, 32, 32),
+        this.service.resources.getTile("sea(2,7)", 17*32, 37*32, 32, 32),
+        this.service.resources.getTile("sea(3,7)", 18*32, 37*32, 32, 32),
+        this.service.resources.getTile("sea(4,7)", 19*32, 37*32, 32, 32),
+        this.service.resources.getTile("sea(5,7)", 20*32, 37*32, 32, 32)
     ];
 
     let map = new Map(this.service, {
@@ -1640,11 +1436,11 @@ module.exports = {
 
 },{}],9:[function(require,module,exports){
 function Tile(settings) {
-    this.name = settings.name ? settings.name : "hehe";
+    this.name = settings.name ? settings.name : "tilename";
 
     this.src = settings.src;
 
-    this.placeholderImage = settings.placeholderImage;
+    // this.placeholderImage = settings.placeholderImage;
 
     this.tileWidth = settings.tileWidth ? settings.tileWidth : 0;
     this.tileHeight = settings.tileHeight ? settings.tileHeight : 0;
@@ -1667,9 +1463,6 @@ function Tile(settings) {
     this.pause = settings.pause === undefined ? false : settings.pause;
 
     this.alpha = settings.alpha ? settings.alpha : 1;
-
-    this.renderCol = settings.renderCol ? settings.renderCol : 0;
-    this.renderRow = settings.renderRow ? settings.renderRow : 0;
 
     this.renderX = settings.renderX ? settings.renderX : 0;
     this.renderY = settings.renderY ? settings.renderY : 0;
@@ -1713,28 +1506,38 @@ Tile.prototype.update = function() {
     }
 }
 
-Tile.prototype.render = function(context, mapX, mapY) {
-    mapX = mapX ? mapX : this.service.map.x;
-    mapY = mapY ? mapY : this.service.map.y;
+Tile.prototype.render = function(context, rX, rY) {
+    // Do not render if tile has no image
+    if (this.image === undefined) {
+        // console.log("no image!");
+
+        return;
+    }
+
+    // mapX = mapX ? mapX : this.service.map.x;
+    // mapY = mapY ? mapY : this.service.map.y;
+
+    rX = rX ? rX : 0;
+    rY = rY ? rY : 0;
 
     let xInImage = this.spriteCol * this.tileWidth + this.spriteOffset;
     let yInImage = this.spriteRow * this.tileHeight;
-
-    let renderX = this.renderCol ? this.renderCol * 32 : this.renderX;
-    let renderY = this.renderRow ? this.renderRow * 32 : this.renderY;
 
     context.save();
 
     context.globalAlpha = this.alpha;
 
     context.drawImage(
-        this.image ? this.image : this.placeholderImage,
+        // this.image ? this.image : this.placeholderImage,
+        this.image,
         xInImage,
         yInImage,
         this.tileWidth,
         this.tileHeight,
-        mapX + renderX,
-        mapY + renderY,
+        // mapX + this.renderX,
+        // mapY + this.renderY,
+        rX + this.renderX,
+        rY + this.renderY,
         this.renderWidth,
         this.renderHeight
     );
@@ -1827,6 +1630,162 @@ module.exports=[
             "src": "img/monsters/haunter_back.png"
         },
         "crySrc": "audio/monster/093Cry.wav"
+    }
+]
+
+},{}],13:[function(require,module,exports){
+module.exports=[
+    {
+        "name": "playerWalk",
+        "src": "img/character7_walking.png",
+        "tileWidth": 32,
+        "tileHeight": 48,
+        "spriteWidth": 32,
+        "spriteHeight": 192,
+        "numberOfFrames": 4,
+        "updateFrequency": 7
+    },
+    {
+        "name": "playerWater",
+        "src": "img/character_water.png",
+        "tileWidth": 64,
+        "tileHeight": 64,
+        "spriteWidth": 64,
+        "spriteHeight": 256,
+        "numberOfFrames": 4,
+        "updateFrequency": 7
+    },
+    {
+        "name": "playerGrass",
+        "src": "img/character7_grass.png",
+        "tileWidth": 32,
+        "tileHeight": 48,
+        "spriteWidth": 32,
+        "spriteHeight": 192,
+        "numberOfFrames": 4,
+        "updateFrequency": 7
+    },
+    {
+        "name": "sea",
+        "src": "img/Sea.png",
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "spriteWidth": 96,
+        "spriteHeight": 128,
+        "numberOfFrames": 8,
+        "updateFrequency": 7
+    }
+]
+
+},{}],14:[function(require,module,exports){
+module.exports=[
+    {
+        "name": "map1layer1",
+        "src": "img/map1layer1.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "map1layer2",
+        "src": "img/map1layer2.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "house1layer1",
+        "src": "img/house1layer1.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "house1layer2",
+        "src": "img/house1layer2.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "battleFightbtn",
+        "src": "img/battle/fightbtn.png",
+        "tileWidth": 130,
+        "tileHeight": 46,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battleBagbtn",
+        "src": "img/battle/bagbtn.png",
+        "tileWidth": 130,
+        "tileHeight": 46,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battlePokemonbtn",
+        "src": "img/battle/pokemonbtn.png",
+        "tileWidth": 130,
+        "tileHeight": 46,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battleRunbtn",
+        "src": "img/battle/runbtn.png",
+        "tileWidth": 130,
+        "tileHeight": 46,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battleBottombar",
+        "src": "img/battle/bottombar.png",
+        "tileWidth": 512,
+        "tileHeight": 96
+    },
+    {
+        "name": "battleBall",
+        "src": "img/battle/ball.png",
+        "tileWidth": 32,
+        "tileHeight": 32,
+        "numberOfFrames": 4,
+        "updateFrequency": 3
+    },
+    {
+        "name": "battleOpponentbase",
+        "src": "img/battle/enemybaseFieldGrassEve.png",
+        "tileWidth": 256,
+        "tileHeight": 128
+    },
+    {
+        "name": "battlePlayerbase",
+        "src": "img/battle/playerbaseFieldGrassEve.png",
+        "tileWidth": 408,
+        "tileHeight": 64
+    },
+    {
+        "name": "battlePlayer",
+        "src": "img/battle/player_back.png",
+        "tileWidth": 128,
+        "tileHeight": 128,
+        "numberOfFrames": 5,
+        "updateFrequency": 5,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battleBgForestEve",
+        "src": "img/battle/battlebgForestEve.png",
+        "tileWidth": 512,
+        "tileHeight": 288
+    },
+    {
+        "name": "flash",
+        "src": "img/battle/flash.png",
+        "tileWidth": 1024,
+        "tileHeight": 768
     }
 ]
 

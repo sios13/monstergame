@@ -22,5 +22,89 @@
         "src": "img/house1layer2.png",
         "tileWidth": 3200,
         "tileHeight": 3200
+    },
+    {
+        "name": "battleFightbtn",
+        "src": "img/battle/fightbtn.png",
+        "tileWidth": 130,
+        "tileHeight": 46,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battleBagbtn",
+        "src": "img/battle/bagbtn.png",
+        "tileWidth": 130,
+        "tileHeight": 46,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battlePokemonbtn",
+        "src": "img/battle/pokemonbtn.png",
+        "tileWidth": 130,
+        "tileHeight": 46,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battleRunbtn",
+        "src": "img/battle/runbtn.png",
+        "tileWidth": 130,
+        "tileHeight": 46,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battleBottombar",
+        "src": "img/battle/bottombar.png",
+        "tileWidth": 512,
+        "tileHeight": 96
+    },
+    {
+        "name": "battleBall",
+        "src": "img/battle/ball.png",
+        "tileWidth": 32,
+        "tileHeight": 32,
+        "numberOfFrames": 4,
+        "updateFrequency": 3
+    },
+    {
+        "name": "battleOpponentbase",
+        "src": "img/battle/enemybaseFieldGrassEve.png",
+        "tileWidth": 256,
+        "tileHeight": 128
+    },
+    {
+        "name": "battlePlayerbase",
+        "src": "img/battle/playerbaseFieldGrassEve.png",
+        "tileWidth": 408,
+        "tileHeight": 64
+    },
+    {
+        "name": "battlePlayer",
+        "src": "img/battle/player_back.png",
+        "tileWidth": 128,
+        "tileHeight": 128,
+        "numberOfFrames": 5,
+        "updateFrequency": 5,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battleBgForestEve",
+        "src": "img/battle/battlebgForestEve.png",
+        "tileWidth": 512,
+        "tileHeight": 288
+    },
+    {
+        "name": "flash",
+        "src": "img/battle/flash.png",
+        "tileWidth": 1024,
+        "tileHeight": 768
     }
 ]

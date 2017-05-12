@@ -5,11 +5,20 @@ function Loader(service, settings)
     this.service = service;
 
     this.service.resources = {};
+    this.service.resources.tiles = [];
+    this.service.resources.monsters = [];
 
-    this.service.resources.getTile = function(tilename, renderX, renderY) {
+    this.service.resources.getTile = function(tilename, renderX, renderY, renderWidth, renderHeight) {
         let tile = this.service.resources.tiles.find(tile => tile.name === tilename);
+
+        // Where to render tile
         tile.renderX = renderX;
         tile.renderY = renderY;
+
+        // Render size
+        tile.renderWidth = renderWidth;
+        tile.renderHeight = renderHeight;
+
         return tile;
     }.bind(this);
     
@@ -34,6 +43,7 @@ function Loader(service, settings)
     /**
      * Add the images to the tiles
      */
+
     this._loadImages();
 
     this._loadAudios();
@@ -59,59 +69,83 @@ Loader.prototype._loadAudios = function() {
  * Iterate all tiles and load their image srcs
  */
 Loader.prototype._loadImages = function() {
-    // List of all image srcs to ever be used in the game
-    let imageSrcs = [
-        "img/Sea.png",
-        "img/map1layer1.png",
-        "img/map1layer2.png",
-        "img/house1layer1.png",
-        "img/house1layer2.png",
-        "img/character7_walking.png",
-        "img/character_water.png",
-        "img/character7_grass.png",
-        "img/monsters/haunter_front.png"
-    ];
+    // Create a unique array of all images used in the game
+    let imagesSrc = [];
 
-    let images = [];
+    for (let i = 0; i < this.service.resources.tiles.length; i++) {
+        let tile = this.service.resources.tiles[i];
 
-    // Create image elements for all images
-    for (let i = 0; i < imageSrcs.length; i++) {
+        imagesSrc.push(tile.src);
+    }
+
+    imagesSrc = [...new Set(imagesSrc)];
+
+    // Create an image element for every src
+    for (let i = 0; i < imagesSrc.length; i++) {
+        let imageSrc = imagesSrc[i];
+
         let image = new Image();
 
+        // When the image has finished loading...
         image.addEventListener("load", function(event) {
-            let image2 = event.target;
-            // let image2 = event.path[0];
-            // Add this image to all tiles that should have this image
+            let img = event.target;
+
+            // ...add the image element to all tiles with the same src
             for (let i = 0; i < this.service.resources.tiles.length; i++) {
                 let tile = this.service.resources.tiles[i];
-                if (tile.src === image2.getAttribute("src")) {
-                    tile.image = image2;
+
+                if (tile.src === img.getAttribute("src")) {
+                    tile.image = img;
                 }
             }
         }.bind(this));
 
-        image.src = imageSrcs[i];
-
-        images.push(image);
+        image.src = imageSrc;
     }
-
-    this.service.resources.images = images;
 }
 
 Loader.prototype._createTiles = function() {
     /**
      * Sprites
+     * (Sprite has many tiles)
      */
+    // Takes a sprite and return tiles
+    let spriteToTiles = function(sprite) {
+        let tiles = [];
+
+        for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
+            for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
+                let tile = new Tile(Object.assign({}, sprite, {
+                    // placeholderImage: this.placeholderImage,
+                    name: sprite.name + "(" + x + "," + y + ")",
+                    spriteCol: x,
+                    spriteRow: y
+                }));
+                tiles.push(tile);
+            }
+        }
+
+        return tiles;
+    }.bind(this);
+
     let sprites = require("./resources/sprites.json");
 
     for (let i = 0; i < sprites.length; i++) {
-        
+        let tiles = spriteToTiles(sprites[i]);
+
+        this.service.resources.tiles.push(...tiles);
     }
 
     /**
      * Tiles
      */
     let tiles = require("./resources/tiles.json");
+
+    for (let i = 0; i < tiles.length; i++) {
+        tiles[i].placeholderImage = this.placeholderImage;
+
+        this.service.resources.tiles.push(new Tile(tiles[i]));
+    }
 
     /**
      * Monster tiles
@@ -123,110 +157,6 @@ Loader.prototype._createTiles = function() {
     }
 
     this.service.resources.monsters = monsters;
-
-    console.log(this.service.resources.monsters);
-
-    // Takes a sprite and return tiles
-    // let spriteToTiles = function(sprite) {
-    //     let tiles = [];
-
-    //     for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
-    //         for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
-    //             let tile = new Tile(Object.assign({}, sprite, {
-    //                 placeholderImage: this.placeholderImage,
-    //                 name: sprite.name + "(" + x + "," + y + ")",
-    //                 spriteCol: x,
-    //                 spriteRow: y
-    //             }));
-    //             tiles.push(tile);
-    //         }
-    //     }
-
-    //     return tiles;
-    // }.bind(this);
-
-    // /**
-    //  * Sprites
-    //  */
-    // let playerWalkingSprite = {
-    //     name: "playerWalk",
-    //     src: "img/character7_walking.png",
-    //     tileWidth: 32,
-    //     tileHeight: 48,
-    //     spriteWidth: 32,
-    //     spriteHeight: 192,
-    //     renderWidth: 32,
-    //     renderHeight: 48,
-    //     numberOfFrames: 4,
-    //     updateFrequency: 7
-    // };
-
-    // let playerWaterSprite = {
-    //     name: "playerWater",
-    //     src: "img/character_water.png",
-    //     tileWidth: 64,
-    //     tileHeight: 64,
-    //     spriteWidth: 64,
-    //     spriteHeight: 256,
-    //     renderWidth: 64,
-    //     renderHeight: 64,
-    //     numberOfFrames: 4,
-    //     updateFrequency: 7
-    // };
-
-    // let playerGrassSprite = {
-    //     name: "playerGrass",
-    //     src: "img/character7_grass.png",
-    //     tileWidth: 32,
-    //     tileHeight: 48,
-    //     spriteWidth: 32,
-    //     spriteHeight: 192,
-    //     renderWidth: 32,
-    //     renderHeight: 48,
-    //     numberOfFrames: 4,
-    //     updateFrequency: 7
-    // };
-
-    // let seaSprite = {
-    //     name: "sea",
-    //     src: "img/Sea.png",
-    //     tileWidth: 16,
-    //     tileHeight: 16,
-    //     spriteWidth: 96,
-    //     spriteHeight: 128,
-    //     renderWidth: 32,
-    //     renderHeight: 32,
-    //     numberOfFrames: 8,
-    //     updateFrequency: 7,
-    // };
-
-    // /**
-    //  * Tiles
-    //  */
-    // let map1layer1Tile = new Tile({name: "map1layer1", src: "img/map1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
-
-    // let map1layer2Tile = new Tile({name: "map1layer2", src: "img/map1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
-    
-    // let house1layer1Tile = new Tile({name: "house1layer1", src: "img/house1layer1.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
-    
-    // let house1layer2Tile = new Tile({name: "house1layer2", src: "img/house1layer2.png", placeholderImage: this.placeholderImage, tileWidth: 3200, tileHeight: 3200});
-
-    // /**
-    //  * Create tiles from sprites
-    //  * Add tiles to resources.tiles
-    //  */
-    // let tiles = [];
-
-    // tiles.push(...spriteToTiles(seaSprite));
-    // tiles.push(...spriteToTiles(playerWalkingSprite));
-    // tiles.push(...spriteToTiles(playerWaterSprite));
-    // tiles.push(...spriteToTiles(playerGrassSprite));
-    // tiles.push(map1layer1Tile);
-    // tiles.push(map1layer2Tile);
-    // tiles.push(house1layer1Tile);
-    // tiles.push(house1layer2Tile);
-
-    // this.service.resources.tiles = tiles;
 }
 
 /**
@@ -300,7 +230,7 @@ Loader.prototype.render = function()
     }
 
     context.fillStyle = "rgba(0, 0, 0, " + alpha + ")";
-    context.fillRect(0, 0, 2000, 2000);
+    context.fillRect(0, 0, this.service.loadCanvas.width, this.service.loadCanvas.height);
     context.stroke();
 
     // context.font = "26px Georgia";

@@ -3,7 +3,7 @@ function Tile(settings) {
 
     this.src = settings.src;
 
-    this.placeholderImage = settings.placeholderImage;
+    // this.placeholderImage = settings.placeholderImage;
 
     this.tileWidth = settings.tileWidth ? settings.tileWidth : 0;
     this.tileHeight = settings.tileHeight ? settings.tileHeight : 0;
@@ -26,9 +26,6 @@ function Tile(settings) {
     this.pause = settings.pause === undefined ? false : settings.pause;
 
     this.alpha = settings.alpha ? settings.alpha : 1;
-
-    // this.renderCol = settings.renderCol ? settings.renderCol : 0;
-    // this.renderRow = settings.renderRow ? settings.renderRow : 0;
 
     this.renderX = settings.renderX ? settings.renderX : 0;
     this.renderY = settings.renderY ? settings.renderY : 0;
@@ -72,28 +69,38 @@ Tile.prototype.update = function() {
     }
 }
 
-Tile.prototype.render = function(context, mapX, mapY) {
-    mapX = mapX ? mapX : this.service.map.x;
-    mapY = mapY ? mapY : this.service.map.y;
+Tile.prototype.render = function(context, rX, rY) {
+    // Do not render if tile has no image
+    if (this.image === undefined) {
+        // console.log("no image!");
+
+        return;
+    }
+
+    // mapX = mapX ? mapX : this.service.map.x;
+    // mapY = mapY ? mapY : this.service.map.y;
+
+    rX = rX ? rX : 0;
+    rY = rY ? rY : 0;
 
     let xInImage = this.spriteCol * this.tileWidth + this.spriteOffset;
     let yInImage = this.spriteRow * this.tileHeight;
-
-    // let renderX = this.renderCol ? this.renderCol * 32 : this.renderX;
-    // let renderY = this.renderRow ? this.renderRow * 32 : this.renderY;
 
     context.save();
 
     context.globalAlpha = this.alpha;
 
     context.drawImage(
-        this.image ? this.image : this.placeholderImage,
+        // this.image ? this.image : this.placeholderImage,
+        this.image,
         xInImage,
         yInImage,
         this.tileWidth,
         this.tileHeight,
-        mapX + this.renderX,
-        mapY + this.renderY,
+        // mapX + this.renderX,
+        // mapY + this.renderY,
+        rX + this.renderX,
+        rY + this.renderY,
         this.renderWidth,
         this.renderHeight
     );

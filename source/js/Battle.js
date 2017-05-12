@@ -9,8 +9,6 @@ function Battle(service, settings) {
 
     this.opponent = settings.opponent;
 
-    console.log(this.opponent);
-
     // this.screenWidth = 1024;
     // this.screenHeight = 768;
 
@@ -23,180 +21,31 @@ function Battle(service, settings) {
     //     hidden: true,
     //     nextable: false
     // });
+
+    this.flashTile = this.service.resources.getTile("flash", 0, 0, 1024, 768);
+    this.flashTile.alpha = 0;
+
+    this.backgroundTile = this.service.resources.getTile("battleBgForestEve", 0, 0, 1024, 768);
+
+    this.playerTile = this.service.resources.getTile("battlePlayer", 1024 + 170, 768 - 192 - 230, 230, 230);
+
+    this.playerbaseTile = this.service.resources.getTile("battlePlayerbase", 1024, 768 - 192 - 64, 512, 64);
+
+    this.opponentbaseTile = this.service.resources.getTile("battleOpponentbase", -512, 200, 512, 256);
+
+    this.ballTile = this.service.resources.getTile("battleBall", 0, 410, 48, 48);
+
+    this.bottombarTile = this.service.resources.getTile("battleBottombar", 0, 768 - 192, 1028, 192);
+
+    this.fightbtnTile = this.service.resources.getTile("battleFightbtn", 514, 768 - 192 + 10, 256, 92);
     
-    // this.flash = new Tile({
-    //     renderWidth: 1024,
-    //     renderHeight: 768,
-    //     tileWidth: 1024,
-    //     tileHeight: 768,
-    //     alpha: 0,
-    //     src: "img/battle/flash.png"
-    // });
-    // this.flash.alpha = 0;
+    this.bagbtnTile = this.service.resources.getTile("battleBagbtn", 770, 768 - 192 + 10, 256, 92);
 
-    // this.background = new Tile({
-    //     renderX: -10000,
-    //     renderY: 0,
-    //     renderWidth: this.screenWidth,
-    //     renderHeight: this.screenHeight,
-    //     tileWidth: 512,
-    //     tileHeight: 288,
-    //     src: "img/battle/battlebgForestEve.png"
-    // });
+    this.pokemonbtnTile = this.service.resources.getTile("battlePokemonbtn", 514, 768 - 192 + 92, 256, 92);
+    
+    this.runbtnTile = this.service.resources.getTile("battleRunbtn", 770, 768 - 192 + 92, 256, 92);
 
-    // this.player = {
-    //     name: "player",
-    //     audio: new Audio("audio/monster/130Cry.wav"),
-    //     player_tile: new Tile({
-    //         renderX: 1024 + 170,
-    //         renderY: 768 - 192 - 230,
-    //         renderWidth: 230,
-    //         renderHeight: 230,
-    //         spriteCol: 0,
-    //         spriteRow: 0,
-    //         tileWidth: 128,
-    //         tileHeight: 128,
-    //         offset: 128,
-    //         numberOfFrames: 5,
-    //         updateFrequency: 5,
-    //         src: "img/battle/player_back.png",
-    //         loop: false,
-    //         pause: true
-    //     }),
-    //     monster_tile: new Tile({
-    //         renderX: 512/2 - 350/2,
-    //         renderY: 310,
-    //         renderWidth: 350,
-    //         renderHeight: 350,
-    //         spriteCol: 0,
-    //         spriteRow: 0,
-    //         tileWidth: 108,
-    //         tileHeight: 108,
-    //         offset: 108,
-    //         numberOfFrames: 87,
-    //         updateFrequency: 1,
-    //         src: "img/battle/player_monster_shiny.png",
-    //         loop: false,
-    //         pause: true
-    //     }),
-    //     base_tile: new Tile({
-    //         renderX: 1024,
-    //         renderY: this.screenHeight - 192 - 64,
-    //         renderWidth: 512,
-    //         renderHeight: 64,
-    //         tileWidth: 408,
-    //         tileHeight: 64,
-    //         src: "img/battle/playerbaseFieldGrassEve.png"
-    //     })
-    // };
-    // this.player.monster_tile.alpha = 0;
-
-    // this.enemy = {
-    //     name: "HEJ",
-    //     audio: new Audio("audio/monster/093Cry.wav"),
-    //     monster_tile: new Tile({
-    //         renderX: 0 - 512/2 - 350/2,
-    //         renderY: 75,
-    //         renderWidth: 350,
-    //         renderHeight: 350,
-    //         spriteCol: 0,
-    //         spriteRow: 0,
-    //         tileWidth: 85,
-    //         tileHeight: 85,
-    //         offset: 85,
-    //         numberOfFrames: 25,
-    //         updateFrequency: 1,
-    //         src: "img/battle/enemy_monster.png",
-    //         loop: false,
-    //         pause: true
-    //     }),
-    //     base_tile: new Tile({
-    //         renderX: 0 - 512,
-    //         renderY: 200,
-    //         renderWidth: 512,
-    //         renderHeight: 256,
-    //         tileWidth: 256,
-    //         tileHeight: 128,
-    //         src: "img/battle/enemybaseFieldGrassEve.png"
-    //     })
-    // };
-
-    // this.ball = new Tile({
-    //     renderX: -500,
-    //     renderY: 410,
-    //     renderWidth: 48,
-    //     renderHeight: 48,
-    //     spriteCol: 0,
-    //     spriteRow: 0,
-    //     tileWidth: 32,
-    //     tileHeight: 32,
-    //     offset: 32,
-    //     numberOfFrames: 4,
-    //     updateFrequency: 3,
-    //     src: "img/battle/ball.png",
-    //     loop: true,
-    //     pause: false
-    // });
-
-    // this.bottombar = new Tile({renderX: -10000, renderY: this.screenHeight - 192, renderWidth: 1028, renderHeight: 192, tileWidth: 512, tileHeight: 96, src: "img/battle/bottombar.png"});
-
-    // // this.textbox = new Tile({renderX: -10000, renderY: this.screenHeight - 192 + 10, renderWidth: 481, renderHeight: 176, tileWidth: 244, tileHeight: 88, src: "img/battle/textbox.png"});
-
-    // this.fightbtn = new Tile({
-    //     renderX: 514,
-    //     renderY: this.screenHeight - 192 + 10,
-    //     renderWidth: 256,
-    //     renderHeight: 92,
-    //     tileWidth: 130,
-    //     tileHeight: 46,
-    //     offset: 130,
-    //     numberOfFrames: 2,
-    //     src: "img/battle/fightbtn.png",
-    //     loop: false,
-    //     pause: true
-    // });
-
-    // this.bagbtn = new Tile({
-    //     renderX: 770,
-    //     renderY: this.screenHeight - 192 + 10,
-    //     renderWidth: 256,
-    //     renderHeight: 92,
-    //     tileWidth: 130,
-    //     tileHeight: 46,
-    //     offset: 130,
-    //     numberOfFrames: 2,
-    //     src: "img/battle/bagbtn.png",
-    //     loop: false,
-    //     pause: true
-    // });
-
-    // this.pokemonbtn = new Tile({
-    //     renderX: 514,
-    //     renderY: this.screenHeight - 192 + 10 + 92 - 8,
-    //     renderWidth: 256,
-    //     renderHeight: 92,
-    //     tileWidth: 130,
-    //     tileHeight: 46,
-    //     offset: 130,
-    //     numberOfFrames: 2,
-    //     src: "img/battle/pokemonbtn.png",
-    //     loop: false,
-    //     pause: true
-    // });
-
-    // this.runbtn = new Tile({
-    //     renderX: 770,
-    //     renderY: this.screenHeight - 192 + 10 + 92 - 8,
-    //     renderWidth: 256,
-    //     renderHeight: 92,
-    //     tileWidth: 130,
-    //     tileHeight: 46,
-    //     offset: 130,
-    //     numberOfFrames: 2,
-    //     src: "img/battle/runbtn.png",
-    //     loop: false,
-    //     pause: true
-    // });
+    console.log(this.runbtnTile);
 }
 
 Battle.prototype._playIntro1 = function() {
@@ -415,7 +264,7 @@ Battle.prototype.update = function(ame) {
 Battle.prototype.render = function() {
     let context = this.service.battleContext;
 
-    this.opponent.tileFront.render(context, 100, 100);
+    this.runbtnTile.render(context);
     // this.flash.render(context);
 
     // this.background.render(context);
