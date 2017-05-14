@@ -106,5 +106,30 @@
         "src": "img/battle/flash.png",
         "tileWidth": 1024,
         "tileHeight": 768
+    },
+    {
+        "name": "conversationBg",
+        "src": "img/conversation/background_battle.png",
+        "tileWidth": 1028,
+        "tileHeight": 179
+    },
+    {
+        "name": "conversationNextbtn",
+        "src": "img/conversation/nextBtn.png",
+        "tileWidth": 120,
+        "tileHeight": 120,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "grass",
+        "src": "img/grass2.png",
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
     }
+
 ]

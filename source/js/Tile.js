@@ -1,6 +1,8 @@
 function Tile(settings) {
     this.name = settings.name ? settings.name : "tilename";
 
+    this.image = settings.image;
+
     this.src = settings.src;
 
     // this.placeholderImage = settings.placeholderImage;

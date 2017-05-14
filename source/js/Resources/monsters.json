@@ -1,18 +1,86 @@
 [
     {
+        "id": 1,
+        "name": "BULBASAUR",
+        "tileFront": {
+            "src": "img/monsters/001_bulbasaur_front.png",
+            "tileWidth": 38,
+            "tileHeight": 38,
+            "renderY": 130,
+            "renderWidth": 200,
+            "renderHeight": 200,
+            "numberOfFrames": 99,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "tileBack": {
+            "src": "img/monsters/001_bulbasaur_back.png",
+            "tileWidth": 38,
+            "tileHeight": 38,
+            "renderWidth": 100,
+            "renderHeight": 100,
+            "numberOfFrames": 99,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "crySrc": "audio/monster/001Cry.wav"
+    },
+    {
+        "id": 93,
         "name": "HAUNTER",
         "tileFront": {
-            "src": "img/monsters/haunter_front.png",
+            "src": "img/monsters/093_haunter_front.png",
             "tileWidth": 85,
             "tileHeight": 85,
+            "renderY": 80,
+            "renderWidth": 350,
+            "renderHeight": 350,
             "numberOfFrames": 25,
             "updateFrequency": 1,
             "loop": false,
             "pause": true
         },
         "tileBack": {
-            "src": "img/monsters/haunter_back.png"
+            "src": "img/monsters/093_haunter_back.png",
+            "tileWidth": 85,
+            "tileHeight": 85,
+            "renderWidth": 350,
+            "renderHeight": 350,
+            "numberOfFrames": 25,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
         },
         "crySrc": "audio/monster/093Cry.wav"
+    },
+    {
+        "id": 130,
+        "name": "GYARADOS",
+        "tileFront": {
+            "src": "img/monsters/130_gyarados_front.png",
+            "tileWidth": 102,
+            "tileHeight": 102,
+            "renderY": 60,
+            "renderWidth": 350,
+            "renderHeight": 350,
+            "numberOfFrames": 87,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "tileBack": {
+            "src": "img/monsters/130_gyarados_back.png",
+            "tileWidth": 108,
+            "tileHeight": 108,
+            "renderWidth": 350,
+            "renderHeight": 350,
+            "numberOfFrames": 87,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "crySrc": "audio/monster/130Cry.wav"
     }
 ]

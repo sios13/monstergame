@@ -3,119 +3,134 @@ const Conversation = require("./Conversation.js");
 
 function Battle(service, settings) {
     this.service = service;
-    // this.tick = -1;
+    this.tick = -1;
 
     this.state = "intro1";
 
-    this.opponent = settings.opponent;
+    this.playerMonster = this.service.resources.monsters.find( monster => monster.name === this.service.save.monsters[0].name );
+    this.playerMonster.tileBack.renderX = 86;
+    this.playerMonster.tileBack.renderY = 768 - 340 - 192 + 60;
 
-    // this.screenWidth = 1024;
-    // this.screenHeight = 768;
+    this.opponentMonster = settings.opponent;
 
-    // this.audio = new Audio("audio/pkmn-fajt.mp3");
-    // this.audio.loop = true;
-    // this.audio.play();
+    this.audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/pkmn-fajt.mp3");
+    this.audio.volume = 1;
+    this.audio.currentTime = 0;
+    this.audio.loop = true;
+    this.audio.play();
 
-    // this.conversation = new Conversation({
-    //     backgroundSrc: "img/conversation/background_battle.png",
-    //     hidden: true,
-    //     nextable: false
-    // });
+    console.log(this.audio);
+
+    this.conversation = new Conversation(service, {
+        backgroundSrc: "img/conversation/background_battle.png",
+        hidden: true,
+        nextable: false
+    });
 
     this.flashTile = this.service.resources.getTile("flash", 0, 0, 1024, 768);
     this.flashTile.alpha = 0;
 
     this.backgroundTile = this.service.resources.getTile("battleBgForestEve", 0, 0, 1024, 768);
+    this.backgroundTile.alpha = 0;
+
+    this.playerbaseTile = this.service.resources.getTile("battlePlayerbase", 1024, 768 - 192 - 64, 512, 64);
 
     this.playerTile = this.service.resources.getTile("battlePlayer", 1024 + 170, 768 - 192 - 230, 230, 230);
 
-    this.playerbaseTile = this.service.resources.getTile("battlePlayerbase", 1024, 768 - 192 - 64, 512, 64);
+    this.playerMonsterTile = this.playerMonster.tileBack;
+    this.playerMonsterTile.alpha = 0;
+
+    this.opponentMonsterTile = this.opponentMonster.tileFront;
+    this.opponentMonsterTile.renderX = 0 - 256 - this.opponentMonsterTile.renderWidth/2;
+    // this.opponentMonster.tileFront.renderY = 80;
 
     this.opponentbaseTile = this.service.resources.getTile("battleOpponentbase", -512, 200, 512, 256);
 
     this.ballTile = this.service.resources.getTile("battleBall", 0, 410, 48, 48);
+    this.ballTile.alpha = 0;
 
     this.bottombarTile = this.service.resources.getTile("battleBottombar", 0, 768 - 192, 1028, 192);
+    this.bottombarTile.alpha = 0;
 
     this.fightbtnTile = this.service.resources.getTile("battleFightbtn", 514, 768 - 192 + 10, 256, 92);
+    this.fightbtnTile.alpha = 0;
     
     this.bagbtnTile = this.service.resources.getTile("battleBagbtn", 770, 768 - 192 + 10, 256, 92);
+    this.bagbtnTile.alpha = 0;
 
     this.pokemonbtnTile = this.service.resources.getTile("battlePokemonbtn", 514, 768 - 192 + 92, 256, 92);
-    
-    this.runbtnTile = this.service.resources.getTile("battleRunbtn", 770, 768 - 192 + 92, 256, 92);
+    this.pokemonbtnTile.alpha = 0;
 
-    console.log(this.runbtnTile);
+    this.runbtnTile = this.service.resources.getTile("battleRunbtn", 770, 768 - 192 + 92, 256, 92);
+    this.runbtnTile.alpha = 0;
 }
 
 Battle.prototype._playIntro1 = function() {
     if (this.tick >= 0 && this.tick < 5) {
-        this.flash.alpha += 0.20;
+        this.flashTile.alpha += 0.20;
     }
     if (this.tick >= 5 && this.tick < 10) {
-        this.flash.alpha -= 0.20;
+        this.flashTile.alpha -= 0.20;
     }
 
     if (this.tick >= 10 && this.tick < 15) {
-        this.flash.alpha += 0.20;
+        this.flashTile.alpha += 0.20;
     }
     if (this.tick >= 15 && this.tick < 20) {
-        this.flash.alpha -= 0.20;
+        this.flashTile.alpha -= 0.20;
     }
 
     if (this.tick >= 20 && this.tick < 25) {
-        this.flash.alpha += 0.20;
+        this.flashTile.alpha += 0.20;
     }
     if (this.tick >= 25 && this.tick < 30) {
-        this.flash.alpha -= 0.20;
+        this.flashTile.alpha -= 0.20;
     }
 
     if (this.tick >= 30 && this.tick < 35) {
-        this.flash.alpha += 0.20;
+        this.flashTile.alpha += 0.20;
     }
     if (this.tick >= 35 && this.tick < 40) {
-        this.flash.alpha -= 0.20;
+        this.flashTile.alpha -= 0.20;
     }
 
     if (this.tick >= 60 && this.tick < 70) {
-        this.flash.alpha += 0.10;
+        this.flashTile.alpha += 0.10;
     }
 
     // Transition is over -> set starting positions
     if (this.tick === 105) {
-        this.background.renderX = 0;
+        this.backgroundTile.alpha = 1;
 
-        this.bottombar.renderX = 0;
+        this.bottombarTile.alpha = 1;
 
         this.conversation.hidden = false;
 
-        // this.textbox.renderX = 10;
-
-        this.fightbtn.renderX = this.screenWidth/2 - 10;
-        this.bagbtn.renderX = this.screenWidth/2 - 10 + 256;
-        this.pokemonbtn.renderX = this.screenWidth/2 - 10;
-        this.runbtn.renderX = this.screenWidth/2 - 10 + 256;
+        this.fightbtnTile.alpha = 1;
+        this.bagbtnTile.alpha = 1;
+        this.pokemonbtnTile.alpha = 1;
+        this.runbtnTile.alpha = 1;
     }
 
     if (this.tick > 105 && this.tick < 175) {
-        this.player.player_tile.renderX -= 15;
-        this.player.base_tile.renderX -= 15;
+        this.playerTile.renderX -= 15;
+        this.playerbaseTile.renderX -= 15;
 
-        this.enemy.monster_tile.renderX += 15;
-        this.enemy.base_tile.renderX += 15;
+        this.opponentMonsterTile.renderX += 15;
+        this.opponentbaseTile.renderX += 15;
     }
 
     if (this.tick === 180) {
-        this.enemy.monster_tile.pause = false;
-        this.enemy.audio.play();
+        this.opponentMonsterTile.pause = false;
+        this.opponentMonster.cry.play();
 
-        this.conversation.addText("A wild monster appeared!+");
+        this.conversation.addText("A wild " + this.opponentMonster.name + " appeared!+");
         this.conversation.nextable = true;
         this.conversation.next();
         this.conversation.addCallable(function() {
             this.tick = -1;
             this.state = "intro2";
-            this.conversation.addText("Go hehehehehe!+");
+            this.conversation.addText("Go " + this.playerMonster.name + "!+");
             this.conversation.nextable = false;
         }.bind(this));
     }
@@ -123,33 +138,34 @@ Battle.prototype._playIntro1 = function() {
 
 Battle.prototype._playIntro2 = function() {
     if (this.tick === 0) {
-        this.player.player_tile.pause = false;
+        this.playerTile.pause = false;
     }
 
     if (this.tick > 0 && this.tick < 40) {
-        this.player.player_tile.renderX -= 15;
+        this.playerTile.renderX -= 15;
     }
 
     if (this.tick === 10) {
-        this.ball.renderX = 150;
+        this.ballTile.renderX = 150;
     }
 
     if (this.tick > 10 && this.tick < 40) {
-        this.ball.renderX += 5;
-        this.ball.renderY += 2;
+        this.ballTile.alpha = 1;
+        this.ballTile.renderX += 5;
+        this.ballTile.renderY += 2;
     }
 
     if (this.tick === 40) {
-        this.player.monster_tile.pause = false;
-        this.player.monster_tile.alpha = 1;
-        this.player.audio.play();
+        this.playerMonsterTile.alpha = 1;
+        this.playerMonsterTile.pause = false;
+        this.playerMonster.cry.play();
 
-        this.ball.renderX = -500;
+        this.ballTile.alpha = 0;
     }
 
     if (this.tick === 60) {
         this.conversation.nextable = true;
-        this.conversation.addText("What will+hehehe do?");
+        this.conversation.addText("What will+" + this.playerMonster.name + " do?");
         this.conversation.addCallable(function() {
             this.conversation.nextable = false;
             this.state = "choose";
@@ -167,44 +183,44 @@ Battle.prototype._chooseMouseEvents = function() {
         }
 
         return false;
-    }
+    }.bind(this);
 
-    this.fightbtn.setFrame(0);
-    this.bagbtn.setFrame(0);
-    this.pokemonbtn.setFrame(0);
-    this.runbtn.setFrame(0);
+    this.fightbtnTile.setFrame(0);
+    this.bagbtnTile.setFrame(0);
+    this.pokemonbtnTile.setFrame(0);
+    this.runbtnTile.setFrame(0);
 
-    if (isInsideBox(this.fightbtn.renderX, this.fightbtn.renderY, this.fightbtn.renderX + this.fightbtn.renderWidth, this.fightbtn.renderY + this.fightbtn.renderHeight)) {
-        this.fightbtn.setFrame(1);
+    if (isInsideBox(this.fightbtnTile.renderX, this.fightbtnTile.renderY, this.fightbtnTile.renderX + this.fightbtnTile.renderWidth, this.fightbtnTile.renderY + this.fightbtnTile.renderHeight)) {
+        this.fightbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
             this.state = "choosefight";
 
-            this.conversation.addText("+");
+            this.conversation.addText("haha+hahaha");
             this.conversation.nextable = true;
             this.conversation.next();
             this.conversation.nextable = false;
         }
     }
 
-    if (isInsideBox(this.bagbtn.renderX, this.bagbtn.renderY, this.bagbtn.renderX + this.bagbtn.renderWidth, this.bagbtn.renderY + this.bagbtn.renderHeight)) {
-        this.bagbtn.setFrame(1);
+    if (isInsideBox(this.bagbtnTile.renderX, this.bagbtnTile.renderY, this.bagbtnTile.renderX + this.bagbtnTile.renderWidth, this.bagbtnTile.renderY + this.bagbtnTile.renderHeight)) {
+        this.bagbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
             console.log("bag");
         }
     }
 
-    if (isInsideBox(this.pokemonbtn.renderX, this.pokemonbtn.renderY, this.pokemonbtn.renderX + this.pokemonbtn.renderWidth, this.pokemonbtn.renderY + this.pokemonbtn.renderHeight)) {
-        this.pokemonbtn.setFrame(1);
+    if (isInsideBox(this.pokemonbtnTile.renderX, this.pokemonbtnTile.renderY, this.pokemonbtnTile.renderX + this.pokemonbtnTile.renderWidth, this.pokemonbtnTile.renderY + this.pokemonbtnTile.renderHeight)) {
+        this.pokemonbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
             console.log("pokemon");
         }
     }
 
-    if (isInsideBox(this.runbtn.renderX, this.runbtn.renderY, this.runbtn.renderX + this.runbtn.renderWidth, this.runbtn.renderY + this.runbtn.renderHeight)) {
-        this.runbtn.setFrame(1);
+    if (isInsideBox(this.runbtnTile.renderX, this.runbtnTile.renderY, this.runbtnTile.renderX + this.runbtnTile.renderWidth, this.runbtnTile.renderY + this.runbtnTile.renderHeight)) {
+        this.runbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
             this.state = "chooserun";
@@ -231,9 +247,46 @@ Battle.prototype._chooseFightMouseEvents = function() {
 Battle.prototype.update = function(ame) {
     this.tick += 1;
 
-    // if (this.state === "intro1") {
-    //     this._playIntro1();
-    // }
+    /** 
+     * Play a state mby... ?
+     */
+    if (this.state === "intro1") {
+        this._playIntro1();
+    }
+
+    if (this.state === "intro2") {
+        this._playIntro2();
+
+        this.ballTile.update();
+    }
+
+    if (this.state === "choose") {
+        this._chooseMouseEvents();
+    }
+
+    if (this.state === "choosefight") {
+        this._chooseFightMouseEvents();
+    }
+
+    if (this.state === "chooserun") {
+        this.service.battleCanvas.style.zIndex = 0;
+        this.service.worldCanvas.style.zIndex = 1;
+        
+        this.audio.pause();
+
+        this.service.map.audio.volume = 0;
+        this.service.playAudio(this.service.map.audio);
+
+        this.service.state = "world";
+    }
+
+    this.playerMonsterTile.update();
+
+    this.playerTile.update();
+
+    this.opponentMonsterTile.update();
+
+    this.conversation.update();
 
     // if (this.state === "intro2") {
     //     this._playIntro2();
@@ -264,7 +317,35 @@ Battle.prototype.update = function(ame) {
 Battle.prototype.render = function() {
     let context = this.service.battleContext;
 
-    this.runbtnTile.render(context);
+    this.flashTile.render(context);
+
+    this.backgroundTile.render(context);
+
+    this.opponentbaseTile.render(context);
+
+    this.opponentMonsterTile.render(context);
+
+    this.playerbaseTile.render(context);
+
+    this.playerMonsterTile.render(context);
+
+    this.playerTile.render(context);
+
+    this.ballTile.render(context);
+
+    this.bottombarTile.render(context);
+
+    this.conversation.render(context);
+
+    if (this.state === "choose") {
+        this.fightbtnTile.render(context);
+        
+        this.bagbtnTile.render(context);
+
+        this.pokemonbtnTile.render(context);
+        
+        this.runbtnTile.render(context);
+    }
     // this.flash.render(context);
 
     // this.background.render(context);

@@ -18,9 +18,10 @@ function Game() {
     /**
      * Initialize service
      */
-    this.service = {};
+    this.service = require("./InitializeService.js")();
 
-    this.service.util = require("./NiceFunctions.js");
+    // Load save file
+    this.service.save = require("./resources/savefile.json");
 
     this.service.tick = 0;
 
@@ -45,7 +46,8 @@ function Game() {
             },
             function() {
                 this.service.map.audio.volume = 0;
-                this.service.util.playAudio(this.service.map.audio);
+
+                this.service.playAudio(this.service.map.audio);
             }
         );
     });
@@ -76,10 +78,11 @@ Game.prototype.startGame = function() {
         while(this.deltaTime > this.step) {
             this.deltaTime = this.deltaTime - this.step;
             this.update();
-            this.render();
         }
 
         this.last = this.now;
+
+        this.render();
 
         requestAnimationFrame(frame.bind(this));
     }

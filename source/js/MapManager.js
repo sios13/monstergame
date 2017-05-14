@@ -12,7 +12,7 @@ function MapManager(service, {}) {
     this.newMapEvent = function(newMapName, newX, newY) {
         this.loader.load(
             function() {
-                this.service.util.pauseAudio(this.service.map.audio);
+                this.service.pauseAudio(this.service.map.audio);
 
                 this.service.coolguy.stop = true;
             },
@@ -23,7 +23,9 @@ function MapManager(service, {}) {
                 this.service.coolguy.y = newY * 32;
             },
             function() {
-                this.service.util.playAudio(this.service.map.audio);
+                this.service.map.audio.volume = 0;
+
+                this.service.playAudio(this.service.map.audio);
 
                 this.service.coolguy.stop = false;
             }
@@ -39,6 +41,9 @@ function MapManager(service, {}) {
 
         if (true) {
             this.service.state = "battle";
+
+            this.service.map.audio.pause();
+            this.service.map.audio.volume = 0;
 
             let monsters = this.service.resources.monsters;
             this.service.battle = new Battle(this.service, {opponent: monsters[this.service.tick % monsters.length]});
@@ -120,6 +125,22 @@ MapManager.prototype.createStartMap = function() {
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
     let tiles = [
+        this.service.resources.getTile("grass", 8*32, 30*29, 32, 32),
+        this.service.resources.getTile("grass", 9*32, 30*29, 32, 32),
+        this.service.resources.getTile("grass", 10*32, 30*29, 32, 32),
+        this.service.resources.getTile("grass", 11*32, 30*29, 32, 32),
+        this.service.resources.getTile("grass", 8*32, 31*29, 32, 32),
+        this.service.resources.getTile("grass", 9*32, 31*29, 32, 32),
+        this.service.resources.getTile("grass", 10*32, 31*29, 32, 32),
+        this.service.resources.getTile("grass", 11*32, 31*29, 32, 32),
+        this.service.resources.getTile("grass", 8*32, 32*29, 32, 32),
+        this.service.resources.getTile("grass", 9*32, 32*29, 32, 32),
+        this.service.resources.getTile("grass", 10*32, 32*29, 32, 32),
+        this.service.resources.getTile("grass", 11*32, 32*29, 32, 32),
+        this.service.resources.getTile("grass", 9*32, 33*29, 32, 32),
+        this.service.resources.getTile("grass", 10*32, 33*29, 32, 32),
+        this.service.resources.getTile("grass", 11*32, 33*29, 32, 32),
+
         this.service.resources.getTile("sea(0,2)", 15*32, 32*32, 32, 32),
         this.service.resources.getTile("sea(1,2)", 16*32, 32*32, 32, 32),
         this.service.resources.getTile("sea(2,2)", 17*32, 32*32, 32, 32),

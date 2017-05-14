@@ -1,6 +1,12 @@
 const Tile = require("./Tile.js");
 
-function Conversation(settings) {
+function Conversation(service, settings) {
+    this.service = service;
+
+    this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 180 - 5, 1024, 180);
+
+    this.nextbtnTile = this.service.resources.getTile("conversationNextbtn", 840, 610, 120, 120);
+
     this.tile = new Tile({
         renderX: 0,
         renderY: 583,
@@ -19,20 +25,6 @@ function Conversation(settings) {
     this.textsIndex = 0;
 
     this.callable = null;
-
-    this.nextBtn = new Tile({
-        renderX: 840,
-        renderY: 610,
-        renderWidth: 120,
-        renderHeight: 120,
-        tileWidth: 120,
-        tileHeight: 120,
-        offset: 120,
-        numberOfFrames: 2,
-        src: "img/conversation/nextBtn.png",
-        loop: false,
-        pause: true
-    });
 
     // Hides the covnversation, do not render the converation if true
     this.hidden = settings.hidden;
@@ -99,9 +91,9 @@ Conversation.prototype.update = function() {
     this._updateText();
 
     if (this.typing === true || this.nextable === false) {
-        this.nextBtn.setFrame(0);
+        this.nextbtnTile.setFrame(0);
     } else {
-        this.nextBtn.setFrame(1);
+        this.nextbtnTile.setFrame(1);
     }
 
     let x = this.service.listeners.mousePositionX;
@@ -119,9 +111,9 @@ Conversation.prototype.render = function(context) {
         return;
     }
 
-    this.tile.render(context);
+    this.backgroundTile.render(context);
 
-    this.nextBtn.render(context);
+    this.nextbtnTile.render(context);
 
     context.font = "30px 'Press Start 2P'";
     context.fillStyle = "rgba(0,0,0,0.8)";

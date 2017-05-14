@@ -4,119 +4,134 @@ const Conversation = require("./Conversation.js");
 
 function Battle(service, settings) {
     this.service = service;
-    // this.tick = -1;
+    this.tick = -1;
 
     this.state = "intro1";
 
-    this.opponent = settings.opponent;
+    this.playerMonster = this.service.resources.monsters.find( monster => monster.name === this.service.save.monsters[0].name );
+    this.playerMonster.tileBack.renderX = 86;
+    this.playerMonster.tileBack.renderY = 768 - 340 - 192 + 60;
 
-    // this.screenWidth = 1024;
-    // this.screenHeight = 768;
+    this.opponentMonster = settings.opponent;
 
-    // this.audio = new Audio("audio/pkmn-fajt.mp3");
-    // this.audio.loop = true;
-    // this.audio.play();
+    this.audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/pkmn-fajt.mp3");
+    this.audio.volume = 1;
+    this.audio.currentTime = 0;
+    this.audio.loop = true;
+    this.audio.play();
 
-    // this.conversation = new Conversation({
-    //     backgroundSrc: "img/conversation/background_battle.png",
-    //     hidden: true,
-    //     nextable: false
-    // });
+    console.log(this.audio);
+
+    this.conversation = new Conversation(service, {
+        backgroundSrc: "img/conversation/background_battle.png",
+        hidden: true,
+        nextable: false
+    });
 
     this.flashTile = this.service.resources.getTile("flash", 0, 0, 1024, 768);
     this.flashTile.alpha = 0;
 
     this.backgroundTile = this.service.resources.getTile("battleBgForestEve", 0, 0, 1024, 768);
+    this.backgroundTile.alpha = 0;
+
+    this.playerbaseTile = this.service.resources.getTile("battlePlayerbase", 1024, 768 - 192 - 64, 512, 64);
 
     this.playerTile = this.service.resources.getTile("battlePlayer", 1024 + 170, 768 - 192 - 230, 230, 230);
 
-    this.playerbaseTile = this.service.resources.getTile("battlePlayerbase", 1024, 768 - 192 - 64, 512, 64);
+    this.playerMonsterTile = this.playerMonster.tileBack;
+    this.playerMonsterTile.alpha = 0;
+
+    this.opponentMonsterTile = this.opponentMonster.tileFront;
+    this.opponentMonsterTile.renderX = 0 - 256 - this.opponentMonsterTile.renderWidth/2;
+    // this.opponentMonster.tileFront.renderY = 80;
 
     this.opponentbaseTile = this.service.resources.getTile("battleOpponentbase", -512, 200, 512, 256);
 
     this.ballTile = this.service.resources.getTile("battleBall", 0, 410, 48, 48);
+    this.ballTile.alpha = 0;
 
     this.bottombarTile = this.service.resources.getTile("battleBottombar", 0, 768 - 192, 1028, 192);
+    this.bottombarTile.alpha = 0;
 
     this.fightbtnTile = this.service.resources.getTile("battleFightbtn", 514, 768 - 192 + 10, 256, 92);
+    this.fightbtnTile.alpha = 0;
     
     this.bagbtnTile = this.service.resources.getTile("battleBagbtn", 770, 768 - 192 + 10, 256, 92);
+    this.bagbtnTile.alpha = 0;
 
     this.pokemonbtnTile = this.service.resources.getTile("battlePokemonbtn", 514, 768 - 192 + 92, 256, 92);
-    
-    this.runbtnTile = this.service.resources.getTile("battleRunbtn", 770, 768 - 192 + 92, 256, 92);
+    this.pokemonbtnTile.alpha = 0;
 
-    console.log(this.runbtnTile);
+    this.runbtnTile = this.service.resources.getTile("battleRunbtn", 770, 768 - 192 + 92, 256, 92);
+    this.runbtnTile.alpha = 0;
 }
 
 Battle.prototype._playIntro1 = function() {
     if (this.tick >= 0 && this.tick < 5) {
-        this.flash.alpha += 0.20;
+        this.flashTile.alpha += 0.20;
     }
     if (this.tick >= 5 && this.tick < 10) {
-        this.flash.alpha -= 0.20;
+        this.flashTile.alpha -= 0.20;
     }
 
     if (this.tick >= 10 && this.tick < 15) {
-        this.flash.alpha += 0.20;
+        this.flashTile.alpha += 0.20;
     }
     if (this.tick >= 15 && this.tick < 20) {
-        this.flash.alpha -= 0.20;
+        this.flashTile.alpha -= 0.20;
     }
 
     if (this.tick >= 20 && this.tick < 25) {
-        this.flash.alpha += 0.20;
+        this.flashTile.alpha += 0.20;
     }
     if (this.tick >= 25 && this.tick < 30) {
-        this.flash.alpha -= 0.20;
+        this.flashTile.alpha -= 0.20;
     }
 
     if (this.tick >= 30 && this.tick < 35) {
-        this.flash.alpha += 0.20;
+        this.flashTile.alpha += 0.20;
     }
     if (this.tick >= 35 && this.tick < 40) {
-        this.flash.alpha -= 0.20;
+        this.flashTile.alpha -= 0.20;
     }
 
     if (this.tick >= 60 && this.tick < 70) {
-        this.flash.alpha += 0.10;
+        this.flashTile.alpha += 0.10;
     }
 
     // Transition is over -> set starting positions
     if (this.tick === 105) {
-        this.background.renderX = 0;
+        this.backgroundTile.alpha = 1;
 
-        this.bottombar.renderX = 0;
+        this.bottombarTile.alpha = 1;
 
         this.conversation.hidden = false;
 
-        // this.textbox.renderX = 10;
-
-        this.fightbtn.renderX = this.screenWidth/2 - 10;
-        this.bagbtn.renderX = this.screenWidth/2 - 10 + 256;
-        this.pokemonbtn.renderX = this.screenWidth/2 - 10;
-        this.runbtn.renderX = this.screenWidth/2 - 10 + 256;
+        this.fightbtnTile.alpha = 1;
+        this.bagbtnTile.alpha = 1;
+        this.pokemonbtnTile.alpha = 1;
+        this.runbtnTile.alpha = 1;
     }
 
     if (this.tick > 105 && this.tick < 175) {
-        this.player.player_tile.renderX -= 15;
-        this.player.base_tile.renderX -= 15;
+        this.playerTile.renderX -= 15;
+        this.playerbaseTile.renderX -= 15;
 
-        this.enemy.monster_tile.renderX += 15;
-        this.enemy.base_tile.renderX += 15;
+        this.opponentMonsterTile.renderX += 15;
+        this.opponentbaseTile.renderX += 15;
     }
 
     if (this.tick === 180) {
-        this.enemy.monster_tile.pause = false;
-        this.enemy.audio.play();
+        this.opponentMonsterTile.pause = false;
+        this.opponentMonster.cry.play();
 
-        this.conversation.addText("A wild monster appeared!+");
+        this.conversation.addText("A wild " + this.opponentMonster.name + " appeared!+");
         this.conversation.nextable = true;
         this.conversation.next();
         this.conversation.addCallable(function() {
             this.tick = -1;
             this.state = "intro2";
-            this.conversation.addText("Go hehehehehe!+");
+            this.conversation.addText("Go " + this.playerMonster.name + "!+");
             this.conversation.nextable = false;
         }.bind(this));
     }
@@ -124,33 +139,34 @@ Battle.prototype._playIntro1 = function() {
 
 Battle.prototype._playIntro2 = function() {
     if (this.tick === 0) {
-        this.player.player_tile.pause = false;
+        this.playerTile.pause = false;
     }
 
     if (this.tick > 0 && this.tick < 40) {
-        this.player.player_tile.renderX -= 15;
+        this.playerTile.renderX -= 15;
     }
 
     if (this.tick === 10) {
-        this.ball.renderX = 150;
+        this.ballTile.renderX = 150;
     }
 
     if (this.tick > 10 && this.tick < 40) {
-        this.ball.renderX += 5;
-        this.ball.renderY += 2;
+        this.ballTile.alpha = 1;
+        this.ballTile.renderX += 5;
+        this.ballTile.renderY += 2;
     }
 
     if (this.tick === 40) {
-        this.player.monster_tile.pause = false;
-        this.player.monster_tile.alpha = 1;
-        this.player.audio.play();
+        this.playerMonsterTile.alpha = 1;
+        this.playerMonsterTile.pause = false;
+        this.playerMonster.cry.play();
 
-        this.ball.renderX = -500;
+        this.ballTile.alpha = 0;
     }
 
     if (this.tick === 60) {
         this.conversation.nextable = true;
-        this.conversation.addText("What will+hehehe do?");
+        this.conversation.addText("What will+" + this.playerMonster.name + " do?");
         this.conversation.addCallable(function() {
             this.conversation.nextable = false;
             this.state = "choose";
@@ -168,44 +184,44 @@ Battle.prototype._chooseMouseEvents = function() {
         }
 
         return false;
-    }
+    }.bind(this);
 
-    this.fightbtn.setFrame(0);
-    this.bagbtn.setFrame(0);
-    this.pokemonbtn.setFrame(0);
-    this.runbtn.setFrame(0);
+    this.fightbtnTile.setFrame(0);
+    this.bagbtnTile.setFrame(0);
+    this.pokemonbtnTile.setFrame(0);
+    this.runbtnTile.setFrame(0);
 
-    if (isInsideBox(this.fightbtn.renderX, this.fightbtn.renderY, this.fightbtn.renderX + this.fightbtn.renderWidth, this.fightbtn.renderY + this.fightbtn.renderHeight)) {
-        this.fightbtn.setFrame(1);
+    if (isInsideBox(this.fightbtnTile.renderX, this.fightbtnTile.renderY, this.fightbtnTile.renderX + this.fightbtnTile.renderWidth, this.fightbtnTile.renderY + this.fightbtnTile.renderHeight)) {
+        this.fightbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
             this.state = "choosefight";
 
-            this.conversation.addText("+");
+            this.conversation.addText("haha+hahaha");
             this.conversation.nextable = true;
             this.conversation.next();
             this.conversation.nextable = false;
         }
     }
 
-    if (isInsideBox(this.bagbtn.renderX, this.bagbtn.renderY, this.bagbtn.renderX + this.bagbtn.renderWidth, this.bagbtn.renderY + this.bagbtn.renderHeight)) {
-        this.bagbtn.setFrame(1);
+    if (isInsideBox(this.bagbtnTile.renderX, this.bagbtnTile.renderY, this.bagbtnTile.renderX + this.bagbtnTile.renderWidth, this.bagbtnTile.renderY + this.bagbtnTile.renderHeight)) {
+        this.bagbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
             console.log("bag");
         }
     }
 
-    if (isInsideBox(this.pokemonbtn.renderX, this.pokemonbtn.renderY, this.pokemonbtn.renderX + this.pokemonbtn.renderWidth, this.pokemonbtn.renderY + this.pokemonbtn.renderHeight)) {
-        this.pokemonbtn.setFrame(1);
+    if (isInsideBox(this.pokemonbtnTile.renderX, this.pokemonbtnTile.renderY, this.pokemonbtnTile.renderX + this.pokemonbtnTile.renderWidth, this.pokemonbtnTile.renderY + this.pokemonbtnTile.renderHeight)) {
+        this.pokemonbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
             console.log("pokemon");
         }
     }
 
-    if (isInsideBox(this.runbtn.renderX, this.runbtn.renderY, this.runbtn.renderX + this.runbtn.renderWidth, this.runbtn.renderY + this.runbtn.renderHeight)) {
-        this.runbtn.setFrame(1);
+    if (isInsideBox(this.runbtnTile.renderX, this.runbtnTile.renderY, this.runbtnTile.renderX + this.runbtnTile.renderWidth, this.runbtnTile.renderY + this.runbtnTile.renderHeight)) {
+        this.runbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
             this.state = "chooserun";
@@ -232,9 +248,46 @@ Battle.prototype._chooseFightMouseEvents = function() {
 Battle.prototype.update = function(ame) {
     this.tick += 1;
 
-    // if (this.state === "intro1") {
-    //     this._playIntro1();
-    // }
+    /** 
+     * Play a state mby... ?
+     */
+    if (this.state === "intro1") {
+        this._playIntro1();
+    }
+
+    if (this.state === "intro2") {
+        this._playIntro2();
+
+        this.ballTile.update();
+    }
+
+    if (this.state === "choose") {
+        this._chooseMouseEvents();
+    }
+
+    if (this.state === "choosefight") {
+        this._chooseFightMouseEvents();
+    }
+
+    if (this.state === "chooserun") {
+        this.service.battleCanvas.style.zIndex = 0;
+        this.service.worldCanvas.style.zIndex = 1;
+        
+        this.audio.pause();
+
+        this.service.map.audio.volume = 0;
+        this.service.playAudio(this.service.map.audio);
+
+        this.service.state = "world";
+    }
+
+    this.playerMonsterTile.update();
+
+    this.playerTile.update();
+
+    this.opponentMonsterTile.update();
+
+    this.conversation.update();
 
     // if (this.state === "intro2") {
     //     this._playIntro2();
@@ -265,7 +318,35 @@ Battle.prototype.update = function(ame) {
 Battle.prototype.render = function() {
     let context = this.service.battleContext;
 
-    this.runbtnTile.render(context);
+    this.flashTile.render(context);
+
+    this.backgroundTile.render(context);
+
+    this.opponentbaseTile.render(context);
+
+    this.opponentMonsterTile.render(context);
+
+    this.playerbaseTile.render(context);
+
+    this.playerMonsterTile.render(context);
+
+    this.playerTile.render(context);
+
+    this.ballTile.render(context);
+
+    this.bottombarTile.render(context);
+
+    this.conversation.render(context);
+
+    if (this.state === "choose") {
+        this.fightbtnTile.render(context);
+        
+        this.bagbtnTile.render(context);
+
+        this.pokemonbtnTile.render(context);
+        
+        this.runbtnTile.render(context);
+    }
     // this.flash.render(context);
 
     // this.background.render(context);
@@ -302,7 +383,13 @@ module.exports = Battle;
 },{"./Conversation.js":2,"./Tile.js":9}],2:[function(require,module,exports){
 const Tile = require("./Tile.js");
 
-function Conversation(settings) {
+function Conversation(service, settings) {
+    this.service = service;
+
+    this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 180 - 5, 1024, 180);
+
+    this.nextbtnTile = this.service.resources.getTile("conversationNextbtn", 840, 610, 120, 120);
+
     this.tile = new Tile({
         renderX: 0,
         renderY: 583,
@@ -321,20 +408,6 @@ function Conversation(settings) {
     this.textsIndex = 0;
 
     this.callable = null;
-
-    this.nextBtn = new Tile({
-        renderX: 840,
-        renderY: 610,
-        renderWidth: 120,
-        renderHeight: 120,
-        tileWidth: 120,
-        tileHeight: 120,
-        offset: 120,
-        numberOfFrames: 2,
-        src: "img/conversation/nextBtn.png",
-        loop: false,
-        pause: true
-    });
 
     // Hides the covnversation, do not render the converation if true
     this.hidden = settings.hidden;
@@ -401,9 +474,9 @@ Conversation.prototype.update = function() {
     this._updateText();
 
     if (this.typing === true || this.nextable === false) {
-        this.nextBtn.setFrame(0);
+        this.nextbtnTile.setFrame(0);
     } else {
-        this.nextBtn.setFrame(1);
+        this.nextbtnTile.setFrame(1);
     }
 
     let x = this.service.listeners.mousePositionX;
@@ -421,9 +494,9 @@ Conversation.prototype.render = function(context) {
         return;
     }
 
-    this.tile.render(context);
+    this.backgroundTile.render(context);
 
-    this.nextBtn.render(context);
+    this.nextbtnTile.render(context);
 
     context.font = "30px 'Press Start 2P'";
     context.fillStyle = "rgba(0,0,0,0.8)";
@@ -676,9 +749,10 @@ function Game() {
     /**
      * Initialize service
      */
-    this.service = {};
+    this.service = require("./InitializeService.js")();
 
-    this.service.util = require("./NiceFunctions.js");
+    // Load save file
+    this.service.save = require("./resources/savefile.json");
 
     this.service.tick = 0;
 
@@ -703,7 +777,8 @@ function Game() {
             },
             function() {
                 this.service.map.audio.volume = 0;
-                this.service.util.playAudio(this.service.map.audio);
+
+                this.service.playAudio(this.service.map.audio);
             }
         );
     });
@@ -734,10 +809,11 @@ Game.prototype.startGame = function() {
         while(this.deltaTime > this.step) {
             this.deltaTime = this.deltaTime - this.step;
             this.update();
-            this.render();
         }
 
         this.last = this.now;
+
+        this.render();
 
         requestAnimationFrame(frame.bind(this));
     }
@@ -820,7 +896,47 @@ Game.prototype.checkEvents = function() {
 
 module.exports = Game;
 
-},{"./Battle.js":1,"./Entity.js":3,"./Loader.js":5,"./MapManager.js":7,"./NiceFunctions.js":8,"./listeners.js":11}],5:[function(require,module,exports){
+},{"./Battle.js":1,"./Entity.js":3,"./InitializeService.js":5,"./Loader.js":6,"./MapManager.js":8,"./listeners.js":11,"./resources/savefile.json":13}],5:[function(require,module,exports){
+module.exports = function() {
+    let service = {};
+
+    // Add some nice functions to the service
+    service.pauseAudio = function(audio) {
+        let fadeAudio = setInterval(function() {
+            if (audio.volume <= 0.010) {
+                audio.volume = 0;
+
+                audio.pause();
+
+                clearInterval(fadeAudio);
+
+                return;
+            }
+
+            audio.volume -= 0.010;
+        }, 10);
+    }
+
+    service.playAudio = function(audio) {
+        audio.play();
+
+        let fadeAudio = setInterval(function() {
+            if (audio.volume >= 0.990) {
+                audio.volume = 1;
+
+                clearInterval(fadeAudio);
+
+                return;
+            }
+
+            audio.volume += 0.010;
+        }, 30);
+    }
+
+    return service;
+};
+
+},{}],6:[function(require,module,exports){
 const Tile = require("./Tile.js");
 
 function Loader(service, settings)
@@ -832,31 +948,44 @@ function Loader(service, settings)
     this.service.resources.monsters = [];
 
     this.service.resources.getTile = function(tilename, renderX, renderY, renderWidth, renderHeight) {
-        let tile = this.service.resources.tiles.find(tile => tile.name === tilename);
+        // Every tile returned is a copy...
+        let tileOrig = this.service.resources.tiles.find(tile => tile.name === tilename);
 
-        // Where to render tile
-        tile.renderX = renderX;
-        tile.renderY = renderY;
-
-        // Render size
-        tile.renderWidth = renderWidth;
-        tile.renderHeight = renderHeight;
+        let tile = new Tile({
+            name: tilename,
+            image: tileOrig.image,
+            renderX: renderX,
+            renderY: renderY,
+            renderWidth: renderWidth,
+            renderHeight: renderHeight,
+            tileWidth: tileOrig.tileWidth,
+            tileHeight: tileOrig.tileHeight,
+            spriteWidth: tileOrig.spriteWidth,
+            spriteHeight: tileOrig.spriteHeight,
+            spriteCol: tileOrig.spriteCol,
+            spriteRow: tileOrig.spriteRow,
+            numberOfFrames: tileOrig.numberOfFrames,
+            updateFrequency: tileOrig.updateFrequency,
+            loop: tileOrig.loop,
+            pause: tileOrig.pause,
+            alpha: tileOrig.alpha
+        });
 
         return tile;
     }.bind(this);
     
-    this.tick = 0;
-
-    this.endTick = null;
-
-    this.placeholderImage = new Image();
-    this.placeholderImage.src = "img/placeholder.png";
+    this.loadTick = 0;
 
     this.loading = false;
+
+    this.alpha = 0;
 
     this.loadCallable1 = null;
     this.loadCallable2 = null;
     this.loadCallable3 = null;
+
+    this.loadedImages = 0;
+    this.nrOfImages = 0;
 
     /**
      * Create the tiles
@@ -866,65 +995,9 @@ function Loader(service, settings)
     /**
      * Add the images to the tiles
      */
-
     this._loadImages();
 
     this._loadAudios();
-}
-
-Loader.prototype._loadAudios = function() {
-    let audiosSrc = [
-        "audio/music1.mp3",
-        "audio/music2.mp3"
-    ];
-
-    let audios = [];
-
-    for (let i = 0; i < audiosSrc.length; i++) {
-        let audio = new Audio(audiosSrc[i]);
-        audios.push(audio);
-    }
-
-    this.service.resources.audios = audios;
-}
-
-/**
- * Iterate all tiles and load their image srcs
- */
-Loader.prototype._loadImages = function() {
-    // Create a unique array of all images used in the game
-    let imagesSrc = [];
-
-    for (let i = 0; i < this.service.resources.tiles.length; i++) {
-        let tile = this.service.resources.tiles[i];
-
-        imagesSrc.push(tile.src);
-    }
-
-    imagesSrc = [...new Set(imagesSrc)];
-
-    // Create an image element for every src
-    for (let i = 0; i < imagesSrc.length; i++) {
-        let imageSrc = imagesSrc[i];
-
-        let image = new Image();
-
-        // When the image has finished loading...
-        image.addEventListener("load", function(event) {
-            let img = event.target;
-
-            // ...add the image element to all tiles with the same src
-            for (let i = 0; i < this.service.resources.tiles.length; i++) {
-                let tile = this.service.resources.tiles[i];
-
-                if (tile.src === img.getAttribute("src")) {
-                    tile.image = img;
-                }
-            }
-        }.bind(this));
-
-        image.src = imageSrc;
-    }
 }
 
 Loader.prototype._createTiles = function() {
@@ -977,9 +1050,107 @@ Loader.prototype._createTiles = function() {
 
     for (let i = 0; i < monsters.length; i++) {
         monsters[i].tileFront = new Tile(monsters[i].tileFront);
+        monsters[i].tileBack = new Tile(monsters[i].tileBack);
     }
 
     this.service.resources.monsters = monsters;
+}
+
+/**
+ * Iterate all tiles and load their image srcs
+ */
+Loader.prototype._loadImages = function() {
+    // Create a unique array of all image srcs used in the game
+    let imagesSrc = [];
+
+    for (let i = 0; i < this.service.resources.tiles.length; i++) {
+        let tile = this.service.resources.tiles[i];
+
+        imagesSrc.push(tile.src);
+    }
+
+    for (let i = 0; i < this.service.resources.monsters.length; i++) {
+        let monster = this.service.resources.monsters[i];
+
+        imagesSrc.push(monster.tileFront.src);
+        imagesSrc.push(monster.tileBack.src);
+    }
+
+    imagesSrc = [...new Set(imagesSrc)];
+
+    this.nrOfImages = imagesSrc.length;
+
+    // Create an image element for every src
+    for (let i = 0; i < imagesSrc.length; i++) {
+        let imageSrc = imagesSrc[i];
+
+        let image = new Image();
+
+        // When the image has finished loading...
+        image.addEventListener("load", function(event) {
+            this.loadedImages += 1;
+
+            let img = event.target;
+
+            // ...add the image element to all tiles with the same src
+            for (let i = 0; i < this.service.resources.tiles.length; i++) {
+                let tile = this.service.resources.tiles[i];
+
+                if (tile.src === img.getAttribute("src")) {
+                    tile.image = img;
+                }
+            }
+
+            for (let i = 0; i < this.service.resources.monsters.length; i++) {
+                let monster = this.service.resources.monsters[i];
+
+                if (monster.tileFront.src === img.getAttribute("src")) {
+                    monster.tileFront.image = img;
+                }
+
+                if (monster.tileBack.src === img.getAttribute("src")) {
+                    monster.tileBack.image = img;
+                }
+            }
+        }.bind(this));
+
+        image.src = imageSrc;
+    }
+}
+
+Loader.prototype._loadAudios = function() {
+    // Array of all audio src used in the game
+    let audiosSrc = [
+        "audio/music1.mp3",
+        "audio/music2.mp3",
+        "audio/pkmn-fajt.mp3"
+    ];
+
+    // Make an audio element for every audio src
+    let audios = [];
+
+    for (let i = 0; i < audiosSrc.length; i++) {
+        let audio = new Audio(audiosSrc[i]);
+
+        audio.setAttribute("preload", "auto");
+
+        audios.push(audio);
+    }
+
+    // Save all audios to the service
+    this.service.resources.audios = audios;
+
+    /**
+     * Monsters
+     */
+    // Iterate the monsters and create audio elements
+    for (let i = 0; i < this.service.resources.monsters.length; i++) {
+        let monster = this.service.resources.monsters[i];
+
+        if (monster.crySrc !== undefined) {
+            monster.cry = new Audio(monster.crySrc);
+        }
+    }
 }
 
 /**
@@ -989,49 +1160,85 @@ Loader.prototype.load = function(callable1, callable2, callable3)
 {
     this.service.loadCanvas.style.zIndex = 1;
 
-    this.tick = 0;
-
-    this.endTick = null;
+    this.loadTick = -1;
 
     this.loading = true;
+
+    this.alpha = 0;
 
     this.loadCallable1 = callable1;
     this.loadCallable2 = callable2;
     this.loadCallable3 = callable3;
 
-    if (this.loadCallable1) {
+    if (this.loadCallable1 !== undefined) {
         this.service.events.push(this.loadCallable1);
+
+        this.loadCallable1 = undefined;
     }
 }
 
 Loader.prototype.update = function()
 {
-    this.tick += 1;
+    this.loadTick += 1;
 
-    // Start the actual loading only if 30 ticks have passed
-    if (this.tick === 10) {
-        if (this.loadCallable2) {
-            this.service.events.push(this.loadCallable2);
+    if (this.loadTick > 10 && this.loading === false && this.alpha <= 0) {
+        this.alpha = 0;
+
+        if (this.loadCallable3 !== undefined) {
+            this.service.events.push(this.loadCallable3);
+
+            this.loadCallable3 = undefined;
         }
-
-        // this.endTick = this.tick + 10;
-        this.endTick = 10 + 10; // Black screen duration + tone duration
-    }
-
-    if (this.endTick > 0) {
-        this.endTick -= 1;
-    }
-
-    if (this.endTick === 0) {
-        this.endTick = null;
-
-        this.loading = false;
 
         this.service.loadCanvas.style.zIndex = -1;
 
-        if (this.loadCallable3) {
-            this.service.events.push(this.loadCallable3);
+        return;
+    }
+
+    if (this.loadTick < 10) {
+        this.alpha += 0.1;
+
+        return;
+    }
+
+    if (this.loadTick === 10) {
+
+        this.alpha = 2;
+
+        return;
+    }
+
+    if (this.loadTick > 10 && this.loading === true) {
+        let loading = false;
+
+        for (let i = 0; i < this.service.resources.tiles.length; i++) {
+            let tile = this.service.resources.tiles[i];
+
+            if (tile.image === undefined || tile.image.complete === false || tile.image.naturalHeight === 0) {
+                loading = true;
+
+                break;
+            }
         }
+
+        this.loading = loading;
+
+        // If all images have finished loading
+        if (this.loading === false) {
+            if (this.loadCallable2 !== undefined) {
+                this.service.events.push(this.loadCallable2);
+
+                this.loadCallable2 = undefined;
+            }
+        }
+
+        return;
+    }
+
+    if (this.loadTick > 10 && this.loading === false) {
+        this.alpha -= 0.1;
+
+        return;
     }
 }
 
@@ -1043,27 +1250,18 @@ Loader.prototype.render = function()
 
     context.beginPath();
 
-    let alpha = 1;
-    if (this.endTick > 0) {
-        alpha = this.endTick/10;
-    }
-    else if (this.tick > 0)
-    {
-        alpha = this.tick/10;
-    }
-
-    context.fillStyle = "rgba(0, 0, 0, " + alpha + ")";
+    context.fillStyle = "rgba(0, 0, 0, " + this.alpha + ")";
     context.fillRect(0, 0, this.service.loadCanvas.width, this.service.loadCanvas.height);
     context.stroke();
 
-    // context.font = "26px Georgia";
-    // context.fillStyle = "rgba(255, 255, 255, " + alpha + ")";
-    // context.fillText("Loading!", context.canvas.width/2 - 50, context.canvas.height/2 - 10);
+    context.font = "26px Georgia";
+    context.fillStyle = "rgba(255, 255, 255, " + this.alpha + ")";
+    context.fillText("" + this.loadedImages + "/" + this.nrOfImages, context.canvas.width/2 - 50, context.canvas.height/2 - 10);
 }
 
 module.exports = Loader;
 
-},{"./Tile.js":9,"./resources/monsters.json":12,"./resources/sprites.json":13,"./resources/tiles.json":14}],6:[function(require,module,exports){
+},{"./Tile.js":9,"./resources/monsters.json":12,"./resources/sprites.json":14,"./resources/tiles.json":15}],7:[function(require,module,exports){
 function Map(service, settings) {
     this.service = service;
 
@@ -1137,7 +1335,7 @@ Map.prototype.renderLayer2 = function() {
 
 module.exports = Map;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 const Map = require("./Map.js");
 const Tile = require("./Tile.js");
 const Battle = require("./Battle.js");
@@ -1152,7 +1350,7 @@ function MapManager(service, {}) {
     this.newMapEvent = function(newMapName, newX, newY) {
         this.loader.load(
             function() {
-                this.service.util.pauseAudio(this.service.map.audio);
+                this.service.pauseAudio(this.service.map.audio);
 
                 this.service.coolguy.stop = true;
             },
@@ -1163,7 +1361,9 @@ function MapManager(service, {}) {
                 this.service.coolguy.y = newY * 32;
             },
             function() {
-                this.service.util.playAudio(this.service.map.audio);
+                this.service.map.audio.volume = 0;
+
+                this.service.playAudio(this.service.map.audio);
 
                 this.service.coolguy.stop = false;
             }
@@ -1179,6 +1379,9 @@ function MapManager(service, {}) {
 
         if (true) {
             this.service.state = "battle";
+
+            this.service.map.audio.pause();
+            this.service.map.audio.volume = 0;
 
             let monsters = this.service.resources.monsters;
             this.service.battle = new Battle(this.service, {opponent: monsters[this.service.tick % monsters.length]});
@@ -1260,6 +1463,22 @@ MapManager.prototype.createStartMap = function() {
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
     let tiles = [
+        this.service.resources.getTile("grass", 8*32, 30*29, 32, 32),
+        this.service.resources.getTile("grass", 9*32, 30*29, 32, 32),
+        this.service.resources.getTile("grass", 10*32, 30*29, 32, 32),
+        this.service.resources.getTile("grass", 11*32, 30*29, 32, 32),
+        this.service.resources.getTile("grass", 8*32, 31*29, 32, 32),
+        this.service.resources.getTile("grass", 9*32, 31*29, 32, 32),
+        this.service.resources.getTile("grass", 10*32, 31*29, 32, 32),
+        this.service.resources.getTile("grass", 11*32, 31*29, 32, 32),
+        this.service.resources.getTile("grass", 8*32, 32*29, 32, 32),
+        this.service.resources.getTile("grass", 9*32, 32*29, 32, 32),
+        this.service.resources.getTile("grass", 10*32, 32*29, 32, 32),
+        this.service.resources.getTile("grass", 11*32, 32*29, 32, 32),
+        this.service.resources.getTile("grass", 9*32, 33*29, 32, 32),
+        this.service.resources.getTile("grass", 10*32, 33*29, 32, 32),
+        this.service.resources.getTile("grass", 11*32, 33*29, 32, 32),
+
         this.service.resources.getTile("sea(0,2)", 15*32, 32*32, 32, 32),
         this.service.resources.getTile("sea(1,2)", 16*32, 32*32, 32, 32),
         this.service.resources.getTile("sea(2,2)", 17*32, 32*32, 32, 32),
@@ -1404,39 +1623,11 @@ MapManager.prototype.createHouse1Map = function() {
 
 module.exports = MapManager;
 
-},{"./Battle.js":1,"./Map.js":6,"./Tile.js":9}],8:[function(require,module,exports){
-module.exports = {
-    pauseAudio: function(audio) {
-        let fadeAudio1 = setInterval(function() {
-            if (audio.volume <= 0.010) {
-                audio.pause();
-
-                clearInterval(fadeAudio1);
-
-                return;
-            }
-
-            audio.volume -= 0.010;
-        }, 10);
-    },
-    playAudio: function(audio) {
-        audio.play();
-
-        let fadeAudio2 = setInterval(function() {
-            if (audio.volume >= 0.990) {
-                clearInterval(fadeAudio2);
-
-                return;
-            }
-
-            audio.volume += 0.010;
-        }, 25);
-    }
-};
-
-},{}],9:[function(require,module,exports){
+},{"./Battle.js":1,"./Map.js":7,"./Tile.js":9}],9:[function(require,module,exports){
 function Tile(settings) {
     this.name = settings.name ? settings.name : "tilename";
+
+    this.image = settings.image;
 
     this.src = settings.src;
 
@@ -1616,24 +1807,102 @@ module.exports = {
 },{}],12:[function(require,module,exports){
 module.exports=[
     {
+        "id": 1,
+        "name": "BULBASAUR",
+        "tileFront": {
+            "src": "img/monsters/001_bulbasaur_front.png",
+            "tileWidth": 38,
+            "tileHeight": 38,
+            "renderY": 130,
+            "renderWidth": 200,
+            "renderHeight": 200,
+            "numberOfFrames": 99,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "tileBack": {
+            "src": "img/monsters/001_bulbasaur_back.png",
+            "tileWidth": 38,
+            "tileHeight": 38,
+            "renderWidth": 100,
+            "renderHeight": 100,
+            "numberOfFrames": 99,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "crySrc": "audio/monster/001Cry.wav"
+    },
+    {
+        "id": 93,
         "name": "HAUNTER",
         "tileFront": {
-            "src": "img/monsters/haunter_front.png",
+            "src": "img/monsters/093_haunter_front.png",
             "tileWidth": 85,
             "tileHeight": 85,
+            "renderY": 80,
+            "renderWidth": 350,
+            "renderHeight": 350,
             "numberOfFrames": 25,
             "updateFrequency": 1,
             "loop": false,
             "pause": true
         },
         "tileBack": {
-            "src": "img/monsters/haunter_back.png"
+            "src": "img/monsters/093_haunter_back.png",
+            "tileWidth": 85,
+            "tileHeight": 85,
+            "renderWidth": 350,
+            "renderHeight": 350,
+            "numberOfFrames": 25,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
         },
         "crySrc": "audio/monster/093Cry.wav"
+    },
+    {
+        "id": 130,
+        "name": "GYARADOS",
+        "tileFront": {
+            "src": "img/monsters/130_gyarados_front.png",
+            "tileWidth": 102,
+            "tileHeight": 102,
+            "renderY": 60,
+            "renderWidth": 350,
+            "renderHeight": 350,
+            "numberOfFrames": 87,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "tileBack": {
+            "src": "img/monsters/130_gyarados_back.png",
+            "tileWidth": 108,
+            "tileHeight": 108,
+            "renderWidth": 350,
+            "renderHeight": 350,
+            "numberOfFrames": 87,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "crySrc": "audio/monster/130Cry.wav"
     }
 ]
 
 },{}],13:[function(require,module,exports){
+module.exports={
+    "monsters": [
+        {
+            "name": "GYARADOS",
+            "level": 100
+        }
+    ]
+}
+
+},{}],14:[function(require,module,exports){
 module.exports=[
     {
         "name": "playerWalk",
@@ -1677,7 +1946,7 @@ module.exports=[
     }
 ]
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports=[
     {
         "name": "map1layer1",
@@ -1786,7 +2055,32 @@ module.exports=[
         "src": "img/battle/flash.png",
         "tileWidth": 1024,
         "tileHeight": 768
+    },
+    {
+        "name": "conversationBg",
+        "src": "img/conversation/background_battle.png",
+        "tileWidth": 1028,
+        "tileHeight": 179
+    },
+    {
+        "name": "conversationNextbtn",
+        "src": "img/conversation/nextBtn.png",
+        "tileWidth": 120,
+        "tileHeight": 120,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "grass",
+        "src": "img/grass2.png",
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
     }
+
 ]
 
 },{}]},{},[10]);
