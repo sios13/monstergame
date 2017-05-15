@@ -22,22 +22,22 @@ function Entity(service, settings) {
 
     // left, up, right, down
     this.walkTiles = [
-        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,1)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,3)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,2)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,0)")
+        this.service.resources.getTile("playerWalk(0,1)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerWalk(0,3)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerWalk(0,2)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerWalk(0,0)", 0, 0, 32, 48)
     ];
     this.grassTiles = [
-        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,1)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,3)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,2)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,0)")
+        this.service.resources.getTile("playerGrass(0,1)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerGrass(0,3)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerGrass(0,2)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerGrass(0,0)", 0, 0, 32, 48)
     ];
     this.waterTiles = [
-        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,1)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,3)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,2)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,0)")
+        this.service.resources.getTile("playerWater(0,1)", 0, 0, 64, 64),
+        this.service.resources.getTile("playerWater(0,3)", 0, 0, 64, 64),
+        this.service.resources.getTile("playerWater(0,2)", 0, 0, 64, 64),
+        this.service.resources.getTile("playerWater(0,0)", 0, 0, 64, 64)
     ];
 
     this.activeTiles = this.walkTiles;

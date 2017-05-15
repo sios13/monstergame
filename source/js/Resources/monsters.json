@@ -25,7 +25,21 @@
             "loop": false,
             "pause": true
         },
-        "crySrc": "audio/monster/001Cry.wav"
+        "crySrc": "audio/monster/001Cry.wav",
+        "moves": [
+            {
+                "name": "Tackle1"
+            },
+            {
+                "name": "Tackle2"
+            },
+            {
+                "name": "Tackle3"
+            },
+            {
+                "name": "Tackle4"
+            }
+        ]
     },
     {
         "id": 93,

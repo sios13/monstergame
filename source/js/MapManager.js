@@ -34,11 +34,6 @@ function MapManager(service, {}) {
     this.grassEvent = function() {
         this.service.coolguy.setState("grass");
 
-        // Find the tile coolguy is standing on
-        let tile = this.service.map.tiles.find(tile => tile.renderCol === this.service.coolguy.col && tile.renderRow === this.service.coolguy.row);
-
-        // tile.pause = false;
-
         if (true) {
             this.service.state = "battle";
 
@@ -118,9 +113,9 @@ MapManager.prototype.createStartMap = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    let layer1Tile = this.service.resources.tiles.find(tile => tile.name === "map1layer1");
+    let layer1Tile = this.service.resources.getTile("map1layer1", 0, 0, 3200, 3200);
 
-    let layer2Tile = this.service.resources.tiles.find(tile => tile.name === "map1layer2");
+    let layer2Tile = this.service.resources.getTile("map1layer2", 0, 0, 3200, 3200);
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
@@ -238,9 +233,9 @@ MapManager.prototype.createHouse1Map = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    let layer1Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer1");
+    let layer1Tile = this.service.resources.getTile("house1layer1", 0, 0, 3200, 3200);(tile => tile.name === "house1layer1");
 
-    let layer2Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer2");
+    let layer2Tile = this.service.resources.getTile("house1layer2", 0, 0, 3200, 3200);
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music2.mp3");
 

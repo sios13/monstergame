@@ -1,11 +1,11 @@
-function Tile(settings) {
+function Tile(service, settings) {
+    this.service = service;
+
     this.name = settings.name ? settings.name : "tilename";
 
     this.image = settings.image;
 
     this.src = settings.src;
-
-    // this.placeholderImage = settings.placeholderImage;
 
     this.tileWidth = settings.tileWidth ? settings.tileWidth : 0;
     this.tileHeight = settings.tileHeight ? settings.tileHeight : 0;
@@ -41,9 +41,40 @@ function Tile(settings) {
     this.tick = 0;
 }
 
+Tile.prototype.pointerInside = function() {
+    let x = this.service.listeners.mousePositionX;
+    let y = this.service.listeners.mousePositionY;
+
+    return x > this.renderX && y > this.renderY && x < (this.renderX + this.renderWidth) && y < (this.renderY + this.renderHeight);
+}
+
 Tile.prototype.setFrame = function(framenumber) {
     this.animationCounter = framenumber;
     this.spriteOffset = framenumber * this.spriteWidth;
+}
+
+Tile.prototype.copy = function() {
+    let tileCopy = new Tile(this.service, {
+        name: this.name,
+        image: this.image,
+        renderX: this.renderX,
+        renderY: this.renderY,
+        renderWidth: this.renderWidth,
+        renderHeight: this.renderHeight,
+        tileWidth: this.tileWidth,
+        tileHeight: this.tileHeight,
+        spriteWidth: this.spriteWidth,
+        spriteHeight: this.spriteHeight,
+        spriteCol: this.spriteCol,
+        spriteRow: this.spriteRow,
+        numberOfFrames: this.numberOfFrames,
+        updateFrequency: this.updateFrequency,
+        loop: this.loop,
+        pause: this.pause,
+        alpha: this.alpha
+    });
+
+    return tileCopy;
 }
 
 Tile.prototype.update = function() {

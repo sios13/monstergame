@@ -55,7 +55,7 @@ function Battle(service, settings) {
 
     this.fightbtnTile = this.service.resources.getTile("battleFightbtn", 514, 768 - 192 + 10, 256, 92);
     this.fightbtnTile.alpha = 0;
-    
+
     this.bagbtnTile = this.service.resources.getTile("battleBagbtn", 770, 768 - 192 + 10, 256, 92);
     this.bagbtnTile.alpha = 0;
 
@@ -64,6 +64,25 @@ function Battle(service, settings) {
 
     this.runbtnTile = this.service.resources.getTile("battleRunbtn", 770, 768 - 192 + 92, 256, 92);
     this.runbtnTile.alpha = 0;
+
+    this.attack1Tile = this.service.resources.getTile("battleAttackbtn", 0, 768 - 192, 338, 96);
+    this.attack1Tile.alpha = 1;
+
+    this.attack2Tile = this.service.resources.getTile("battleAttackbtn", 338, 768 - 192, 338, 96);
+    this.attack2Tile.alpha = 0;
+
+    this.attack3Tile = this.service.resources.getTile("battleAttackbtn", 0, 768 - 96, 338, 96);
+    this.attack3Tile.alpha = 0;
+
+    this.attack4Tile = this.service.resources.getTile("battleAttackbtn", 338, 768 - 96, 338, 96);
+    this.attack4Tile.alpha = 0;
+}
+
+Battle.prototype._normalState = function() {
+    this.fightbtnTile.setFrame(0);
+    this.bagbtnTile.setFrame(0);
+    this.pokemonbtnTile.setFrame(0);
+    this.runbtnTile.setFrame(0);
 }
 
 Battle.prototype._playIntro1 = function() {
@@ -106,11 +125,6 @@ Battle.prototype._playIntro1 = function() {
         this.bottombarTile.alpha = 1;
 
         this.conversation.hidden = false;
-
-        this.fightbtnTile.alpha = 1;
-        this.bagbtnTile.alpha = 1;
-        this.pokemonbtnTile.alpha = 1;
-        this.runbtnTile.alpha = 1;
     }
 
     if (this.tick > 105 && this.tick < 175) {
@@ -125,13 +139,13 @@ Battle.prototype._playIntro1 = function() {
         this.opponentMonsterTile.pause = false;
         this.opponentMonster.cry.play();
 
-        this.conversation.addText("A wild " + this.opponentMonster.name + " appeared!+");
+        this.conversation.addText("Wild " + this.opponentMonster.name + " appeared!+");
         this.conversation.nextable = true;
         this.conversation.next();
         this.conversation.addCallable(function() {
             this.tick = -1;
             this.state = "intro2";
-            this.conversation.addText("Go " + this.playerMonster.name + "!+");
+            this.conversation.addText("Go! " + this.playerMonster.name + "!+");
             this.conversation.nextable = false;
         }.bind(this));
     }
@@ -169,42 +183,54 @@ Battle.prototype._playIntro2 = function() {
         this.conversation.addText("What will+" + this.playerMonster.name + " do?");
         this.conversation.addCallable(function() {
             this.conversation.nextable = false;
-            this.state = "choose";
+            this._setState("choose");
         }.bind(this));
     }
 }
 
-Battle.prototype._chooseMouseEvents = function() {
-    let isInsideBox = function(x1, y1, x2, y2) {
-        let x = this.service.listeners.mousePositionX;
-        let y = this.service.listeners.mousePositionY;
+Battle.prototype._setState = function(state) {
+    if (state === "choose") {
+        this.fightbtnTile.alpha = 1;
+        this.bagbtnTile.alpha = 1;
+        this.pokemonbtnTile.alpha = 1;
+        this.runbtnTile.alpha = 1;
 
-        if (x > x1 && y > y1 && x < x2 && y < y2) {
-            return true;
-        }
+        this.state = "choose";
+    }
 
-        return false;
-    }.bind(this);
+    if (state === "chooseattack") {
+        this.conversation.hidden = true;
 
-    this.fightbtnTile.setFrame(0);
-    this.bagbtnTile.setFrame(0);
-    this.pokemonbtnTile.setFrame(0);
-    this.runbtnTile.setFrame(0);
+        this.fightbtnTile.alpha = 0;
+        this.bagbtnTile.alpha = 0;
+        this.pokemonbtnTile.alpha = 0;
+        this.runbtnTile.alpha = 0;
 
-    if (isInsideBox(this.fightbtnTile.renderX, this.fightbtnTile.renderY, this.fightbtnTile.renderX + this.fightbtnTile.renderWidth, this.fightbtnTile.renderY + this.fightbtnTile.renderHeight)) {
+        this.attack1Tile.alpha = 1;
+        this.attack2Tile.alpha = 1;
+        this.attack3Tile.alpha = 1;
+        this.attack4Tile.alpha = 1;
+
+        this.state = "chooseattack";
+    }
+}
+
+Battle.prototype._choose = function() {
+    if (this.fightbtnTile.pointerInside()) {
         this.fightbtnTile.setFrame(1);
 
-        if (this.service.listeners.click === true) {
-            this.state = "choosefight";
+        if (this.service.listeners.click) {
+            this._setState("chooseattack");
+            // this.state = "chooseattack";
 
-            this.conversation.addText("haha+hahaha");
-            this.conversation.nextable = true;
-            this.conversation.next();
-            this.conversation.nextable = false;
+            // this.conversation.addText("haha+hahaha");
+            // this.conversation.nextable = true;
+            // this.conversation.next();
+            // this.conversation.nextable = false;
         }
     }
 
-    if (isInsideBox(this.bagbtnTile.renderX, this.bagbtnTile.renderY, this.bagbtnTile.renderX + this.bagbtnTile.renderWidth, this.bagbtnTile.renderY + this.bagbtnTile.renderHeight)) {
+    if (this.bagbtnTile.pointerInside()) {
         this.bagbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
@@ -212,7 +238,7 @@ Battle.prototype._chooseMouseEvents = function() {
         }
     }
 
-    if (isInsideBox(this.pokemonbtnTile.renderX, this.pokemonbtnTile.renderY, this.pokemonbtnTile.renderX + this.pokemonbtnTile.renderWidth, this.pokemonbtnTile.renderY + this.pokemonbtnTile.renderHeight)) {
+    if (this.pokemonbtnTile.pointerInside()) {
         this.pokemonbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
@@ -220,7 +246,7 @@ Battle.prototype._chooseMouseEvents = function() {
         }
     }
 
-    if (isInsideBox(this.runbtnTile.renderX, this.runbtnTile.renderY, this.runbtnTile.renderX + this.runbtnTile.renderWidth, this.runbtnTile.renderY + this.runbtnTile.renderHeight)) {
+    if (this.runbtnTile.pointerInside()) {
         this.runbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
@@ -229,27 +255,36 @@ Battle.prototype._chooseMouseEvents = function() {
     }
 }
 
-Battle.prototype._chooseFightMouseEvents = function() {
-    let isInsideBox = function(x1, y1, x2, y2) {
-        let x = this.service.listeners.mousePositionX;
-        let y = this.service.listeners.mousePositionY;
-
-        if (x > x1 && y > y1 && x < x2 && y < y2) {
-            return true;
+Battle.prototype._chooseAttack = function() {
+    if (this.attack1Tile.pointerInside()) {
+        if (this.service.listeners.click) {
+            console.log("hej!");
         }
-
-        return false;
     }
 
-    let x = this.service.listeners.mousePositionX;
-    let y = this.service.listeners.mousePositionY;
+    // let isInsideBox = function(x1, y1, x2, y2) {
+    //     let x = this.service.listeners.mousePositionX;
+    //     let y = this.service.listeners.mousePositionY;
+
+    //     if (x > x1 && y > y1 && x < x2 && y < y2) {
+    //         return true;
+    //     }
+
+    //     return false;
+    // }
+
+    // let x = this.service.listeners.mousePositionX;
+    // let y = this.service.listeners.mousePositionY;
 }
 
-Battle.prototype.update = function(ame) {
+Battle.prototype.update = function() {
     this.tick += 1;
 
+    // normal state hehe
+    this._normalState();
+
     /** 
-     * Play a state mby... ?
+     * Play a scene mby... ?
      */
     if (this.state === "intro1") {
         this._playIntro1();
@@ -257,29 +292,34 @@ Battle.prototype.update = function(ame) {
 
     if (this.state === "intro2") {
         this._playIntro2();
-
-        this.ballTile.update();
     }
 
     if (this.state === "choose") {
-        this._chooseMouseEvents();
+        this._choose();
     }
 
-    if (this.state === "choosefight") {
-        this._chooseFightMouseEvents();
+    if (this.state === "chooseattack") {
+        this._chooseAttack();
     }
 
     if (this.state === "chooserun") {
-        this.service.battleCanvas.style.zIndex = 0;
-        this.service.worldCanvas.style.zIndex = 1;
-        
-        this.audio.pause();
+        this.service.events.push(function() {
+            this.service.battleCanvas.style.zIndex = 0;
+            this.service.worldCanvas.style.zIndex = 1;
 
-        this.service.map.audio.volume = 0;
-        this.service.playAudio(this.service.map.audio);
+            this.service.battle.audio.pause();
 
-        this.service.state = "world";
+            this.service.map.audio.volume = 0;
+            this.service.playAudio(this.service.map.audio);
+
+            this.service.state = "world";
+        });
     }
+
+    /**
+     * Update tiles
+     */
+    this.ballTile.update();
 
     this.playerMonsterTile.update();
 
@@ -288,31 +328,6 @@ Battle.prototype.update = function(ame) {
     this.opponentMonsterTile.update();
 
     this.conversation.update();
-
-    // if (this.state === "intro2") {
-    //     this._playIntro2();
-
-    //     this.ball.update();
-    // }
-
-    // if (this.state === "choose") {
-    //     this._chooseMouseEvents();
-    // }
-
-    // if (this.state === "choosefight") {
-    //     this._chooseFightMouseEvents();
-    // }
-
-    // if (this.state === "chooserun") {
-        
-    // }
-
-    // this.player.monster_tile.update();
-    // this.player.player_tile.update();
-
-    // this.enemy.monster_tile.update();
-
-    // this.conversation.update();
 }
 
 Battle.prototype.render = function() {
@@ -338,44 +353,21 @@ Battle.prototype.render = function() {
 
     this.conversation.render(context);
 
-    if (this.state === "choose") {
-        this.fightbtnTile.render(context);
-        
-        this.bagbtnTile.render(context);
+    this.fightbtnTile.render(context);
+    
+    this.bagbtnTile.render(context);
 
-        this.pokemonbtnTile.render(context);
-        
-        this.runbtnTile.render(context);
-    }
-    // this.flash.render(context);
+    this.pokemonbtnTile.render(context);
+    
+    this.runbtnTile.render(context);
 
-    // this.background.render(context);
+    this.attack1Tile.render(context);
 
-    // // Enemy
-    // this.enemy.base_tile.render(context);
-    // this.enemy.monster_tile.render(context);
+    this.attack2Tile.render(context);
 
-    // // Ball
-    // this.ball.render(context);
+    this.attack3Tile.render(context);
 
-    // // Player
-    // this.player.base_tile.render(context);
-    // this.player.player_tile.render(context);
-    // this.player.monster_tile.render(context);
-
-    // // Bottom bar
-    // this.bottombar.render(context);
-
-    // // this.textbox.render(context);
-
-    // this.conversation.render(context);
-
-    // if (this.state === "choose") {
-    //     this.fightbtn.render(context);
-    //     this.bagbtn.render(context);
-    //     this.pokemonbtn.render(context);
-    //     this.runbtn.render(context);
-    // }
+    this.attack4Tile.render(context);
 }
 
 module.exports = Battle;
@@ -389,16 +381,6 @@ function Conversation(service, settings) {
     this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 180 - 5, 1024, 180);
 
     this.nextbtnTile = this.service.resources.getTile("conversationNextbtn", 840, 610, 120, 120);
-
-    this.tile = new Tile({
-        renderX: 0,
-        renderY: 583,
-        renderWidth: 1028,
-        renderHeight: 179,
-        tileWidth: 1028,
-        tileHeight: 179,
-        src: settings.backgroundSrc,
-    });
 
     this.texts = ["+"];
 
@@ -483,7 +465,7 @@ Conversation.prototype.update = function() {
     let y = this.service.listeners.mousePositionY;
 
     // If clicked at conversation bar
-    if (this.service.listeners.click === true && x > 0 && x < 1028 && y > 576 && y < 768) {
+    if (this.service.listeners.click && this.backgroundTile.pointerInside()) {
         this.next();
     }
 }
@@ -534,22 +516,22 @@ function Entity(service, settings) {
 
     // left, up, right, down
     this.walkTiles = [
-        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,1)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,3)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,2)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWalk(0,0)")
+        this.service.resources.getTile("playerWalk(0,1)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerWalk(0,3)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerWalk(0,2)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerWalk(0,0)", 0, 0, 32, 48)
     ];
     this.grassTiles = [
-        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,1)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,3)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,2)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerGrass(0,0)")
+        this.service.resources.getTile("playerGrass(0,1)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerGrass(0,3)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerGrass(0,2)", 0, 0, 32, 48),
+        this.service.resources.getTile("playerGrass(0,0)", 0, 0, 32, 48)
     ];
     this.waterTiles = [
-        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,1)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,3)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,2)"),
-        this.service.resources.tiles.find(tile => tile.name === "playerWater(0,0)")
+        this.service.resources.getTile("playerWater(0,1)", 0, 0, 64, 64),
+        this.service.resources.getTile("playerWater(0,3)", 0, 0, 64, 64),
+        this.service.resources.getTile("playerWater(0,2)", 0, 0, 64, 64),
+        this.service.resources.getTile("playerWater(0,0)", 0, 0, 64, 64)
     ];
 
     this.activeTiles = this.walkTiles;
@@ -944,36 +926,28 @@ function Loader(service, settings)
     this.service = service;
 
     this.service.resources = {};
-    this.service.resources.tiles = [];
-    this.service.resources.monsters = [];
+    // this.service.resources.tiles = [];
+    // this.service.resources.monsters = [];
 
     this.service.resources.getTile = function(tilename, renderX, renderY, renderWidth, renderHeight) {
-        // Every tile returned is a copy...
-        let tileOrig = this.service.resources.tiles.find(tile => tile.name === tilename);
+        // Get the tile template
+        let tileOrig = this.tiles.find(tile => tile.name === tilename);
 
-        let tile = new Tile({
-            name: tilename,
-            image: tileOrig.image,
-            renderX: renderX,
-            renderY: renderY,
-            renderWidth: renderWidth,
-            renderHeight: renderHeight,
-            tileWidth: tileOrig.tileWidth,
-            tileHeight: tileOrig.tileHeight,
-            spriteWidth: tileOrig.spriteWidth,
-            spriteHeight: tileOrig.spriteHeight,
-            spriteCol: tileOrig.spriteCol,
-            spriteRow: tileOrig.spriteRow,
-            numberOfFrames: tileOrig.numberOfFrames,
-            updateFrequency: tileOrig.updateFrequency,
-            loop: tileOrig.loop,
-            pause: tileOrig.pause,
-            alpha: tileOrig.alpha
-        });
+        // Copy the template
+        let tile = tileOrig.copy();
+
+        // Add properties to the template
+        tile.service = this.service;
+
+        tile.renderX = renderX;
+        tile.renderY = renderY;
+
+        tile.renderWidth = renderWidth;
+        tile.renderHeight = renderHeight;
 
         return tile;
     }.bind(this);
-    
+
     this.loadTick = 0;
 
     this.loading = false;
@@ -986,6 +960,8 @@ function Loader(service, settings)
 
     this.loadedImages = 0;
     this.nrOfImages = 0;
+
+    this.tiles = [];
 
     /**
      * Create the tiles
@@ -1011,12 +987,14 @@ Loader.prototype._createTiles = function() {
 
         for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
             for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
-                let tile = new Tile(Object.assign({}, sprite, {
-                    // placeholderImage: this.placeholderImage,
+                let settings = Object.assign({}, sprite, {
                     name: sprite.name + "(" + x + "," + y + ")",
                     spriteCol: x,
                     spriteRow: y
-                }));
+                });
+
+                let tile = new Tile(undefined, settings);
+
                 tiles.push(tile);
             }
         }
@@ -1029,7 +1007,7 @@ Loader.prototype._createTiles = function() {
     for (let i = 0; i < sprites.length; i++) {
         let tiles = spriteToTiles(sprites[i]);
 
-        this.service.resources.tiles.push(...tiles);
+        this.tiles.push(...tiles);
     }
 
     /**
@@ -1038,9 +1016,9 @@ Loader.prototype._createTiles = function() {
     let tiles = require("./resources/tiles.json");
 
     for (let i = 0; i < tiles.length; i++) {
-        tiles[i].placeholderImage = this.placeholderImage;
+        let settings = tiles[i];
 
-        this.service.resources.tiles.push(new Tile(tiles[i]));
+        this.tiles.push(new Tile(undefined, settings));
     }
 
     /**
@@ -1049,8 +1027,8 @@ Loader.prototype._createTiles = function() {
     let monsters = require("./resources/monsters.json");
 
     for (let i = 0; i < monsters.length; i++) {
-        monsters[i].tileFront = new Tile(monsters[i].tileFront);
-        monsters[i].tileBack = new Tile(monsters[i].tileBack);
+        monsters[i].tileFront = new Tile(undefined, monsters[i].tileFront);
+        monsters[i].tileBack = new Tile(undefined, monsters[i].tileBack);
     }
 
     this.service.resources.monsters = monsters;
@@ -1063,8 +1041,8 @@ Loader.prototype._loadImages = function() {
     // Create a unique array of all image srcs used in the game
     let imagesSrc = [];
 
-    for (let i = 0; i < this.service.resources.tiles.length; i++) {
-        let tile = this.service.resources.tiles[i];
+    for (let i = 0; i < this.tiles.length; i++) {
+        let tile = this.tiles[i];
 
         imagesSrc.push(tile.src);
     }
@@ -1093,8 +1071,8 @@ Loader.prototype._loadImages = function() {
             let img = event.target;
 
             // ...add the image element to all tiles with the same src
-            for (let i = 0; i < this.service.resources.tiles.length; i++) {
-                let tile = this.service.resources.tiles[i];
+            for (let i = 0; i < this.tiles.length; i++) {
+                let tile = this.tiles[i];
 
                 if (tile.src === img.getAttribute("src")) {
                     tile.image = img;
@@ -1211,8 +1189,8 @@ Loader.prototype.update = function()
     if (this.loadTick > 10 && this.loading === true) {
         let loading = false;
 
-        for (let i = 0; i < this.service.resources.tiles.length; i++) {
-            let tile = this.service.resources.tiles[i];
+        for (let i = 0; i < this.tiles.length; i++) {
+            let tile = this.tiles[i];
 
             if (tile.image === undefined || tile.image.complete === false || tile.image.naturalHeight === 0) {
                 loading = true;
@@ -1372,11 +1350,6 @@ function MapManager(service, {}) {
     this.grassEvent = function() {
         this.service.coolguy.setState("grass");
 
-        // Find the tile coolguy is standing on
-        let tile = this.service.map.tiles.find(tile => tile.renderCol === this.service.coolguy.col && tile.renderRow === this.service.coolguy.row);
-
-        // tile.pause = false;
-
         if (true) {
             this.service.state = "battle";
 
@@ -1456,9 +1429,9 @@ MapManager.prototype.createStartMap = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    let layer1Tile = this.service.resources.tiles.find(tile => tile.name === "map1layer1");
+    let layer1Tile = this.service.resources.getTile("map1layer1", 0, 0, 3200, 3200);
 
-    let layer2Tile = this.service.resources.tiles.find(tile => tile.name === "map1layer2");
+    let layer2Tile = this.service.resources.getTile("map1layer2", 0, 0, 3200, 3200);
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
@@ -1576,9 +1549,9 @@ MapManager.prototype.createHouse1Map = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    let layer1Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer1");
+    let layer1Tile = this.service.resources.getTile("house1layer1", 0, 0, 3200, 3200);(tile => tile.name === "house1layer1");
 
-    let layer2Tile = this.service.resources.tiles.find(tile => tile.name === "house1layer2");
+    let layer2Tile = this.service.resources.getTile("house1layer2", 0, 0, 3200, 3200);
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music2.mp3");
 
@@ -1624,14 +1597,14 @@ MapManager.prototype.createHouse1Map = function() {
 module.exports = MapManager;
 
 },{"./Battle.js":1,"./Map.js":7,"./Tile.js":9}],9:[function(require,module,exports){
-function Tile(settings) {
+function Tile(service, settings) {
+    this.service = service;
+
     this.name = settings.name ? settings.name : "tilename";
 
     this.image = settings.image;
 
     this.src = settings.src;
-
-    // this.placeholderImage = settings.placeholderImage;
 
     this.tileWidth = settings.tileWidth ? settings.tileWidth : 0;
     this.tileHeight = settings.tileHeight ? settings.tileHeight : 0;
@@ -1667,9 +1640,40 @@ function Tile(settings) {
     this.tick = 0;
 }
 
+Tile.prototype.pointerInside = function() {
+    let x = this.service.listeners.mousePositionX;
+    let y = this.service.listeners.mousePositionY;
+
+    return x > this.renderX && y > this.renderY && x < (this.renderX + this.renderWidth) && y < (this.renderY + this.renderHeight);
+}
+
 Tile.prototype.setFrame = function(framenumber) {
     this.animationCounter = framenumber;
     this.spriteOffset = framenumber * this.spriteWidth;
+}
+
+Tile.prototype.copy = function() {
+    let tileCopy = new Tile(this.service, {
+        name: this.name,
+        image: this.image,
+        renderX: this.renderX,
+        renderY: this.renderY,
+        renderWidth: this.renderWidth,
+        renderHeight: this.renderHeight,
+        tileWidth: this.tileWidth,
+        tileHeight: this.tileHeight,
+        spriteWidth: this.spriteWidth,
+        spriteHeight: this.spriteHeight,
+        spriteCol: this.spriteCol,
+        spriteRow: this.spriteRow,
+        numberOfFrames: this.numberOfFrames,
+        updateFrequency: this.updateFrequency,
+        loop: this.loop,
+        pause: this.pause,
+        alpha: this.alpha
+    });
+
+    return tileCopy;
 }
 
 Tile.prototype.update = function() {
@@ -1771,6 +1775,7 @@ function addListeners(service) {
     service.battleCanvas.addEventListener("mousedown", mousedownEvent);
 
     let mousemoveEvent = function(event) {
+        event.preventDefault();
         service.listeners.mousemove = true;
 
         let canvasRect = service.worldCanvas.getBoundingClientRect();
@@ -1788,20 +1793,8 @@ function addListeners(service) {
     });
 }
 
-// function isInsideBox(x1, y1, x2, y2) {
-//     let x = game.listeners.mousePositionX;
-//     let y = game.listeners.mousePositionY;
-
-//     if (x > x1 && y > y1 && x < x2 && y < y2) {
-//         return true;
-//     }
-
-//     return false;
-// }
-
 module.exports = {
-    addListeners: addListeners,
-    // isInsideBox: isInsideBox
+    addListeners: addListeners
 }
 
 },{}],12:[function(require,module,exports){
@@ -1832,7 +1825,21 @@ module.exports=[
             "loop": false,
             "pause": true
         },
-        "crySrc": "audio/monster/001Cry.wav"
+        "crySrc": "audio/monster/001Cry.wav",
+        "moves": [
+            {
+                "name": "Tackle1"
+            },
+            {
+                "name": "Tackle2"
+            },
+            {
+                "name": "Tackle3"
+            },
+            {
+                "name": "Tackle4"
+            }
+        ]
     },
     {
         "id": 93,
@@ -2079,8 +2086,16 @@ module.exports=[
         "numberOfFrames": 2,
         "loop": false,
         "pause": true
+    },
+    {
+        "name": "battleAttackbtn",
+        "src": "img/grass2.png",
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
     }
-
 ]
 
 },{}]},{},[10]);

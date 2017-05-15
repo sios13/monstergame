@@ -5,36 +5,28 @@ function Loader(service, settings)
     this.service = service;
 
     this.service.resources = {};
-    this.service.resources.tiles = [];
-    this.service.resources.monsters = [];
+    // this.service.resources.tiles = [];
+    // this.service.resources.monsters = [];
 
     this.service.resources.getTile = function(tilename, renderX, renderY, renderWidth, renderHeight) {
-        // Every tile returned is a copy...
-        let tileOrig = this.service.resources.tiles.find(tile => tile.name === tilename);
+        // Get the tile template
+        let tileOrig = this.tiles.find(tile => tile.name === tilename);
 
-        let tile = new Tile({
-            name: tilename,
-            image: tileOrig.image,
-            renderX: renderX,
-            renderY: renderY,
-            renderWidth: renderWidth,
-            renderHeight: renderHeight,
-            tileWidth: tileOrig.tileWidth,
-            tileHeight: tileOrig.tileHeight,
-            spriteWidth: tileOrig.spriteWidth,
-            spriteHeight: tileOrig.spriteHeight,
-            spriteCol: tileOrig.spriteCol,
-            spriteRow: tileOrig.spriteRow,
-            numberOfFrames: tileOrig.numberOfFrames,
-            updateFrequency: tileOrig.updateFrequency,
-            loop: tileOrig.loop,
-            pause: tileOrig.pause,
-            alpha: tileOrig.alpha
-        });
+        // Copy the template
+        let tile = tileOrig.copy();
+
+        // Add properties to the template
+        tile.service = this.service;
+
+        tile.renderX = renderX;
+        tile.renderY = renderY;
+
+        tile.renderWidth = renderWidth;
+        tile.renderHeight = renderHeight;
 
         return tile;
     }.bind(this);
-    
+
     this.loadTick = 0;
 
     this.loading = false;
@@ -47,6 +39,8 @@ function Loader(service, settings)
 
     this.loadedImages = 0;
     this.nrOfImages = 0;
+
+    this.tiles = [];
 
     /**
      * Create the tiles
@@ -72,12 +66,14 @@ Loader.prototype._createTiles = function() {
 
         for (let y = 0; y < sprite.spriteHeight/sprite.tileHeight; y++) {
             for (let x = 0; x < sprite.spriteWidth/sprite.tileWidth; x++) {
-                let tile = new Tile(Object.assign({}, sprite, {
-                    // placeholderImage: this.placeholderImage,
+                let settings = Object.assign({}, sprite, {
                     name: sprite.name + "(" + x + "," + y + ")",
                     spriteCol: x,
                     spriteRow: y
-                }));
+                });
+
+                let tile = new Tile(undefined, settings);
+
                 tiles.push(tile);
             }
         }
@@ -90,7 +86,7 @@ Loader.prototype._createTiles = function() {
     for (let i = 0; i < sprites.length; i++) {
         let tiles = spriteToTiles(sprites[i]);
 
-        this.service.resources.tiles.push(...tiles);
+        this.tiles.push(...tiles);
     }
 
     /**
@@ -99,9 +95,9 @@ Loader.prototype._createTiles = function() {
     let tiles = require("./resources/tiles.json");
 
     for (let i = 0; i < tiles.length; i++) {
-        tiles[i].placeholderImage = this.placeholderImage;
+        let settings = tiles[i];
 
-        this.service.resources.tiles.push(new Tile(tiles[i]));
+        this.tiles.push(new Tile(undefined, settings));
     }
 
     /**
@@ -110,8 +106,8 @@ Loader.prototype._createTiles = function() {
     let monsters = require("./resources/monsters.json");
 
     for (let i = 0; i < monsters.length; i++) {
-        monsters[i].tileFront = new Tile(monsters[i].tileFront);
-        monsters[i].tileBack = new Tile(monsters[i].tileBack);
+        monsters[i].tileFront = new Tile(undefined, monsters[i].tileFront);
+        monsters[i].tileBack = new Tile(undefined, monsters[i].tileBack);
     }
 
     this.service.resources.monsters = monsters;
@@ -124,8 +120,8 @@ Loader.prototype._loadImages = function() {
     // Create a unique array of all image srcs used in the game
     let imagesSrc = [];
 
-    for (let i = 0; i < this.service.resources.tiles.length; i++) {
-        let tile = this.service.resources.tiles[i];
+    for (let i = 0; i < this.tiles.length; i++) {
+        let tile = this.tiles[i];
 
         imagesSrc.push(tile.src);
     }
@@ -154,8 +150,8 @@ Loader.prototype._loadImages = function() {
             let img = event.target;
 
             // ...add the image element to all tiles with the same src
-            for (let i = 0; i < this.service.resources.tiles.length; i++) {
-                let tile = this.service.resources.tiles[i];
+            for (let i = 0; i < this.tiles.length; i++) {
+                let tile = this.tiles[i];
 
                 if (tile.src === img.getAttribute("src")) {
                     tile.image = img;
@@ -272,8 +268,8 @@ Loader.prototype.update = function()
     if (this.loadTick > 10 && this.loading === true) {
         let loading = false;
 
-        for (let i = 0; i < this.service.resources.tiles.length; i++) {
-            let tile = this.service.resources.tiles[i];
+        for (let i = 0; i < this.tiles.length; i++) {
+            let tile = this.tiles[i];
 
             if (tile.image === undefined || tile.image.complete === false || tile.image.naturalHeight === 0) {
                 loading = true;

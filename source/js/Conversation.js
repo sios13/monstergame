@@ -7,16 +7,6 @@ function Conversation(service, settings) {
 
     this.nextbtnTile = this.service.resources.getTile("conversationNextbtn", 840, 610, 120, 120);
 
-    this.tile = new Tile({
-        renderX: 0,
-        renderY: 583,
-        renderWidth: 1028,
-        renderHeight: 179,
-        tileWidth: 1028,
-        tileHeight: 179,
-        src: settings.backgroundSrc,
-    });
-
     this.texts = ["+"];
 
     this.line1 = "";
@@ -100,7 +90,7 @@ Conversation.prototype.update = function() {
     let y = this.service.listeners.mousePositionY;
 
     // If clicked at conversation bar
-    if (this.service.listeners.click === true && x > 0 && x < 1028 && y > 576 && y < 768) {
+    if (this.service.listeners.click && this.backgroundTile.pointerInside()) {
         this.next();
     }
 }
