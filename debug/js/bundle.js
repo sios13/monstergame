@@ -65,16 +65,16 @@ function Battle(service, settings) {
     this.runbtnTile = this.service.resources.getTile("battleRunbtn", 770, 768 - 192 + 92, 256, 92);
     this.runbtnTile.alpha = 0;
 
-    this.attack1Tile = this.service.resources.getTile("battleAttackbtn", 0, 768 - 192, 338, 96);
-    this.attack1Tile.alpha = 1;
+    this.attack1Tile = this.service.resources.getTile("battleAttackbtn", 10, 768 - 192 + 10, 338, 76);
+    this.attack1Tile.alpha = 0;
 
-    this.attack2Tile = this.service.resources.getTile("battleAttackbtn", 338, 768 - 192, 338, 96);
+    this.attack2Tile = this.service.resources.getTile("battleAttackbtn", 338 + 20, 768 - 192 + 10, 338, 76);
     this.attack2Tile.alpha = 0;
 
-    this.attack3Tile = this.service.resources.getTile("battleAttackbtn", 0, 768 - 96, 338, 96);
+    this.attack3Tile = this.service.resources.getTile("battleAttackbtn", 10, 768 - 96 + 10, 338, 76);
     this.attack3Tile.alpha = 0;
 
-    this.attack4Tile = this.service.resources.getTile("battleAttackbtn", 338, 768 - 96, 338, 96);
+    this.attack4Tile = this.service.resources.getTile("battleAttackbtn", 338 + 20, 768 - 96 + 10, 338, 76);
     this.attack4Tile.alpha = 0;
 }
 
@@ -83,6 +83,11 @@ Battle.prototype._normalState = function() {
     this.bagbtnTile.setFrame(0);
     this.pokemonbtnTile.setFrame(0);
     this.runbtnTile.setFrame(0);
+
+    this.attack1Tile.setFrame(0);
+    this.attack2Tile.setFrame(0);
+    this.attack3Tile.setFrame(0);
+    this.attack4Tile.setFrame(0);
 }
 
 Battle.prototype._playIntro1 = function() {
@@ -195,6 +200,11 @@ Battle.prototype._setState = function(state) {
         this.pokemonbtnTile.alpha = 1;
         this.runbtnTile.alpha = 1;
 
+        this.attack1Tile.alpha = 0;
+        this.attack2Tile.alpha = 0;
+        this.attack3Tile.alpha = 0;
+        this.attack4Tile.alpha = 0;
+
         this.state = "choose";
     }
 
@@ -257,8 +267,36 @@ Battle.prototype._choose = function() {
 
 Battle.prototype._chooseAttack = function() {
     if (this.attack1Tile.pointerInside()) {
+        this.attack1Tile.setFrame(1);
+
         if (this.service.listeners.click) {
-            console.log("hej!");
+            console.log("attack1!");
+        }
+    }
+
+    if (this.attack2Tile.pointerInside()) {
+        this.attack2Tile.setFrame(1);
+
+        if (this.service.listeners.click) {
+            console.log("attack2!");
+        }
+    }
+
+    if (this.attack3Tile.pointerInside()) {
+        this.attack3Tile.setFrame(1);
+
+        if (this.service.listeners.click) {
+            console.log("attack3!");
+        }
+    }
+
+    if (this.attack4Tile.pointerInside()) {
+        this.attack4Tile.setFrame(1);
+
+        if (this.service.listeners.click) {
+            console.log("attack4!");
+
+            this._setState("choose");
         }
     }
 
@@ -2089,9 +2127,9 @@ module.exports=[
     },
     {
         "name": "battleAttackbtn",
-        "src": "img/grass2.png",
-        "tileWidth": 16,
-        "tileHeight": 16,
+        "src": "img/battle/attackbtn.png",
+        "tileWidth": 300,
+        "tileHeight": 100,
         "numberOfFrames": 2,
         "loop": false,
         "pause": true

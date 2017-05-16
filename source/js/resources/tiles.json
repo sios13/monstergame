@@ -133,9 +133,9 @@
     },
     {
         "name": "battleAttackbtn",
-        "src": "img/grass2.png",
-        "tileWidth": 16,
-        "tileHeight": 16,
+        "src": "img/battle/attackbtn.png",
+        "tileWidth": 300,
+        "tileHeight": 100,
         "numberOfFrames": 2,
         "loop": false,
         "pause": true
