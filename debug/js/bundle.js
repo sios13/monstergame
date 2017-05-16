@@ -4,7 +4,7 @@ const Conversation = require("./Conversation.js");
 
 function Battle(service, settings) {
     this.service = service;
-    this.tick = -1;
+    this.tick = 0;
 
     this.state = "intro1";
 
@@ -20,9 +20,7 @@ function Battle(service, settings) {
     this.audio.loop = true;
     this.audio.play();
 
-    console.log(this.audio);
-
-    this.conversation = new Conversation(service, {
+    this.conversation = new Conversation(this.service, {
         backgroundSrc: "img/conversation/background_battle.png",
         hidden: true,
         nextable: false
@@ -90,41 +88,41 @@ Battle.prototype._normalState = function() {
     this.attack4Tile.setFrame(0);
 }
 
-Battle.prototype._playIntro1 = function() {
-    if (this.tick >= 0 && this.tick < 5) {
+Battle.prototype._scenarioIntro1 = function(tick) {
+    console.log(this.flashTile.alpha);
+    if (tick >= 0 && tick < 5) {
         this.flashTile.alpha += 0.20;
     }
-    if (this.tick >= 5 && this.tick < 10) {
+    if (tick >= 5 && tick < 10) {
         this.flashTile.alpha -= 0.20;
     }
 
-    if (this.tick >= 10 && this.tick < 15) {
+    if (tick >= 10 && tick < 15) {
         this.flashTile.alpha += 0.20;
     }
-    if (this.tick >= 15 && this.tick < 20) {
+    if (tick >= 15 && tick < 20) {
         this.flashTile.alpha -= 0.20;
     }
 
-    if (this.tick >= 20 && this.tick < 25) {
+    if (tick >= 20 && tick < 25) {
         this.flashTile.alpha += 0.20;
     }
-    if (this.tick >= 25 && this.tick < 30) {
+    if (tick >= 25 && tick < 30) {
         this.flashTile.alpha -= 0.20;
     }
 
-    if (this.tick >= 30 && this.tick < 35) {
+    if (tick >= 30 && tick < 35) {
         this.flashTile.alpha += 0.20;
     }
-    if (this.tick >= 35 && this.tick < 40) {
+    if (tick >= 35 && tick < 40) {
         this.flashTile.alpha -= 0.20;
     }
-
-    if (this.tick >= 60 && this.tick < 70) {
+    if (tick >= 60 && tick < 70) {
         this.flashTile.alpha += 0.10;
     }
 
     // Transition is over -> set starting positions
-    if (this.tick === 105) {
+    if (tick === 105) {
         this.backgroundTile.alpha = 1;
 
         this.bottombarTile.alpha = 1;
@@ -132,7 +130,7 @@ Battle.prototype._playIntro1 = function() {
         this.conversation.hidden = false;
     }
 
-    if (this.tick > 105 && this.tick < 175) {
+    if (tick > 105 && tick < 175) {
         this.playerTile.renderX -= 15;
         this.playerbaseTile.renderX -= 15;
 
@@ -140,7 +138,7 @@ Battle.prototype._playIntro1 = function() {
         this.opponentbaseTile.renderX += 15;
     }
 
-    if (this.tick === 180) {
+    if (tick === 180) {
         this.opponentMonsterTile.pause = false;
         this.opponentMonster.cry.play();
 
@@ -148,34 +146,36 @@ Battle.prototype._playIntro1 = function() {
         this.conversation.nextable = true;
         this.conversation.next();
         this.conversation.addCallable(function() {
-            this.tick = -1;
+            // this.tick = -1;
             this.state = "intro2";
             this.conversation.addText("Go! " + this.playerMonster.name + "!+");
             this.conversation.nextable = false;
+
+            this.service.ScenarioManager.addScenario(this._scenarioIntro2.bind(this));
         }.bind(this));
     }
 }
 
-Battle.prototype._playIntro2 = function() {
-    if (this.tick === 0) {
+Battle.prototype._scenarioIntro2 = function(tick) {
+    if (tick === 0) {
         this.playerTile.pause = false;
     }
 
-    if (this.tick > 0 && this.tick < 40) {
+    if (tick > 0 && tick < 40) {
         this.playerTile.renderX -= 15;
     }
 
-    if (this.tick === 10) {
+    if (tick === 10) {
         this.ballTile.renderX = 150;
     }
 
-    if (this.tick > 10 && this.tick < 40) {
+    if (tick > 10 && tick < 40) {
         this.ballTile.alpha = 1;
         this.ballTile.renderX += 5;
         this.ballTile.renderY += 2;
     }
 
-    if (this.tick === 40) {
+    if (tick === 40) {
         this.playerMonsterTile.alpha = 1;
         this.playerMonsterTile.pause = false;
         this.playerMonster.cry.play();
@@ -183,7 +183,7 @@ Battle.prototype._playIntro2 = function() {
         this.ballTile.alpha = 0;
     }
 
-    if (this.tick === 60) {
+    if (tick === 60) {
         this.conversation.nextable = true;
         this.conversation.addText("What will+" + this.playerMonster.name + " do?");
         this.conversation.addCallable(function() {
@@ -299,60 +299,54 @@ Battle.prototype._chooseAttack = function() {
             this._setState("choose");
         }
     }
-
-    // let isInsideBox = function(x1, y1, x2, y2) {
-    //     let x = this.service.listeners.mousePositionX;
-    //     let y = this.service.listeners.mousePositionY;
-
-    //     if (x > x1 && y > y1 && x < x2 && y < y2) {
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
-
-    // let x = this.service.listeners.mousePositionX;
-    // let y = this.service.listeners.mousePositionY;
 }
 
 Battle.prototype.update = function() {
     this.tick += 1;
 
+    if (this.tick === 1) {
+        this.service.ScenarioManager.addScenario(this._scenarioIntro1.bind(this));
+    }
+
+    if (this.tick === 185) {
+        this.service.ScenarioManager.removeScenario(this._scenarioIntro1);
+    }
+
     // normal state hehe
-    this._normalState();
+    // this._normalState();
 
     /** 
      * Play a scene mby... ?
      */
-    if (this.state === "intro1") {
-        this._playIntro1();
-    }
+    // if (this.state === "intro1") {
+        // this._playIntro1();
+    // }
 
-    if (this.state === "intro2") {
-        this._playIntro2();
-    }
+    // if (this.state === "intro2") {
+    //     this._playIntro2();
+    // }
 
-    if (this.state === "choose") {
-        this._choose();
-    }
+    // if (this.state === "choose") {
+    //     this._choose();
+    // }
 
-    if (this.state === "chooseattack") {
-        this._chooseAttack();
-    }
+    // if (this.state === "chooseattack") {
+    //     this._chooseAttack();
+    // }
 
-    if (this.state === "chooserun") {
-        this.service.events.push(function() {
-            this.service.battleCanvas.style.zIndex = 0;
-            this.service.worldCanvas.style.zIndex = 1;
+    // if (this.state === "chooserun") {
+    //     this.service.events.push(function() {
+    //         this.service.battleCanvas.style.zIndex = 0;
+    //         this.service.worldCanvas.style.zIndex = 1;
 
-            this.service.battle.audio.pause();
+    //         this.service.battle.audio.pause();
 
-            this.service.map.audio.volume = 0;
-            this.service.playAudio(this.service.map.audio);
+    //         this.service.map.audio.volume = 0;
+    //         this.service.playAudio(this.service.map.audio);
 
-            this.service.state = "world";
-        });
-    }
+    //         this.service.state = "world";
+    //     });
+    // }
 
     /**
      * Update tiles
@@ -410,7 +404,7 @@ Battle.prototype.render = function() {
 
 module.exports = Battle;
 
-},{"./Conversation.js":2,"./Tile.js":9}],2:[function(require,module,exports){
+},{"./Conversation.js":2,"./Tile.js":10}],2:[function(require,module,exports){
 const Tile = require("./Tile.js");
 
 function Conversation(service, settings) {
@@ -529,7 +523,7 @@ Conversation.prototype.render = function(context) {
 
 module.exports = Conversation;
 
-},{"./Tile.js":9}],3:[function(require,module,exports){
+},{"./Tile.js":10}],3:[function(require,module,exports){
 function Entity(service, settings) {
     this.service = service;
 
@@ -753,6 +747,7 @@ const Entity = require("./Entity.js");
 const MapManager = require("./MapManager.js");
 const Battle = require("./Battle.js");
 const Loader = require("./Loader.js");
+const ScenarioManager = require("./ScenarioManager.js");
 
 Function.prototype.bindArgs = function(...boundArgs)
 {
@@ -779,6 +774,8 @@ function Game() {
     this.service.state = "";
 
     this.service.events = [];
+
+    this.service.ScenarioManager = new ScenarioManager(this.service, {});
 
     // Load resources to service.resouces
     this.loader = new Loader(this.service, {});
@@ -845,11 +842,11 @@ Game.prototype.startGame = function() {
 Game.prototype.update = function() {
     this.service.tick += 1;
 
-    // Check for events in service.events
-    this.checkEvents();
-
     // Update loader
     this.loader.update();
+
+    // Check for events in service.events
+    this.checkEvents();
 
     if (this.service.state === "loading") {
     }
@@ -866,6 +863,8 @@ Game.prototype.update = function() {
         // Update map
         this.service.map.update();
     }
+
+    this.service.ScenarioManager.update();
 
     this.service.listeners.click = false;
     this.service.listeners.mouseup = false;
@@ -916,7 +915,7 @@ Game.prototype.checkEvents = function() {
 
 module.exports = Game;
 
-},{"./Battle.js":1,"./Entity.js":3,"./InitializeService.js":5,"./Loader.js":6,"./MapManager.js":8,"./listeners.js":11,"./resources/savefile.json":13}],5:[function(require,module,exports){
+},{"./Battle.js":1,"./Entity.js":3,"./InitializeService.js":5,"./Loader.js":6,"./MapManager.js":8,"./ScenarioManager.js":9,"./listeners.js":12,"./resources/savefile.json":14}],5:[function(require,module,exports){
 module.exports = function() {
     let service = {};
 
@@ -1277,7 +1276,7 @@ Loader.prototype.render = function()
 
 module.exports = Loader;
 
-},{"./Tile.js":9,"./resources/monsters.json":12,"./resources/sprites.json":14,"./resources/tiles.json":15}],7:[function(require,module,exports){
+},{"./Tile.js":10,"./resources/monsters.json":13,"./resources/sprites.json":15,"./resources/tiles.json":16}],7:[function(require,module,exports){
 function Map(service, settings) {
     this.service = service;
 
@@ -1634,7 +1633,45 @@ MapManager.prototype.createHouse1Map = function() {
 
 module.exports = MapManager;
 
-},{"./Battle.js":1,"./Map.js":7,"./Tile.js":9}],9:[function(require,module,exports){
+},{"./Battle.js":1,"./Map.js":7,"./Tile.js":10}],9:[function(require,module,exports){
+function ScenarioManager(service, settings) {
+    this.service = service;
+
+    this.scenarios = [];
+
+    this.scenariosTicks = [];
+}
+
+ScenarioManager.prototype.addScenario = function(scenario) {
+    this.scenarios.push(scenario);
+
+    this.scenariosTicks.push(-1);
+}
+
+ScenarioManager.prototype.removeScenario = function(scenario) {
+    let index = this.scenarios.indexOf(scenario);
+    this.scenarios.splice(index, 1);
+
+    this.scenariosTicks.splice(index, 1);
+    console.log(this.scenarios.length);
+}
+
+ScenarioManager.prototype.update = function() {
+
+    for (let i = 0; i < this.scenarios.length; i++) {
+        this.scenariosTicks[i] += 1;
+
+        this.scenarios[i](this.scenariosTicks[i]);
+    }
+}
+
+// ScenarioManager.prototype.render = function() {
+
+// }
+
+module.exports = ScenarioManager;
+
+},{}],10:[function(require,module,exports){
 function Tile(service, settings) {
     this.service = service;
 
@@ -1780,7 +1817,7 @@ Tile.prototype.render = function(context, rX, rY) {
 
 module.exports = Tile;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 let Game = require("./Game.js");
 
 // node_modules/.bin/browserify source/js/app.js > debug/js/bundle.js
@@ -1789,7 +1826,7 @@ window.addEventListener("load", function() {
     let game = new Game();
 });
 
-},{"./Game.js":4}],11:[function(require,module,exports){
+},{"./Game.js":4}],12:[function(require,module,exports){
 function addListeners(service) {
     service.listeners = {};
 
@@ -1835,7 +1872,7 @@ module.exports = {
     addListeners: addListeners
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports=[
     {
         "id": 1,
@@ -1937,7 +1974,7 @@ module.exports=[
     }
 ]
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports={
     "monsters": [
         {
@@ -1947,7 +1984,7 @@ module.exports={
     ]
 }
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports=[
     {
         "name": "playerWalk",
@@ -1991,7 +2028,7 @@ module.exports=[
     }
 ]
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports=[
     {
         "name": "map1layer1",
@@ -2136,4 +2173,4 @@ module.exports=[
     }
 ]
 
-},{}]},{},[10]);
+},{}]},{},[11]);

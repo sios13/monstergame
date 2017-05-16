@@ -2,6 +2,7 @@ const Entity = require("./Entity.js");
 const MapManager = require("./MapManager.js");
 const Battle = require("./Battle.js");
 const Loader = require("./Loader.js");
+const ScenarioManager = require("./ScenarioManager.js");
 
 Function.prototype.bindArgs = function(...boundArgs)
 {
@@ -28,6 +29,8 @@ function Game() {
     this.service.state = "";
 
     this.service.events = [];
+
+    this.service.ScenarioManager = new ScenarioManager(this.service, {});
 
     // Load resources to service.resouces
     this.loader = new Loader(this.service, {});
@@ -94,11 +97,11 @@ Game.prototype.startGame = function() {
 Game.prototype.update = function() {
     this.service.tick += 1;
 
-    // Check for events in service.events
-    this.checkEvents();
-
     // Update loader
     this.loader.update();
+
+    // Check for events in service.events
+    this.checkEvents();
 
     if (this.service.state === "loading") {
     }
@@ -115,6 +118,8 @@ Game.prototype.update = function() {
         // Update map
         this.service.map.update();
     }
+
+    this.service.ScenarioManager.update();
 
     this.service.listeners.click = false;
     this.service.listeners.mouseup = false;

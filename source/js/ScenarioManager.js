@@ -1,72 +1,36 @@
-function ScenarioManager() {
-    this.activeScenario = null;
+function ScenarioManager(service, settings) {
+    this.service = service;
 
-    this.tick = null;
+    this.scenarios = [];
 
-    this.endTick = null;
+    this.scenariosTicks = [];
 }
 
-// Initialize/reset properties and play a scenario
-ScenarioManager.prototype.playScenario = function(scenarioName) {
-    // Do not start a new scenario if there already is an active scenario playing
-    if (this.activeScenario !== null) {
-        return;
-    }
+ScenarioManager.prototype.addScenario = function(scenario) {
+    this.scenarios.push(scenario);
 
-    this.activeScenario = scenarioName;
-
-    this.tick = 0;
-
-    if (this.activeScenario === "battleIntro") {
-        this.endTick = 100;
-    }
+    this.scenariosTicks.push(-1);
 }
 
-ScenarioManager.prototype.endScenario = function() {
-    this.activeScenario = null;
+ScenarioManager.prototype.removeScenario = function(scenario) {
+    let index = this.scenarios.indexOf(scenario);
+    this.scenarios.splice(index, 1);
+
+    this.scenariosTicks.splice(index, 1);
+    console.log(this.scenarios.length);
 }
 
-ScenarioManager.prototype.isPlaying = function() {
-    if (this.activeScenario !== null) {
-        return true;
-    }
+ScenarioManager.prototype.update = function() {
 
-    return false;
-}
+    for (let i = 0; i < this.scenarios.length; i++) {
+        this.scenariosTicks[i] += 1;
 
-ScenarioManager.prototype.createBattleIntro = function() {
-    this.game.coolguy.x = 100;
-    this.game.coolguy.y = 100;
-}
-
-ScenarioManager.prototype.update = function(game) {
-    // Do not update if there is no active scenario
-    if (this.activeScenario === null) {
-        return;
-    }
-
-    // If at the end of the scenario -> end the active scenario
-    if (this.tick === this.endTick) {
-        this.activeScenario = null;
-
-        return;
-    }
-
-    this.tick += 1;
-
-    if (this.activeScenario === "battleIntro") {
-        console.log(this.tick);
-
-        if (this.tick === this.endTick) {
-            game.startBattle("xD");
-        }
+        this.scenarios[i](this.scenariosTicks[i]);
     }
 }
 
-ScenarioManager.prototype.render = function(context) {
-    if (this.activeScenario === "battleIntro") {
+// ScenarioManager.prototype.render = function() {
 
-    }
-}
+// }
 
 module.exports = ScenarioManager;
