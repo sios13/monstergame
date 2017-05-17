@@ -50,16 +50,19 @@ function Battle(service, settings) {
     this.bottombarTile = this.service.resources.getTile("battleBottombar", 0, 768 - 192, 1028, 192);
     this.bottombarTile.alpha = 0;
 
-    this.fightbtnTile = this.service.resources.getTile("battleFightbtn", 514, 768 - 192 + 10, 256, 92);
+    this.choosebgTile = this.service.resources.getTile("battleChoosebg", 554, 768 - 192 + 5, 474, 192 - 10);
+    this.choosebgTile.alpha = 0;
+
+    this.fightbtnTile = this.service.resources.getTile("battleFightbtn", 590, 768 - 192 + 31, 200, 65);
     this.fightbtnTile.alpha = 0;
 
-    this.bagbtnTile = this.service.resources.getTile("battleBagbtn", 770, 768 - 192 + 10, 256, 92);
+    this.bagbtnTile = this.service.resources.getTile("battleBagbtn", 790, 768 - 192 + 31, 200, 65);
     this.bagbtnTile.alpha = 0;
 
-    this.pokemonbtnTile = this.service.resources.getTile("battlePokemonbtn", 514, 768 - 192 + 92, 256, 92);
+    this.pokemonbtnTile = this.service.resources.getTile("battlePokemonbtn", 590, 768 - 192 + 65 + 31, 200, 65);
     this.pokemonbtnTile.alpha = 0;
 
-    this.runbtnTile = this.service.resources.getTile("battleRunbtn", 770, 768 - 192 + 92, 256, 92);
+    this.runbtnTile = this.service.resources.getTile("battleRunbtn", 790, 768 - 192 + 65 + 31, 200, 65);
     this.runbtnTile.alpha = 0;
 
     this.attack1Tile = this.service.resources.getTile("battleAttackbtn", 10, 768 - 192 + 10, 338, 76);
@@ -73,18 +76,6 @@ function Battle(service, settings) {
 
     this.attack4Tile = this.service.resources.getTile("battleAttackbtn", 338 + 20, 768 - 96 + 10, 338, 76);
     this.attack4Tile.alpha = 0;
-}
-
-Battle.prototype._normalState = function() {
-    this.fightbtnTile.setFrame(0);
-    this.bagbtnTile.setFrame(0);
-    this.pokemonbtnTile.setFrame(0);
-    this.runbtnTile.setFrame(0);
-
-    this.attack1Tile.setFrame(0);
-    this.attack2Tile.setFrame(0);
-    this.attack3Tile.setFrame(0);
-    this.attack4Tile.setFrame(0);
 }
 
 Battle.prototype._scenarioIntro1 = function(tick) {
@@ -141,15 +132,10 @@ Battle.prototype._scenarioIntro1 = function(tick) {
         this.opponentMonsterTile.pause = false;
         this.opponentMonster.cry.play();
 
-        this.conversation.addText("Wild " + this.opponentMonster.name + " appeared!+");
-        this.conversation.nextable = true;
+        this.conversation.enqueue("Wild " + this.opponentMonster.name + " appeared!+", undefined);
         this.conversation.next();
-        this.conversation.addCallable(function() {
-            this.conversation.addText("Go! " + this.playerMonster.name + "!+");
-            this.conversation.nextable = false;
 
-            this.service.ScenarioManager.addScenario(this._scenarioIntro2.bind(this));
-        }.bind(this));
+        this.service.ScenarioManager.removeScenario(this._scenarioIntro1);
     }
 }
 
@@ -181,59 +167,80 @@ Battle.prototype._scenarioIntro2 = function(tick) {
     }
 
     if (tick === 60) {
-        this.conversation.nextable = true;
-        this.conversation.addText("What will+" + this.playerMonster.name + " do?");
-        this.conversation.addCallable(function() {
-            this.conversation.nextable = false;
-            this._setState("choose");
+        this.conversation.enqueue("What will+" + this.playerMonster.name + " do?", function() {
+            this.state = "choose";
         }.bind(this));
+
+        this.service.ScenarioManager.removeScenario(this._scenarioIntro2);
     }
 }
 
-Battle.prototype._setState = function(state) {
-    if (state === "choose") {
-        this.fightbtnTile.alpha = 1;
-        this.bagbtnTile.alpha = 1;
-        this.pokemonbtnTile.alpha = 1;
-        this.runbtnTile.alpha = 1;
-
-        this.attack1Tile.alpha = 0;
-        this.attack2Tile.alpha = 0;
-        this.attack3Tile.alpha = 0;
-        this.attack4Tile.alpha = 0;
-
-        this.state = "choose";
+Battle.prototype._scenarioPlayerMonsterAttack = function(tick) {
+    // 
+    if (tick > 0 && tick < 8) {
+        this.playerMonsterTile.renderX += 40;
+        this.playerMonsterTile.renderY -= 20;
+    }
+    if (tick > 8 && tick < 16) {
+        this.playerMonsterTile.renderX -= 40;
+        this.playerMonsterTile.renderY += 20;
     }
 
-    if (state === "chooseattack") {
-        this.conversation.hidden = true;
-
-        this.fightbtnTile.alpha = 0;
-        this.bagbtnTile.alpha = 0;
-        this.pokemonbtnTile.alpha = 0;
-        this.runbtnTile.alpha = 0;
-
-        this.attack1Tile.alpha = 1;
-        this.attack2Tile.alpha = 1;
-        this.attack3Tile.alpha = 1;
-        this.attack4Tile.alpha = 1;
-
-        this.state = "chooseattack";
+    // Opponent blink
+    if (tick === 8) {
+        this.opponentMonsterTile.alpha = 0;
     }
+    if (tick === 10) {
+        this.opponentMonsterTile.alpha = 1;
+    }
+    if (tick === 12) {
+        this.opponentMonsterTile.alpha = 0;
+    }
+    if (tick === 14) {
+        this.opponentMonsterTile.alpha = 1;
+    }
+
+    // Exit scenario
+    if (tick === 18) {
+        this.service.ScenarioManager.removeScenario(this._scenarioPlayerMonsterAttack);
+    }
+}
+
+Battle.prototype._normalState = function() {
+    this.fightbtnTile.setFrame(0);
+    this.bagbtnTile.setFrame(0);
+    this.pokemonbtnTile.setFrame(0);
+    this.runbtnTile.setFrame(0);
+
+    this.choosebgTile.alpha = 0;
+    this.fightbtnTile.alpha = 0;
+    this.bagbtnTile.alpha = 0;
+    this.pokemonbtnTile.alpha = 0;
+    this.runbtnTile.alpha = 0;
+
+    this.attack1Tile.setFrame(0);
+    this.attack2Tile.setFrame(0);
+    this.attack3Tile.setFrame(0);
+    this.attack4Tile.setFrame(0);
+
+    this.attack1Tile.alpha = 0;
+    this.attack2Tile.alpha = 0;
+    this.attack3Tile.alpha = 0;
+    this.attack4Tile.alpha = 0;
 }
 
 Battle.prototype._choose = function() {
+    this.choosebgTile.alpha = 1;
+    this.fightbtnTile.alpha = 1;
+    this.bagbtnTile.alpha = 1;
+    this.pokemonbtnTile.alpha = 1;
+    this.runbtnTile.alpha = 1;
+
     if (this.fightbtnTile.pointerInside()) {
         this.fightbtnTile.setFrame(1);
 
         if (this.service.listeners.click) {
-            this._setState("chooseattack");
-            // this.state = "chooseattack";
-
-            // this.conversation.addText("haha+hahaha");
-            // this.conversation.nextable = true;
-            // this.conversation.next();
-            // this.conversation.nextable = false;
+            this.state = "chooseattack";
         }
     }
 
@@ -263,11 +270,17 @@ Battle.prototype._choose = function() {
 }
 
 Battle.prototype._chooseAttack = function() {
+    this.attack1Tile.alpha = 1;
+    this.attack2Tile.alpha = 1;
+    this.attack3Tile.alpha = 1;
+    this.attack4Tile.alpha = 1;
+
     if (this.attack1Tile.pointerInside()) {
         this.attack1Tile.setFrame(1);
 
         if (this.service.listeners.click) {
             console.log("attack1!");
+            this.service.ScenarioManager.addScenario(this._scenarioPlayerMonsterAttack.bind(this));
         }
     }
 
@@ -293,7 +306,7 @@ Battle.prototype._chooseAttack = function() {
         if (this.service.listeners.click) {
             console.log("attack4!");
 
-            this._setState("choose");
+            this.state = "choose";
         }
     }
 }
@@ -301,49 +314,39 @@ Battle.prototype._chooseAttack = function() {
 Battle.prototype.update = function() {
     this.tick += 1;
 
+    this._normalState();
+
     if (this.tick === 1) {
         this.service.ScenarioManager.addScenario(this._scenarioIntro1.bind(this));
     }
 
-    if (this.tick === 185) {
-        this.service.ScenarioManager.removeScenario(this._scenarioIntro1);
+    if (this.tick === 182) {
+        this.conversation.enqueue("Go! " + this.playerMonster.name + "!+", function() {
+            this.service.ScenarioManager.addScenario(this._scenarioIntro2.bind(this));
+        }.bind(this));
     }
 
-    // normal state hehe
-    // this._normalState();
+    if (this.state === "choose") {
+        this._choose();
+    }
 
-    /** 
-     * Play a scene mby... ?
-     */
-    // if (this.state === "intro1") {
-        // this._playIntro1();
-    // }
+    if (this.state === "chooseattack") {
+        this._chooseAttack();
+    }
 
-    // if (this.state === "intro2") {
-    //     this._playIntro2();
-    // }
+    if (this.state === "chooserun") {
+        this.service.events.push(function() {
+            this.service.battleCanvas.style.zIndex = 0;
+            this.service.worldCanvas.style.zIndex = 1;
 
-    // if (this.state === "choose") {
-    //     this._choose();
-    // }
+            this.service.battle.audio.pause();
 
-    // if (this.state === "chooseattack") {
-    //     this._chooseAttack();
-    // }
+            this.service.map.audio.volume = 0;
+            this.service.playAudio(this.service.map.audio);
 
-    // if (this.state === "chooserun") {
-    //     this.service.events.push(function() {
-    //         this.service.battleCanvas.style.zIndex = 0;
-    //         this.service.worldCanvas.style.zIndex = 1;
-
-    //         this.service.battle.audio.pause();
-
-    //         this.service.map.audio.volume = 0;
-    //         this.service.playAudio(this.service.map.audio);
-
-    //         this.service.state = "world";
-    //     });
-    // }
+            this.service.state = "world";
+        });
+    }
 
     /**
      * Update tiles
@@ -381,6 +384,8 @@ Battle.prototype.render = function() {
     this.bottombarTile.render(context);
 
     this.conversation.render(context);
+
+    this.choosebgTile.render(context);
 
     this.fightbtnTile.render(context);
     

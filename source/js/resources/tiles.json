@@ -61,9 +61,9 @@
     },
     {
         "name": "battleBottombar",
-        "src": "img/battle/bottombar.png",
-        "tileWidth": 512,
-        "tileHeight": 96
+        "src": "img/battle/bottombar2.png",
+        "tileWidth": 1028,
+        "tileHeight": 192
     },
     {
         "name": "battleBall",
@@ -136,6 +136,15 @@
         "src": "img/battle/attackbtn.png",
         "tileWidth": 300,
         "tileHeight": 100,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battleChoosebg",
+        "src": "img/battle/choosebg.png",
+        "tileWidth": 605,
+        "tileHeight": 238,
         "numberOfFrames": 2,
         "loop": false,
         "pause": true

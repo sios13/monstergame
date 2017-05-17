@@ -9,88 +9,92 @@ function Conversation(service, settings) {
 
     this.texts = ["+"];
 
+    this.callables = [undefined];
+
     this.line1 = "";
     this.line2 = "";
-
-    this.textsIndex = 0;
-
-    this.callable = null;
 
     // Hides the covnversation, do not render the converation if true
-    this.hidden = settings.hidden;
+    this.hidden = settings.hidden ? settings.hidden : false;
 
-    this.typing = false;
-
-    this.nextable = settings.nextable;
-}
-
-// Shows the next text
-Conversation.prototype.next = function() {
-    // Do not go to next text if current text is still typing
-    if (this.typing === true || this.nextable === false) {
-        return;
-    }
-
-    if (this.callable) {
-        this.callable();
-        this.callable = null;
-    }
-
-    // Do not allow to go to next if next text is undefined!
-    if (this.texts[this.textsIndex + 1] !== undefined) {
-        this.textsIndex += 1;
-    }
-
-    this.line1 = "";
-    this.line2 = "";
-}
-
-Conversation.prototype.addText = function(text) {
-    this.texts.push(text);
+    // this.typing = false;
+    this.nextable = true;
 }
 
 /**
- * Adds a callable to be called when next is called
+ * Add a text and callable to the conversation queue
  */
-Conversation.prototype.addCallable = function(callable) {
-    this.callable = callable;
+Conversation.prototype.enqueue = function(text, callable) {
+    this.texts.push(text);
+
+    this.callables.push(callable);
+}
+
+/**
+ * Starts displaying the first text and callable in the queue
+ */
+Conversation.prototype.next = function() {
+    // Remove the currently active
+    this.texts.shift();
+    this.callables.shift();
+
+    // Call the callable
+    if (this.callables[0] !== undefined) {
+        this.callables[0]();
+    }
+
+    // Reset the lines
+    this.line1 = "";
+    this.line2 = "";
 }
 
 /**
  * Updates text 'animation' and determines if is typing
  */
 Conversation.prototype._updateText = function() {
-    if (this.line1 + "+" + this.line2 !== this.texts[this.textsIndex]) {
-        this.typing = true;
+    let text = this.texts[0];
 
-        let index = this.texts[this.textsIndex].indexOf("+");
+    if (text === undefined) {
+        return;
+    }
 
-        if (this.texts[this.textsIndex].substring(0, index) !== this.line1) {
-            this.line1 += this.texts[this.textsIndex][this.line1.length];
+    // If the lines do not equal the currently active text -> add one new letter to a line
+    if (this.line1 + "+" + this.line2 !== text) {
+        // this.typing = true;
+
+        // Determine what line to update
+        let index = text.indexOf("+");
+
+        if (text.substring(0, index) !== this.line1) {
+            this.line1 += text[this.line1.length];
         } else {
-            this.line2 += this.texts[this.textsIndex][this.line1.length + this.line2.length + 1];
+            this.line2 += text[this.line1.length + this.line2.length + 1];
         }
 
-        if (this.line1 + "+" + this.line2 === this.texts[this.textsIndex]) {
-            this.typing = false;
+        if (this.line1 + "+" + this.line2 !== text) {
+            this.nextable = false;
         }
     }
 }
 
 Conversation.prototype.update = function() {
+    this.nextable = true;
+
     this._updateText();
 
-    if (this.typing === true || this.nextable === false) {
+    // If there is no next -> disable next
+    if (this.texts[1] === undefined) {
+        this.nextable = false;
+    }
+
+    if (this.nextable === false) {
         this.nextbtnTile.setFrame(0);
     } else {
         this.nextbtnTile.setFrame(1);
     }
 
-    let x = this.service.listeners.mousePositionX;
-    let y = this.service.listeners.mousePositionY;
-
     // If clicked at conversation bar
-    if (this.service.listeners.click && this.backgroundTile.pointerInside()) {
+    if (this.nextable === true && this.service.listeners.click && this.backgroundTile.pointerInside()) {
         this.next();
     }
 }
