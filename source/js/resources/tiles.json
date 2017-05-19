@@ -60,12 +60,6 @@
         "pause": true
     },
     {
-        "name": "battleBottombar",
-        "src": "img/battle/bottombar2.png",
-        "tileWidth": 1028,
-        "tileHeight": 192
-    },
-    {
         "name": "battleBall",
         "src": "img/battle/ball.png",
         "tileWidth": 32,
@@ -110,8 +104,8 @@
     {
         "name": "conversationBg",
         "src": "img/conversation/background_battle.png",
-        "tileWidth": 1028,
-        "tileHeight": 179
+        "tileWidth": 512,
+        "tileHeight": 96
     },
     {
         "name": "conversationNextbtn",

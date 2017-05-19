@@ -3,7 +3,7 @@ const Tile = require("./Tile.js");
 function Conversation(service, settings) {
     this.service = service;
 
-    this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 180 - 5, 1024, 180);
+    this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 192, 1024, 192);
 
     this.nextbtnTile = this.service.resources.getTile("conversationNextbtn", 840, 610, 120, 120);
 

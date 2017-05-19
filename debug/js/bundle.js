@@ -48,9 +48,6 @@ function Battle(service, settings) {
     this.ballTile = this.service.resources.getTile("battleBall", 0, 410, 48, 48);
     this.ballTile.alpha = 0;
 
-    this.bottombarTile = this.service.resources.getTile("battleBottombar", 0, 768 - 192, 1028, 192);
-    this.bottombarTile.alpha = 0;
-
     this.choosebgTile = this.service.resources.getTile("battleChoosebg", 554, 768 - 192 + 5, 474, 192 - 10);
     this.choosebgTile.alpha = 0;
 
@@ -79,7 +76,7 @@ function Battle(service, settings) {
     this.attack4Tile.alpha = 0;
 }
 
-Battle.prototype._scenarioIntro1 = function(tick) {
+Battle.prototype._scenarioBattleIntroPart1 = function(tick) {
     // Transition!
     if (tick >= 0 && tick < 5) {
         this.flashTile.alpha += 0.20;
@@ -116,8 +113,6 @@ Battle.prototype._scenarioIntro1 = function(tick) {
     if (tick === 105) {
         this.backgroundTile.alpha = 1;
 
-        this.bottombarTile.alpha = 1;
-
         this.conversation.hidden = false;
     }
 
@@ -136,11 +131,11 @@ Battle.prototype._scenarioIntro1 = function(tick) {
         this.conversation.enqueue("Wild " + this.opponentMonster.name + " appeared!+", undefined);
         this.conversation.next();
 
-        this.service.ScenarioManager.removeScenario(this._scenarioIntro1);
+        this.service.ScenarioManager.removeScenario(this._scenarioBattleIntroPart1);
     }
 }
 
-Battle.prototype._scenarioIntro2 = function(tick) {
+Battle.prototype._scenarioBattleIntroPart2 = function(tick) {
     if (tick === 0) {
         this.playerTile.pause = false;
     }
@@ -172,7 +167,7 @@ Battle.prototype._scenarioIntro2 = function(tick) {
             this.state = "choose";
         }.bind(this));
 
-        this.service.ScenarioManager.removeScenario(this._scenarioIntro2);
+        this.service.ScenarioManager.removeScenario(this._scenarioBattleIntroPart2);
     }
 }
 
@@ -230,7 +225,7 @@ Battle.prototype._normalState = function() {
     this.attack4Tile.alpha = 0;
 }
 
-Battle.prototype._choose = function() {
+Battle.prototype._chooseState = function() {
     this.choosebgTile.alpha = 1;
     this.fightbtnTile.alpha = 1;
     this.bagbtnTile.alpha = 1;
@@ -265,12 +260,22 @@ Battle.prototype._choose = function() {
         this.runbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
-            this.state = "chooserun";
+            this.service.events.push(function() {
+            this.service.battleCanvas.style.zIndex = 0;
+            this.service.worldCanvas.style.zIndex = 1;
+
+            this.service.battle.audio.pause();
+
+            this.service.map.audio.volume = 0;
+            this.service.playAudio(this.service.map.audio);
+
+            this.service.state = "world";
+        });
         }
     }
 }
 
-Battle.prototype._chooseAttack = function() {
+Battle.prototype._chooseAttackState = function() {
     this.attack1Tile.alpha = 1;
     this.attack2Tile.alpha = 1;
     this.attack3Tile.alpha = 1;
@@ -318,35 +323,21 @@ Battle.prototype.update = function() {
     this._normalState();
 
     if (this.tick === 1) {
-        this.service.ScenarioManager.addScenario(this._scenarioIntro1.bind(this));
+        this.service.ScenarioManager.addScenario(this._scenarioBattleIntroPart1.bind(this));
     }
 
     if (this.tick === 182) {
         this.conversation.enqueue("Go! " + this.playerMonster.name + "!+", function() {
-            this.service.ScenarioManager.addScenario(this._scenarioIntro2.bind(this));
+            this.service.ScenarioManager.addScenario(this._scenarioBattleIntroPart2.bind(this));
         }.bind(this));
     }
 
     if (this.state === "choose") {
-        this._choose();
+        this._chooseState();
     }
 
     if (this.state === "chooseattack") {
-        this._chooseAttack();
-    }
-
-    if (this.state === "chooserun") {
-        this.service.events.push(function() {
-            this.service.battleCanvas.style.zIndex = 0;
-            this.service.worldCanvas.style.zIndex = 1;
-
-            this.service.battle.audio.pause();
-
-            this.service.map.audio.volume = 0;
-            this.service.playAudio(this.service.map.audio);
-
-            this.service.state = "world";
-        });
+        this._chooseAttackState();
     }
 
     /**
@@ -382,8 +373,6 @@ Battle.prototype.render = function() {
 
     this.ballTile.render(context);
 
-    this.bottombarTile.render(context);
-
     this.conversation.render(context);
 
     this.choosebgTile.render(context);
@@ -413,7 +402,7 @@ const Tile = require("./Tile.js");
 function Conversation(service, settings) {
     this.service = service;
 
-    this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 180 - 5, 1024, 180);
+    this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 192, 1024, 192);
 
     this.nextbtnTile = this.service.resources.getTile("conversationNextbtn", 840, 610, 120, 120);
 
@@ -2110,12 +2099,6 @@ module.exports=[
         "pause": true
     },
     {
-        "name": "battleBottombar",
-        "src": "img/battle/bottombar2.png",
-        "tileWidth": 1028,
-        "tileHeight": 192
-    },
-    {
         "name": "battleBall",
         "src": "img/battle/ball.png",
         "tileWidth": 32,
@@ -2160,8 +2143,8 @@ module.exports=[
     {
         "name": "conversationBg",
         "src": "img/conversation/background_battle.png",
-        "tileWidth": 1028,
-        "tileHeight": 179
+        "tileWidth": 512,
+        "tileHeight": 96
     },
     {
         "name": "conversationNextbtn",
