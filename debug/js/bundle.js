@@ -65,16 +65,16 @@ function Battle(service, settings) {
     this.runbtnTile = this.service.resources.getTile("battleCommandBtns(0,3)", 766, 768 - 192 + 88 + 12, 252, 88);
     this.runbtnTile.alpha = 0;
 
-    this.attack1Tile = this.service.resources.getTile("battleAttackbtn", 10, 768 - 192 + 10, 338, 76);
+    this.attack1Tile = this.service.resources.getTile("battleFightBtns(0,0)", 10, 768 - 192 + 10, 338, 76);
     this.attack1Tile.alpha = 0;
 
-    this.attack2Tile = this.service.resources.getTile("battleAttackbtn", 338 + 20, 768 - 192 + 10, 338, 76);
+    this.attack2Tile = this.service.resources.getTile("battleFightBtns(0,1)", 338 + 20, 768 - 192 + 10, 338, 76);
     this.attack2Tile.alpha = 0;
 
-    this.attack3Tile = this.service.resources.getTile("battleAttackbtn", 10, 768 - 96 + 10, 338, 76);
+    this.attack3Tile = this.service.resources.getTile("battleFightBtns(0,2)", 10, 768 - 96 + 10, 338, 76);
     this.attack3Tile.alpha = 0;
 
-    this.attack4Tile = this.service.resources.getTile("battleAttackbtn", 338 + 20, 768 - 96 + 10, 338, 76);
+    this.attack4Tile = this.service.resources.getTile("battleFightBtns(0,3)", 338 + 20, 768 - 96 + 10, 338, 76);
     this.attack4Tile.alpha = 0;
 }
 
@@ -2067,7 +2067,15 @@ module.exports=[
         "spriteWidth": 130,
         "spriteHeight": 414,
         "numberOfFrames": 2
-        // "updateFrequency": 7
+    },
+    {
+        "name": "battleFightBtns",
+        "src": "img/battle/battleFightButtons.png",
+        "tileWidth": 192,
+        "tileHeight": 46,
+        "spriteWidth": 192,
+        "spriteHeight": 874,
+        "numberOfFrames": 2
     }
 ]
 
@@ -2166,15 +2174,6 @@ module.exports=[
         "src": "img/grass2.png",
         "tileWidth": 16,
         "tileHeight": 16,
-        "numberOfFrames": 2,
-        "loop": false,
-        "pause": true
-    },
-    {
-        "name": "battleAttackbtn",
-        "src": "img/battle/attackbtn.png",
-        "tileWidth": 300,
-        "tileHeight": 100,
         "numberOfFrames": 2,
         "loop": false,
         "pause": true

@@ -47,6 +47,14 @@
         "spriteWidth": 130,
         "spriteHeight": 414,
         "numberOfFrames": 2
-        // "updateFrequency": 7
+    },
+    {
+        "name": "battleFightBtns",
+        "src": "img/battle/battleFightButtons.png",
+        "tileWidth": 192,
+        "tileHeight": 46,
+        "spriteWidth": 192,
+        "spriteHeight": 874,
+        "numberOfFrames": 2
     }
 ]

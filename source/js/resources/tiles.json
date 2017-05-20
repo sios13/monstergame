@@ -97,15 +97,6 @@
         "pause": true
     },
     {
-        "name": "battleAttackbtn",
-        "src": "img/battle/attackbtn.png",
-        "tileWidth": 300,
-        "tileHeight": 100,
-        "numberOfFrames": 2,
-        "loop": false,
-        "pause": true
-    },
-    {
         "name": "battleMessagebg",
         "src": "img/battle/battleMessagebg.png",
         "tileWidth": 512,

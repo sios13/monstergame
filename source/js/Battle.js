@@ -64,16 +64,16 @@ function Battle(service, settings) {
     this.runbtnTile = this.service.resources.getTile("battleCommandBtns(0,3)", 766, 768 - 192 + 88 + 12, 252, 88);
     this.runbtnTile.alpha = 0;
 
-    this.attack1Tile = this.service.resources.getTile("battleAttackbtn", 10, 768 - 192 + 10, 338, 76);
+    this.attack1Tile = this.service.resources.getTile("battleFightBtns(0,0)", 10, 768 - 192 + 10, 338, 76);
     this.attack1Tile.alpha = 0;
 
-    this.attack2Tile = this.service.resources.getTile("battleAttackbtn", 338 + 20, 768 - 192 + 10, 338, 76);
+    this.attack2Tile = this.service.resources.getTile("battleFightBtns(0,1)", 338 + 20, 768 - 192 + 10, 338, 76);
     this.attack2Tile.alpha = 0;
 
-    this.attack3Tile = this.service.resources.getTile("battleAttackbtn", 10, 768 - 96 + 10, 338, 76);
+    this.attack3Tile = this.service.resources.getTile("battleFightBtns(0,2)", 10, 768 - 96 + 10, 338, 76);
     this.attack3Tile.alpha = 0;
 
-    this.attack4Tile = this.service.resources.getTile("battleAttackbtn", 338 + 20, 768 - 96 + 10, 338, 76);
+    this.attack4Tile = this.service.resources.getTile("battleFightBtns(0,3)", 338 + 20, 768 - 96 + 10, 338, 76);
     this.attack4Tile.alpha = 0;
 }
 
