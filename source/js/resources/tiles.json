@@ -24,42 +24,6 @@
         "tileHeight": 3200
     },
     {
-        "name": "battleFightbtn",
-        "src": "img/battle/fightbtn.png",
-        "tileWidth": 130,
-        "tileHeight": 46,
-        "numberOfFrames": 2,
-        "loop": false,
-        "pause": true
-    },
-    {
-        "name": "battleBagbtn",
-        "src": "img/battle/bagbtn.png",
-        "tileWidth": 130,
-        "tileHeight": 46,
-        "numberOfFrames": 2,
-        "loop": false,
-        "pause": true
-    },
-    {
-        "name": "battlePokemonbtn",
-        "src": "img/battle/pokemonbtn.png",
-        "tileWidth": 130,
-        "tileHeight": 46,
-        "numberOfFrames": 2,
-        "loop": false,
-        "pause": true
-    },
-    {
-        "name": "battleRunbtn",
-        "src": "img/battle/runbtn.png",
-        "tileWidth": 130,
-        "tileHeight": 46,
-        "numberOfFrames": 2,
-        "loop": false,
-        "pause": true
-    },
-    {
         "name": "battleBall",
         "src": "img/battle/ball.png",
         "tileWidth": 32,
@@ -103,18 +67,25 @@
     },
     {
         "name": "conversationBg",
+        "src": "img/conversation/background_normal.png",
+        "tileWidth": 512,
+        "tileHeight": 96
+    },
+    {
+        "name": "conversationBattleBg",
         "src": "img/conversation/background_battle.png",
         "tileWidth": 512,
         "tileHeight": 96
     },
     {
-        "name": "conversationNextbtn",
-        "src": "img/conversation/nextBtn.png",
-        "tileWidth": 120,
-        "tileHeight": 120,
-        "numberOfFrames": 2,
-        "loop": false,
-        "pause": true
+        "name": "conversationArrow",
+        "src": "img/conversation/arrow.png",
+        "tileWidth": 28,
+        "tileHeight": 40,
+        "numberOfFrames": 8,
+        "updateFrequency": 3,
+        "loop": true,
+        "pause": false
     },
     {
         "name": "grass",
@@ -135,10 +106,28 @@
         "pause": true
     },
     {
-        "name": "battleChoosebg",
-        "src": "img/battle/choosebg.png",
-        "tileWidth": 605,
-        "tileHeight": 238,
+        "name": "battleMessagebg",
+        "src": "img/battle/battleMessagebg.png",
+        "tileWidth": 512,
+        "tileHeight": 96,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battleCommandbg",
+        "src": "img/battle/battleCommandbg.png",
+        "tileWidth": 512,
+        "tileHeight": 96,
+        "numberOfFrames": 2,
+        "loop": false,
+        "pause": true
+    },
+    {
+        "name": "battleFightbg",
+        "src": "img/battle/battleFightbg.png",
+        "tileWidth": 512,
+        "tileHeight": 96,
         "numberOfFrames": 2,
         "loop": false,
         "pause": true

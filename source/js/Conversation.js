@@ -3,9 +3,16 @@ const Tile = require("./Tile.js");
 function Conversation(service, settings) {
     this.service = service;
 
-    this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 192, 1024, 192);
+    if (settings.state === "battle") {
+        this.backgroundTile = this.service.resources.getTile("conversationBattleBg", 0, 768 - 192, 1024, 192);
+    } else {
+        this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 192, 1024, 192);
+    }
 
-    this.nextbtnTile = this.service.resources.getTile("conversationNextbtn", 840, 610, 120, 120);
+    this.arrowTile = this.service.resources.getTile("conversationArrow", 880, 768 - 192 + 50, 56, 80);
+    this.arrowTile.alpha = 0;
+
+    // this.nextbtnTile = this.service.resources.getTile("conversationNextbtn", 840, 610, 120, 120);
 
     this.texts = ["+"];
 
@@ -15,9 +22,8 @@ function Conversation(service, settings) {
     this.line2 = "";
 
     // Hides the covnversation, do not render the converation if true
-    this.hidden = settings.hidden ? settings.hidden : false;
+    // this.hidden = settings.hidden ? settings.hidden : false;
 
-    // this.typing = false;
     this.nextable = true;
 }
 
@@ -87,11 +93,19 @@ Conversation.prototype.update = function() {
         this.nextable = false;
     }
 
-    if (this.nextable === false) {
-        this.nextbtnTile.setFrame(0);
+    this.arrowTile.update();
+
+    if (this.nextable === true) {
+        this.arrowTile.alpha = 1;
     } else {
-        this.nextbtnTile.setFrame(1);
+        this.arrowTile.alpha = 0;
     }
+
+    // if (this.nextable === false) {
+    //     this.nextbtnTile.setFrame(0);
+    // } else {
+    //     this.nextbtnTile.setFrame(1);
+    // }
 
     // If clicked at conversation bar
     if (this.nextable === true && this.service.listeners.click && this.backgroundTile.pointerInside()) {
@@ -101,21 +115,24 @@ Conversation.prototype.update = function() {
 
 Conversation.prototype.render = function(context) {
     // Do not render if conversation should be hidden
-    if (this.hidden === true) {
-        return;
-    }
+    // if (this.hidden === true) {
+    //     return;
+    // }
 
     this.backgroundTile.render(context);
 
-    this.nextbtnTile.render(context);
+    this.arrowTile.render(context);
 
-    context.font = "30px 'Press Start 2P'";
-    context.fillStyle = "rgba(0,0,0,0.8)";
-    context.fillText(this.line1, 75, 660);
+    context.font = "30px 'ConversationFont'";
+    context.fillStyle = "rgba(0,0,0,0.7)";
+    context.shadowColor = "rgba(0,0,0,0.2)";
+    context.shadowOffsetX = 5;
+    context.shadowOffsetY = 3;
+    context.shadowBlur = 3;
 
-    context.font = "30px 'Press Start 2P'";
-    context.fillStyle = "rgba(0,0,0,0.8)";
-    context.fillText(this.line2, 75, 720);
+    context.fillText(this.line1, 70, 662);
+
+    context.fillText(this.line2, 70, 717);
 }
 
 module.exports = Conversation;
