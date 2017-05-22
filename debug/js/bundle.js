@@ -76,6 +76,9 @@ function Battle(service, settings) {
 
     this.attack4Tile = this.service.resources.getTile("battleFightBtns(0,3)", 8 + 382, 768 - 192 + 12 + 88, 382, 88);
     this.attack4Tile.alpha = 0;
+
+    this.attackBackTile = this.service.resources.getTile("battleBackBtn", 778, 768 - 192 + 12, 240, 175);
+    this.attackBackTile.alpha = 0;
 }
 
 Battle.prototype._scenarioBattleIntroPart1 = function(tick) {
@@ -226,6 +229,7 @@ Battle.prototype._baseState = function() {
     this.attack2Tile.alpha = 0;
     this.attack3Tile.alpha = 0;
     this.attack4Tile.alpha = 0;
+    this.attackBackTile.alpha = 0;
 }
 
 Battle.prototype._commandState = function() {
@@ -284,6 +288,7 @@ Battle.prototype._fightState = function() {
     this.attack2Tile.alpha = 1;
     this.attack3Tile.alpha = 1;
     this.attack4Tile.alpha = 1;
+    this.attackBackTile.alpha = 1;
 
     if (this.attack1Tile.pointerInside()) {
         this.attack1Tile.setFrame(1);
@@ -315,7 +320,11 @@ Battle.prototype._fightState = function() {
 
         if (this.service.listeners.click) {
             console.log("attack4!");
+        }
+    }
 
+    if (this.attackBackTile.pointerInside()) {
+        if (this.service.listeners.click) {
             this.state = "command";
         }
     }
@@ -385,21 +394,27 @@ Battle.prototype.render = function() {
 
     this.conversation.render(context);
 
-    this.fightbtnTile.render(context);
-    
-    this.bagbtnTile.render(context);
+    if (this.state === "command") {
+        this.fightbtnTile.render(context);
+        
+        this.bagbtnTile.render(context);
 
-    this.pokemonbtnTile.render(context);
-    
-    this.runbtnTile.render(context);
+        this.pokemonbtnTile.render(context);
+        
+        this.runbtnTile.render(context);
+    }
 
-    this.attack1Tile.render(context);
+    if (this.state === "fight") {
+        this.attack1Tile.render(context);
 
-    this.attack2Tile.render(context);
+        this.attack2Tile.render(context);
 
-    this.attack3Tile.render(context);
+        this.attack3Tile.render(context);
 
-    this.attack4Tile.render(context);
+        this.attack4Tile.render(context);
+
+        this.attackBackTile.render(context);
+    }
 }
 
 module.exports = Battle;
@@ -419,17 +434,12 @@ function Conversation(service, settings) {
     this.arrowTile = this.service.resources.getTile("conversationArrow", 880, 768 - 192 + 50, 56, 80);
     this.arrowTile.alpha = 0;
 
-    // this.nextbtnTile = this.service.resources.getTile("conversationNextbtn", 840, 610, 120, 120);
-
     this.texts = ["+"];
 
     this.callables = [undefined];
 
     this.line1 = "";
     this.line2 = "";
-
-    // Hides the covnversation, do not render the converation if true
-    // this.hidden = settings.hidden ? settings.hidden : false;
 
     this.nextable = true;
 }
@@ -495,7 +505,7 @@ Conversation.prototype.update = function() {
 
     this._updateText();
 
-    // If there is no next -> disable next
+    // If there is no next -> make conversaiton not nextable
     if (this.texts[1] === undefined) {
         this.nextable = false;
     }
@@ -508,12 +518,6 @@ Conversation.prototype.update = function() {
         this.arrowTile.alpha = 0;
     }
 
-    // if (this.nextable === false) {
-    //     this.nextbtnTile.setFrame(0);
-    // } else {
-    //     this.nextbtnTile.setFrame(1);
-    // }
-
     // If clicked at conversation bar
     if (this.nextable === true && this.service.listeners.click && this.backgroundTile.pointerInside()) {
         this.next();
@@ -521,11 +525,6 @@ Conversation.prototype.update = function() {
 }
 
 Conversation.prototype.render = function(context) {
-    // Do not render if conversation should be hidden
-    // if (this.hidden === true) {
-    //     return;
-    // }
-
     this.backgroundTile.render(context);
 
     this.arrowTile.render(context);
@@ -1102,6 +1101,8 @@ Loader.prototype._loadImages = function() {
     for (let i = 0; i < this.tiles.length; i++) {
         let tile = this.tiles[i];
 
+        if (tile.image === "-") {continue;}
+
         imagesSrc.push(tile.src);
     }
 
@@ -1249,6 +1250,10 @@ Loader.prototype.update = function()
 
         for (let i = 0; i < this.tiles.length; i++) {
             let tile = this.tiles[i];
+
+            if (tile.image === "-") {
+                continue;
+            }
 
             if (tile.image === undefined || tile.image.complete === false || tile.image.naturalHeight === 0) {
                 loading = true;
@@ -1714,6 +1719,8 @@ function Tile(service, settings) {
 
     this.src = settings.src;
 
+    // if (this.src === null) {this.image === "no image!";}
+
     this.tileWidth = settings.tileWidth ? settings.tileWidth : 0;
     this.tileHeight = settings.tileHeight ? settings.tileHeight : 0;
 
@@ -1811,7 +1818,7 @@ Tile.prototype.update = function() {
 
 Tile.prototype.render = function(context, rX, rY) {
     // Do not render if tile has no image
-    if (this.image === undefined) {
+    if (this.image === undefined || this.image === "-") {
         // console.log("no image!");
 
         return;
@@ -1954,11 +1961,11 @@ module.exports=[
         "name": "HAUNTER",
         "tileFront": {
             "src": "img/monsters/093_haunter_front.png",
-            "tileWidth": 85,
-            "tileHeight": 85,
+            "tileWidth": 340,
+            "tileHeight": 340,
             "renderY": 80,
-            "renderWidth": 350,
-            "renderHeight": 350,
+            "renderWidth": 340,
+            "renderHeight": 340,
             "numberOfFrames": 25,
             "updateFrequency": 1,
             "loop": false,
@@ -1966,10 +1973,10 @@ module.exports=[
         },
         "tileBack": {
             "src": "img/monsters/093_haunter_back.png",
-            "tileWidth": 85,
-            "tileHeight": 85,
-            "renderWidth": 350,
-            "renderHeight": 350,
+            "tileWidth": 340,
+            "tileHeight": 340,
+            "renderWidth": 340,
+            "renderHeight": 340,
             "numberOfFrames": 25,
             "updateFrequency": 1,
             "loop": false,
@@ -1982,11 +1989,11 @@ module.exports=[
         "name": "GYARADOS",
         "tileFront": {
             "src": "img/monsters/130_gyarados_front.png",
-            "tileWidth": 102,
-            "tileHeight": 102,
+            "tileWidth": 357,
+            "tileHeight": 357,
             "renderY": 60,
-            "renderWidth": 350,
-            "renderHeight": 350,
+            "renderWidth": 357,
+            "renderHeight": 357,
             "numberOfFrames": 87,
             "updateFrequency": 1,
             "loop": false,
@@ -1994,10 +2001,10 @@ module.exports=[
         },
         "tileBack": {
             "src": "img/monsters/130_gyarados_back.png",
-            "tileWidth": 108,
-            "tileHeight": 108,
-            "renderWidth": 350,
-            "renderHeight": 350,
+            "tileWidth": 357,
+            "tileHeight": 357,
+            "renderWidth": 357,
+            "renderHeight": 357,
             "numberOfFrames": 87,
             "updateFrequency": 1,
             "loop": false,
@@ -2155,7 +2162,8 @@ module.exports=[
     },
     {
         "name": "conversationBattleBg",
-        "src": "img/conversation/background_battle.png",
+        "image": "-",
+        // "src": "img/conversation/background_battle.png",
         "tileWidth": 512,
         "tileHeight": 96
     },
@@ -2204,6 +2212,12 @@ module.exports=[
         "numberOfFrames": 2,
         "loop": false,
         "pause": true
+    },
+    {
+        "name": "battleBackBtn",
+        "src": "img/battle/backBtn.png",
+        "tileWidth": 120,
+        "tileHeight": 88
     }
 ]
 

@@ -73,7 +73,8 @@
     },
     {
         "name": "conversationBattleBg",
-        "src": "img/conversation/background_battle.png",
+        "image": "-",
+        // "src": "img/conversation/background_battle.png",
         "tileWidth": 512,
         "tileHeight": 96
     },
@@ -122,5 +123,11 @@
         "numberOfFrames": 2,
         "loop": false,
         "pause": true
+    },
+    {
+        "name": "battleBackBtn",
+        "src": "img/battle/backBtn.png",
+        "tileWidth": 120,
+        "tileHeight": 88
     }
 ]

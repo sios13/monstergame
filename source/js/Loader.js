@@ -123,6 +123,8 @@ Loader.prototype._loadImages = function() {
     for (let i = 0; i < this.tiles.length; i++) {
         let tile = this.tiles[i];
 
+        if (tile.image === "-") {continue;}
+
         imagesSrc.push(tile.src);
     }
 
@@ -270,6 +272,10 @@ Loader.prototype.update = function()
 
         for (let i = 0; i < this.tiles.length; i++) {
             let tile = this.tiles[i];
+
+            if (tile.image === "-") {
+                continue;
+            }
 
             if (tile.image === undefined || tile.image.complete === false || tile.image.naturalHeight === 0) {
                 loading = true;

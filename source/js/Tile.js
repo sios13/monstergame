@@ -7,6 +7,8 @@ function Tile(service, settings) {
 
     this.src = settings.src;
 
+    // if (this.src === null) {this.image === "no image!";}
+
     this.tileWidth = settings.tileWidth ? settings.tileWidth : 0;
     this.tileHeight = settings.tileHeight ? settings.tileHeight : 0;
 
@@ -104,7 +106,7 @@ Tile.prototype.update = function() {
 
 Tile.prototype.render = function(context, rX, rY) {
     // Do not render if tile has no image
-    if (this.image === undefined) {
+    if (this.image === undefined || this.image === "-") {
         // console.log("no image!");
 
         return;

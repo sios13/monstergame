@@ -12,17 +12,12 @@ function Conversation(service, settings) {
     this.arrowTile = this.service.resources.getTile("conversationArrow", 880, 768 - 192 + 50, 56, 80);
     this.arrowTile.alpha = 0;
 
-    // this.nextbtnTile = this.service.resources.getTile("conversationNextbtn", 840, 610, 120, 120);
-
     this.texts = ["+"];
 
     this.callables = [undefined];
 
     this.line1 = "";
     this.line2 = "";
-
-    // Hides the covnversation, do not render the converation if true
-    // this.hidden = settings.hidden ? settings.hidden : false;
 
     this.nextable = true;
 }
@@ -88,7 +83,7 @@ Conversation.prototype.update = function() {
 
     this._updateText();
 
-    // If there is no next -> disable next
+    // If there is no next -> make conversaiton not nextable
     if (this.texts[1] === undefined) {
         this.nextable = false;
     }
@@ -101,12 +96,6 @@ Conversation.prototype.update = function() {
         this.arrowTile.alpha = 0;
     }
 
-    // if (this.nextable === false) {
-    //     this.nextbtnTile.setFrame(0);
-    // } else {
-    //     this.nextbtnTile.setFrame(1);
-    // }
-
     // If clicked at conversation bar
     if (this.nextable === true && this.service.listeners.click && this.backgroundTile.pointerInside()) {
         this.next();
@@ -114,11 +103,6 @@ Conversation.prototype.update = function() {
 }
 
 Conversation.prototype.render = function(context) {
-    // Do not render if conversation should be hidden
-    // if (this.hidden === true) {
-    //     return;
-    // }
-
     this.backgroundTile.render(context);
 
     this.arrowTile.render(context);

@@ -75,6 +75,9 @@ function Battle(service, settings) {
 
     this.attack4Tile = this.service.resources.getTile("battleFightBtns(0,3)", 8 + 382, 768 - 192 + 12 + 88, 382, 88);
     this.attack4Tile.alpha = 0;
+
+    this.attackBackTile = this.service.resources.getTile("battleBackBtn", 778, 768 - 192 + 12, 240, 175);
+    this.attackBackTile.alpha = 0;
 }
 
 Battle.prototype._scenarioBattleIntroPart1 = function(tick) {
@@ -225,6 +228,7 @@ Battle.prototype._baseState = function() {
     this.attack2Tile.alpha = 0;
     this.attack3Tile.alpha = 0;
     this.attack4Tile.alpha = 0;
+    this.attackBackTile.alpha = 0;
 }
 
 Battle.prototype._commandState = function() {
@@ -283,6 +287,7 @@ Battle.prototype._fightState = function() {
     this.attack2Tile.alpha = 1;
     this.attack3Tile.alpha = 1;
     this.attack4Tile.alpha = 1;
+    this.attackBackTile.alpha = 1;
 
     if (this.attack1Tile.pointerInside()) {
         this.attack1Tile.setFrame(1);
@@ -314,7 +319,11 @@ Battle.prototype._fightState = function() {
 
         if (this.service.listeners.click) {
             console.log("attack4!");
+        }
+    }
 
+    if (this.attackBackTile.pointerInside()) {
+        if (this.service.listeners.click) {
             this.state = "command";
         }
     }
@@ -384,21 +393,27 @@ Battle.prototype.render = function() {
 
     this.conversation.render(context);
 
-    this.fightbtnTile.render(context);
-    
-    this.bagbtnTile.render(context);
+    if (this.state === "command") {
+        this.fightbtnTile.render(context);
+        
+        this.bagbtnTile.render(context);
 
-    this.pokemonbtnTile.render(context);
-    
-    this.runbtnTile.render(context);
+        this.pokemonbtnTile.render(context);
+        
+        this.runbtnTile.render(context);
+    }
 
-    this.attack1Tile.render(context);
+    if (this.state === "fight") {
+        this.attack1Tile.render(context);
 
-    this.attack2Tile.render(context);
+        this.attack2Tile.render(context);
 
-    this.attack3Tile.render(context);
+        this.attack3Tile.render(context);
 
-    this.attack4Tile.render(context);
+        this.attack4Tile.render(context);
+
+        this.attackBackTile.render(context);
+    }
 }
 
 module.exports = Battle;
