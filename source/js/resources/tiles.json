@@ -129,5 +129,17 @@
         "src": "img/battle/backBtn.png",
         "tileWidth": 120,
         "tileHeight": 88
+    },
+    {
+        "name": "battlePlayerBox",
+        "src": "img/battle/battlePlayerBox.png",
+        "tileWidth": 262,
+        "tileHeight": 62
+    },
+    {
+        "name": "battleOpponentBox",
+        "src": "img/battle/battleOpponentBox.png",
+        "tileWidth": 262,
+        "tileHeight": 62
     }
 ]

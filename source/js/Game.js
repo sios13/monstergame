@@ -20,6 +20,7 @@ function Game() {
      * Initialize service
      */
     this.service = require("./InitializeService.js")();
+    this.service.setState.bind(this);
 
     // Load save file
     this.service.save = require("./resources/savefile.json");

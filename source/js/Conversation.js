@@ -107,6 +107,8 @@ Conversation.prototype.render = function(context) {
 
     this.arrowTile.render(context);
 
+    context.save();
+
     context.font = "30px 'ConversationFont'";
     context.fillStyle = "rgba(0,0,0,0.7)";
     context.shadowColor = "rgba(0,0,0,0.2)";
@@ -117,6 +119,8 @@ Conversation.prototype.render = function(context) {
     context.fillText(this.line1, 70, 662);
 
     context.fillText(this.line2, 70, 717);
+
+    context.restore();
 }
 
 module.exports = Conversation;

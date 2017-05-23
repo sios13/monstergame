@@ -8,6 +8,7 @@ function Battle(service, settings) {
     this.state = "";
 
     this.playerMonster = this.service.resources.monsters.find( monster => monster.name === this.service.save.monsters[0].name );
+    this.playerMonster.level = this.service.save.monsters[0].level;
     this.playerMonster.tileBack.renderX = 86;
     this.playerMonster.tileBack.renderY = 768 - 340 - 192 + 60;
 
@@ -34,31 +35,36 @@ function Battle(service, settings) {
     this.playerMonsterTile = this.playerMonster.tileBack;
     this.playerMonsterTile.alpha = 0;
 
-    this.opponentMonsterTile = this.opponentMonster.tileFront;
-    this.opponentMonsterTile.renderX = 0 - 256 - this.opponentMonsterTile.renderWidth/2;
-    // this.opponentMonster.tileFront.renderY = 80;
+    this.playerBoxTile = this.service.resources.getTile("battlePlayerBox", 1024 - 393, 400, 393, 93);
+    this.playerBoxTile.alpha = 0;
 
     this.opponentbaseTile = this.service.resources.getTile("battleOpponentbase", -512, 200, 512, 256);
+
+    this.opponentMonsterTile = this.opponentMonster.tileFront;
+    this.opponentMonsterTile.renderX = 0 - 256 - this.opponentMonsterTile.renderWidth/2;
+
+    this.opponentBoxTile = this.service.resources.getTile("battleOpponentBox", 70, 100, 393, 93);
+    this.opponentBoxTile.alpha = 0;
 
     this.ballTile = this.service.resources.getTile("battleBall", 0, 410, 48, 48);
     this.ballTile.alpha = 0;
 
-    this.messagebgTile = this.service.resources.getTile("battleMessagebg", 0, 768 - 192, 1028, 192);
+    this.messagebgTile = this.service.resources.getTile("battleMessagebg", 0, 768 - 192, 1024, 192);
     this.messagebgTile.alpha = 0;
 
-    this.comandbgTile = this.service.resources.getTile("battleCommandbg", 0, 768 - 192, 1028, 192);
+    this.comandbgTile = this.service.resources.getTile("battleCommandbg", 0, 768 - 192, 1024, 192);
     this.comandbgTile.alpha = 0;
 
-    this.fightbgTile = this.service.resources.getTile("battleFightbg", 0, 768 - 192, 1028, 192);
+    this.fightbgTile = this.service.resources.getTile("battleFightbg", 0, 768 - 192, 1024, 192);
     this.fightbgTile.alpha = 0;
 
-    this.fightbtnTile = this.service.resources.getTile("battleCommandBtns(0,0)", 514, 768 - 192 + 12, 252, 88);
+    this.fightbtnTile = this.service.resources.getTile("battleCommandBtns(0,0)", 512, 768 - 192 + 12, 252, 88);
     this.fightbtnTile.alpha = 0;
 
     this.bagbtnTile = this.service.resources.getTile("battleCommandBtns(0,2)", 766, 768 - 192 + 12, 252, 88);
     this.bagbtnTile.alpha = 0;
 
-    this.pokemonbtnTile = this.service.resources.getTile("battleCommandBtns(0,1)", 514, 768 - 192 + 88 + 12, 252, 88);
+    this.pokemonbtnTile = this.service.resources.getTile("battleCommandBtns(0,1)", 512, 768 - 192 + 88 + 12, 252, 88);
     this.pokemonbtnTile.alpha = 0;
 
     this.runbtnTile = this.service.resources.getTile("battleCommandBtns(0,3)", 766, 768 - 192 + 88 + 12, 252, 88);
@@ -134,6 +140,8 @@ Battle.prototype._scenarioBattleIntroPart1 = function(tick) {
         this.opponentMonsterTile.pause = false;
         this.opponentMonster.cry.play();
 
+        this.opponentBoxTile.alpha = 1;
+
         this.conversation.enqueue("Wild " + this.opponentMonster.name + " appeared!+", undefined);
         this.conversation.next();
 
@@ -167,6 +175,8 @@ Battle.prototype._scenarioBattleIntroPart2 = function(tick) {
         this.playerMonsterTile.pause = false;
         this.playerMonster.cry.play();
 
+        this.playerBoxTile.alpha = 1;
+
         this.ballTile.alpha = 0;
     }
 
@@ -192,6 +202,16 @@ Battle.prototype._scenarioPlayerMonsterTackle = function(tick) {
         this.playerMonsterTile.renderY += 20;
     }
 
+    // Damage!
+    if (tick === 38) {
+        this.opponentMonster.HP -= 90;
+
+        if (this.opponentMonster.HP < 0) {this.opponentMonster.HP = 0;}
+
+        // Play damage sound!
+        this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/normaldamage.wav").play();
+    }
+
     // Opponent blink
     if (tick === 38) {
         this.opponentMonsterTile.alpha = 0;
@@ -208,11 +228,17 @@ Battle.prototype._scenarioPlayerMonsterTackle = function(tick) {
 
     // Exit scenario
     if (tick === 60) {
-        this.service.ScenarioManager.removeScenario(this._scenarioPlayerMonsterTackle);
+        if (this.opponentMonster.HP > 0) {
+            this.conversation.enqueue("Enemy " + this.opponentMonster.name + "+used TACKLE!", function() {
+                this.service.ScenarioManager.addScenario(this._scenarioOpponentMonsterTackle.bind(this));
+            }.bind(this));
+        } else {
+            this.conversation.enqueue("Enemy " + this.opponentMonster.name + "+fainted!", function() {
+                this.service.ScenarioManager.addScenario(this._scenarioOpponentMonsterFaint.bind(this));
+            }.bind(this));
+        }
 
-        this.conversation.enqueue(this.opponentMonster.name + " used+TACKLE!", function() {
-            this.service.ScenarioManager.addScenario(this._scenarioOpponentMonsterTackle.bind(this));
-        }.bind(this));
+        this.service.ScenarioManager.removeScenario(this._scenarioPlayerMonsterTackle);
     }
 }
 
@@ -229,6 +255,16 @@ Battle.prototype._scenarioOpponentMonsterTackle = function(tick) {
         this.opponentMonsterTile.renderY -= 20;
     }
 
+    // Damage!
+    if (tick === 38) {
+        this.playerMonster.HP -= 90;
+
+        if (this.playerMonster.HP < 0) {this.playerMonster.HP = 0;}
+
+        // Play damage sound!
+        this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/normaldamage.wav").play();
+    }
+
     // Opponent blink
     if (tick === 38) {
         this.playerMonsterTile.alpha = 0;
@@ -245,11 +281,79 @@ Battle.prototype._scenarioOpponentMonsterTackle = function(tick) {
 
     // Exit scenario
     if (tick === 60) {
-        this.conversation.enqueue("What will+" + this.playerMonster.name + " do?", function() {
-            this.state = "command";
-        }.bind(this));
+        if (this.playerMonster.HP > 0) {
+            this.conversation.enqueue("What will+" + this.playerMonster.name + " do?", function() {
+                this.state = "command";
+            }.bind(this));
+        } else {
+            this.conversation.enqueue(this.opponentMonster.name + "+fainted!", function() {
+                this.service.ScenarioManager.addScenario(this._scenarioPlayerMonsterFaint.bind(this));
+            }.bind(this));
+        }
 
         this.service.ScenarioManager.removeScenario(this._scenarioOpponentMonsterTackle);
+    }
+}
+
+Battle.prototype._scenarioPlayerMonsterHeal = function(tick) {
+    if (tick === 1) {
+        this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/Refresh.mp3").play();
+    }
+
+    if (tick === 40) {
+        this.conversation.enqueue("Enemy " + this.opponentMonster.name + "+used TACKLE!", function() {
+            this.service.ScenarioManager.addScenario(this._scenarioOpponentMonsterTackle.bind(this));
+        }.bind(this));
+
+        this.service.ScenarioManager.removeScenario(this._scenarioPlayerMonsterHeal);
+    }
+}
+
+Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
+    if (tick > 30) {return;}
+
+    if (tick === 1) {
+        this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/faint.wav").play();
+    }
+
+    if (tick > 0 && tick < 20) {
+        this.playerMonsterTile.renderY += 10;
+        this.playerMonsterTile.tileHeight -= 10;
+    }
+
+    if (tick === 30) {
+        this.service.save.monsters[0].level = 1;
+        this.playerMonster.level = 1;
+        this.conversation.enqueue(this.playerMonster.name + " is now lvl " + this.service.save.monsters[0].level + "!+:''''(", undefined);
+        this.conversation.enqueue("", function() {
+            this.service.setState("world");
+        }.bind(this));
+
+        this.service.ScenarioManager.removeScenario(this._scenarioPlayerMonsterFaint);
+    }
+}
+
+Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
+    if (tick > 30) {return;}
+
+    if (tick === 1) {
+        this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/faint.wav").play();
+    }
+
+    if (tick > 0 && tick < 20) {
+        this.opponentMonsterTile.renderY += 10;
+        this.opponentMonsterTile.tileHeight -= 10;
+    }
+
+    if (tick === 30) {
+        this.service.save.monsters[0].level += 1;
+        this.playerMonster.level += 1;
+        this.conversation.enqueue(this.playerMonster.name + " reached lvl " + this.service.save.monsters[0].level + "!+Yaaaaaaaay!", undefined);
+        this.conversation.enqueue("", function() {
+            this.service.setState("world");
+        }.bind(this));
+
+        this.service.ScenarioManager.removeScenario(this._scenarioOpponentMonsterFaint);
     }
 }
 
@@ -316,16 +420,8 @@ Battle.prototype._commandState = function() {
 
         if (this.service.listeners.click === true) {
             this.service.events.push(function() {
-            this.service.battleCanvas.style.zIndex = 0;
-            this.service.worldCanvas.style.zIndex = 1;
-
-            this.service.battle.audio.pause();
-
-            this.service.map.audio.volume = 0;
-            this.service.playAudio(this.service.map.audio);
-
-            this.service.state = "world";
-        });
+                this.service.setState("world");
+            });
         }
     }
 }
@@ -344,7 +440,7 @@ Battle.prototype._fightState = function() {
         if (this.service.listeners.click) {
             console.log("attack1!");
             this.state = "";
-            this.conversation.enqueue(this.playerMonster.name + " used+TACKLE!", function() {
+            this.conversation.enqueue(this.playerMonster.name + "+used TACKLE!", function() {
                 this.service.ScenarioManager.addScenario(this._scenarioPlayerMonsterTackle.bind(this));
             }.bind(this));
             // this.conversation.next();
@@ -355,6 +451,10 @@ Battle.prototype._fightState = function() {
         this.attack2Tile.setFrame(1);
 
         if (this.service.listeners.click) {
+            this.state = "";
+            this.conversation.enqueue(this.playerMonster.name + "+used HEAL!", function() {
+                this.service.ScenarioManager.addScenario(this._scenarioPlayerMonsterHeal.bind(this));
+            }.bind(this));
             console.log("attack2!");
         }
     }
@@ -438,11 +538,45 @@ Battle.prototype.render = function() {
 
     this.opponentMonsterTile.render(context);
 
+    this.opponentBoxTile.render(context);
+
+    // If box is visible -> also display name, lvl, hp
+    if (this.opponentBoxTile.alpha === 1) {
+        context.save();
+
+        context.font = "28px 'ConversationFont'";
+        context.fillStyle = "rgba(0,0,0,0.8)";
+
+        context.fillText(this.opponentMonster.name, 85, 148);
+        context.font = "20px 'ConversationFont'";
+        context.fillText("Lvl:" + this.opponentMonster.level, 85, 180);
+        context.fillText(this.opponentMonster.HP + "/" + this.opponentMonster.maxHP, 270, 180);
+
+        context.restore();
+    }
+
     this.playerbaseTile.render(context);
 
     this.playerMonsterTile.render(context);
 
     this.playerTile.render(context);
+
+    this.playerBoxTile.render(context);
+
+    // If box is visible -> also display name, lvl, hp
+    if (this.playerBoxTile.alpha === 1) {
+        context.save();
+
+        context.font = "28px 'ConversationFont'";
+        context.fillStyle = "rgba(0,0,0,0.8)";
+
+        context.fillText(this.playerMonster.name, this.playerBoxTile.renderX + 50, this.playerBoxTile.renderY + 48);
+        context.font = "20px 'ConversationFont'";
+        context.fillText("Lvl:" + this.playerMonster.level, this.playerBoxTile.renderX + 50, this.playerBoxTile.renderY + 80);
+        context.fillText(this.playerMonster.HP + "/" + this.playerMonster.maxHP, this.playerBoxTile.renderX + 235, this.playerBoxTile.renderY + 80);
+
+        context.restore();
+    }
 
     this.ballTile.render(context);
 
@@ -450,9 +584,9 @@ Battle.prototype.render = function() {
 
     this.comandbgTile.render(context);
 
-    this.fightbgTile.render(context);
-
     this.conversation.render(context);
+
+    this.fightbgTile.render(context);
 
     if (this.state === "command") {
         this.fightbtnTile.render(context);
@@ -465,13 +599,21 @@ Battle.prototype.render = function() {
     }
 
     if (this.state === "fight") {
+        context.save();
+        context.font = "28px 'ConversationFont'";
+        context.fillStyle = "rgba(0,0,0,0.8)";
+
         this.attack1Tile.render(context);
+        context.fillText("Tackle", this.attack1Tile.renderX + 60, this.attack1Tile.renderY + 55);
 
         this.attack2Tile.render(context);
+        context.fillText("Heal", this.attack2Tile.renderX + 60, this.attack2Tile.renderY + 55);
 
-        this.attack3Tile.render(context);
+        context.restore();
 
-        this.attack4Tile.render(context);
+        // this.attack3Tile.render(context);
+
+        // this.attack4Tile.render(context);
 
         this.attackBackTile.render(context);
     }

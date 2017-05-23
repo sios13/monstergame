@@ -40,8 +40,10 @@ function MapManager(service, {}) {
             this.service.map.audio.pause();
             this.service.map.audio.volume = 0;
 
-            let monsters = this.service.resources.monsters;
-            this.service.battle = new Battle(this.service, {opponent: monsters[this.service.tick % monsters.length]});
+            let monster = this.service.resources.getRandomMonster();
+            monster.level = 3;
+            this.service.battle = new Battle(this.service, {opponent: monster});
+            // this.service.battle = new Battle(this.service, {opponent: monsters[this.service.tick % monsters.length]});
 
             this.service.worldCanvas.style.zIndex = -1;
             this.service.battleCanvas.style.zIndex = 1;

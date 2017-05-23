@@ -5,8 +5,6 @@ function Loader(service, settings)
     this.service = service;
 
     this.service.resources = {};
-    // this.service.resources.tiles = [];
-    // this.service.resources.monsters = [];
 
     this.service.resources.getTile = function(tilename, renderX, renderY, renderWidth, renderHeight) {
         // Get the tile template
@@ -25,6 +23,24 @@ function Loader(service, settings)
         tile.renderHeight = renderHeight;
 
         return tile;
+    }.bind(this);
+
+    this.service.resources.getRandomMonster = function() {
+        let index = this.service.tick % this.service.resources.monsters.length;
+
+        let monsterTemplate = this.service.resources.monsters[index];
+
+        let monster = {};
+
+        monster.id = monsterTemplate.id;
+        monster.name = monsterTemplate.name;
+        monster.HP = monsterTemplate.HP;
+        monster.maxHP = monsterTemplate.maxHP;
+        monster.tileFront = monsterTemplate.tileFront.copy();
+        monster.tileBack = monsterTemplate.tileBack.copy();
+        monster.cry = monsterTemplate.cry;
+
+        return monster;
     }.bind(this);
 
     this.loadTick = 0;
@@ -182,7 +198,10 @@ Loader.prototype._loadAudios = function() {
     let audiosSrc = [
         "audio/music1.mp3",
         "audio/music2.mp3",
-        "audio/pkmn-fajt.mp3"
+        "audio/pkmn-fajt.mp3",
+        "audio/normaldamage.wav",
+        "audio/faint.wav",
+        "audio/Refresh.mp3"
     ];
 
     // Make an audio element for every audio src

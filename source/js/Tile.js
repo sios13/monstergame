@@ -112,9 +112,6 @@ Tile.prototype.render = function(context, rX, rY) {
         return;
     }
 
-    // mapX = mapX ? mapX : this.service.map.x;
-    // mapY = mapY ? mapY : this.service.map.y;
-
     rX = rX ? rX : 0;
     rY = rY ? rY : 0;
 
@@ -126,14 +123,11 @@ Tile.prototype.render = function(context, rX, rY) {
     context.globalAlpha = this.alpha;
 
     context.drawImage(
-        // this.image ? this.image : this.placeholderImage,
         this.image,
         xInImage,
         yInImage,
         this.tileWidth,
         this.tileHeight,
-        // mapX + this.renderX,
-        // mapY + this.renderY,
         rX + this.renderX,
         rY + this.renderY,
         this.renderWidth,
