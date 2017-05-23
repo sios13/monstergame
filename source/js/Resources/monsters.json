@@ -2,8 +2,8 @@
     {
         "id": 1,
         "name": "BULBASAUR",
-        "HP": 100,
-        "maxHP": 100,
+        "maxHP": 13,
+        "strength": 3,
         "tileFront": {
             "src": "img/monsters/001_bulbasaur_front.png",
             "tileWidth": 38,
@@ -46,8 +46,8 @@
     {
         "id": 93,
         "name": "HAUNTER",
-        "HP": 100,
-        "maxHP": 100,
+        "maxHP": 12,
+        "strength": 4,
         "tileFront": {
             "src": "img/monsters/093_haunter_front.png",
             "tileWidth": 85,
@@ -76,8 +76,8 @@
     {
         "id": 130,
         "name": "GYARADOS",
-        "HP": 100,
-        "maxHP": 100,
+        "maxHP": 13,
+        "strength": 4,
         "tileFront": {
             "src": "img/monsters/130_gyarados_front.png",
             "tileWidth": 102,
@@ -102,5 +102,35 @@
             "pause": true
         },
         "crySrc": "audio/monster/130Cry.wav"
+    },
+    {
+        "id": 143,
+        "name": "SNORLAX",
+        "maxHP": 17,
+        "strength": 7,
+        "tileFront": {
+            "src": "img/monsters/143_snorlax_front.png",
+            "tileWidth": 75,
+            "tileHeight": 75,
+            "renderY": 30,
+            "renderWidth": 350,
+            "renderHeight": 350,
+            "numberOfFrames": 173,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "tileBack": {
+            "src": "img/monsters/143_snorlax_back.png",
+            "tileWidth": 75,
+            "tileHeight": 75,
+            "renderWidth": 350,
+            "renderHeight": 350,
+            "numberOfFrames": 173,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "crySrc": "audio/monster/143Cry.wav"
     }
 ]

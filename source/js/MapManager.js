@@ -40,7 +40,14 @@ function MapManager(service, {}) {
             this.service.map.audio.pause();
             this.service.map.audio.volume = 0;
 
-            let monster = this.service.resources.getRandomMonster();
+            // Decide what monster to battle
+            // Depending on where player is standing there are different monster possibilites
+
+            // If on bridge -> snorlax!
+            if (true) {
+
+            }
+            let monster = this.service.resources.getMonster(this.service.tick % this.service.resources.monsters.length);
             monster.level = 3;
             this.service.battle = new Battle(this.service, {opponent: monster});
             // this.service.battle = new Battle(this.service, {opponent: monsters[this.service.tick % monsters.length]});
@@ -51,7 +58,21 @@ function MapManager(service, {}) {
     };
     this.waterEvent = function() {
         this.service.coolguy.setState("water");
-    }
+    };
+    this.snorlaxEvent = function() {
+        this.service.state = "battle";
+
+        this.service.map.audio.pause();
+        this.service.map.audio.volume = 0;
+
+        let snorlax = this.service.resources.getMonster(3);
+        snorlax.level = 20;
+
+        this.service.battle = new Battle(this.service, {opponent: snorlax});
+
+        this.service.worldCanvas.style.zIndex = -1;
+        this.service.battleCanvas.style.zIndex = 1;
+    };
 }
 
 MapManager.prototype.getMap = function(mapName) {
@@ -72,8 +93,8 @@ MapManager.prototype.createStartMap = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
-        [1,1,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,0,0,0,0,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,0,0,1,1,1,1,1,1],
+        [1,1,0,0,0,0,0,0,0,1,1,5,5,5,1,1,1,1,0,0,0,0,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,5,5,5,1,1,0,0,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
@@ -121,6 +142,13 @@ MapManager.prototype.createStartMap = function() {
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
+    let snorlaxTile = this.service.resources.getMonster(3).tileFront;
+    snorlaxTile.pause = false;
+    snorlaxTile.loop = true;
+    snorlaxTile.renderX = 11*32;
+    snorlaxTile.renderY = 2*32;
+    snorlaxTile.renderWidth = 96;
+    snorlaxTile.renderHeight = 96;
     let tiles = [
         this.service.resources.getTile("grass", 8*32, 30*29, 32, 32),
         this.service.resources.getTile("grass", 9*32, 30*29, 32, 32),
@@ -173,7 +201,9 @@ MapManager.prototype.createStartMap = function() {
         this.service.resources.getTile("sea(2,7)", 17*32, 37*32, 32, 32),
         this.service.resources.getTile("sea(3,7)", 18*32, 37*32, 32, 32),
         this.service.resources.getTile("sea(4,7)", 19*32, 37*32, 32, 32),
-        this.service.resources.getTile("sea(5,7)", 20*32, 37*32, 32, 32)
+        this.service.resources.getTile("sea(5,7)", 20*32, 37*32, 32, 32),
+
+        snorlaxTile
     ];
 
     let map = new Map(this.service, {
@@ -207,6 +237,11 @@ MapManager.prototype.createStartMap = function() {
             // Water! Swim!
             if (collisionMap[y][x] === 4) {
                 map.attachEvent(x, y, this.waterEvent);
+            }
+
+            // Snorlax!
+            if (collisionMap[y][x] === 5) {
+                map.attachEvent(x, y, this.snorlaxEvent);
             }
         }
     }

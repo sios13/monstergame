@@ -25,8 +25,8 @@ function Loader(service, settings)
         return tile;
     }.bind(this);
 
-    this.service.resources.getRandomMonster = function() {
-        let index = this.service.tick % this.service.resources.monsters.length;
+    this.service.resources.getMonster = function(index) {
+        // let index = this.service.tick % this.service.resources.monsters.length;
 
         let monsterTemplate = this.service.resources.monsters[index];
 
@@ -34,8 +34,9 @@ function Loader(service, settings)
 
         monster.id = monsterTemplate.id;
         monster.name = monsterTemplate.name;
-        monster.HP = monsterTemplate.HP;
+        monster.HP = monsterTemplate.maxHP;
         monster.maxHP = monsterTemplate.maxHP;
+        monster.strength = monsterTemplate.strength;
         monster.tileFront = monsterTemplate.tileFront.copy();
         monster.tileBack = monsterTemplate.tileBack.copy();
         monster.cry = monsterTemplate.cry;
@@ -201,7 +202,8 @@ Loader.prototype._loadAudios = function() {
         "audio/pkmn-fajt.mp3",
         "audio/normaldamage.wav",
         "audio/faint.wav",
-        "audio/Refresh.mp3"
+        "audio/Refresh.mp3",
+        "audio/expfull.wav"
     ];
 
     // Make an audio element for every audio src

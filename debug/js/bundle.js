@@ -8,12 +8,26 @@ function Battle(service, settings) {
 
     this.state = "";
 
-    this.playerMonster = this.service.resources.monsters.find( monster => monster.name === this.service.save.monsters[0].name );
+    let index = 0;
+    for (let i = 0; i < this.service.resources.monsters.length; i++) {
+        if (this.service.resources.monsters[i].name === this.service.save.monsters[0].name) {
+            index = i;
+            break;
+        }
+    }
+    this.playerMonster = this.service.resources.getMonster(index);
+
+    // Read from save file
     this.playerMonster.level = this.service.save.monsters[0].level;
+    this.playerMonster.maxHP = this.service.save.monsters[0].maxHP ? this.service.save.monsters[0].maxHP : this.playerMonster.maxHP;
+    this.playerMonster.HP = this.service.save.monsters[0].HP ? this.service.save.monsters[0].HP : this.playerMonster.maxHP;
+
     this.playerMonster.tileBack.renderX = 86;
     this.playerMonster.tileBack.renderY = 768 - 340 - 192 + 60;
 
     this.opponentMonster = settings.opponent;
+    this.opponentMonster.maxHP = Math.round(this.opponentMonster.maxHP * Math.pow(1.20, this.opponentMonster.level-1));
+    this.opponentMonster.HP = this.opponentMonster.maxHP;
 
     this.audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/pkmn-fajt.mp3");
     this.audio.volume = 1;
@@ -36,7 +50,7 @@ function Battle(service, settings) {
     this.playerMonsterTile = this.playerMonster.tileBack;
     this.playerMonsterTile.alpha = 0;
 
-    this.playerBoxTile = this.service.resources.getTile("battlePlayerBox", 1024 - 393, 400, 393, 93);
+    this.playerBoxTile = this.service.resources.getTile("battlePlayerBox", 1024 - 393, 430, 393, 93);
     this.playerBoxTile.alpha = 0;
 
     this.opponentbaseTile = this.service.resources.getTile("battleOpponentbase", -512, 200, 512, 256);
@@ -205,7 +219,7 @@ Battle.prototype._scenarioPlayerMonsterTackle = function(tick) {
 
     // Damage!
     if (tick === 38) {
-        this.opponentMonster.HP -= 90;
+        this.opponentMonster.HP -= Math.round(this.playerMonster.strength * Math.pow(1.15, this.playerMonster.level-1));
 
         if (this.opponentMonster.HP < 0) {this.opponentMonster.HP = 0;}
 
@@ -258,7 +272,7 @@ Battle.prototype._scenarioOpponentMonsterTackle = function(tick) {
 
     // Damage!
     if (tick === 38) {
-        this.playerMonster.HP -= 90;
+        this.playerMonster.HP -= Math.round(this.opponentMonster.strength * Math.pow(1.15, this.opponentMonster.level-1));
 
         if (this.playerMonster.HP < 0) {this.playerMonster.HP = 0;}
 
@@ -266,7 +280,7 @@ Battle.prototype._scenarioOpponentMonsterTackle = function(tick) {
         this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/normaldamage.wav").play();
     }
 
-    // Opponent blink
+    // Blink!
     if (tick === 38) {
         this.playerMonsterTile.alpha = 0;
     }
@@ -287,7 +301,7 @@ Battle.prototype._scenarioOpponentMonsterTackle = function(tick) {
                 this.state = "command";
             }.bind(this));
         } else {
-            this.conversation.enqueue(this.opponentMonster.name + "+fainted!", function() {
+            this.conversation.enqueue(this.playerMonster.name + "+fainted!", function() {
                 this.service.ScenarioManager.addScenario(this._scenarioPlayerMonsterFaint.bind(this));
             }.bind(this));
         }
@@ -298,6 +312,12 @@ Battle.prototype._scenarioOpponentMonsterTackle = function(tick) {
 
 Battle.prototype._scenarioPlayerMonsterHeal = function(tick) {
     if (tick === 1) {
+        this.playerMonster.HP = Math.round(this.playerMonster.HP + this.playerMonster.maxHP * 0.5);
+
+        if (this.playerMonster.HP > this.playerMonster.maxHP) {
+            this.playerMonster.HP = this.playerMonster.maxHP;
+        }
+
         this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/Refresh.mp3").play();
     }
 
@@ -323,9 +343,13 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
     }
 
     if (tick === 30) {
+        // Game over :(
         this.service.save.monsters[0].level = 1;
+        this.service.save.monsters[0].maxHP = null;
+        this.service.save.monsters[0].HP = null;
+
         this.playerMonster.level = 1;
-        this.conversation.enqueue(this.playerMonster.name + " is now lvl " + this.service.save.monsters[0].level + "!+:''''(!", undefined);
+        this.conversation.enqueue("Game over!+" + this.playerMonster.name + " is now lvl " + this.service.save.monsters[0].level + ". :'''(", undefined);
         this.conversation.enqueue("", function() {
             this.service.setState("world");
         }.bind(this));
@@ -347,9 +371,21 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
     }
 
     if (tick === 30) {
-        this.service.save.monsters[0].level += 1;
-        this.playerMonster.level += 1;
-        this.conversation.enqueue(this.playerMonster.name + " reached lvl " + this.service.save.monsters[0].level + "!+Yaaaaaaaay!", undefined);
+        this.conversation.enqueue(this.playerMonster.name + " reached lvl " + (this.playerMonster.level + 1) + "!+Yaaaaaaaay!", function() {
+            // Play new level sound!
+            this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/expfull.wav").play();
+
+            // Update player monster (for visual)
+            this.playerMonster.level += 1;
+            this.playerMonster.HP = Math.round(this.playerMonster.HP * 1.20);
+            this.playerMonster.maxHP = Math.round(this.playerMonster.maxHP * 1.20);
+
+            // Update save file according to player monster
+            this.service.save.monsters[0].level = this.playerMonster.level;
+            this.service.save.monsters[0].HP = this.playerMonster.HP;
+            this.service.save.monsters[0].maxHP = this.playerMonster.maxHP;
+        }.bind(this));
+
         this.conversation.enqueue("", function() {
             this.service.setState("world");
         }.bind(this));
@@ -405,6 +441,11 @@ Battle.prototype._commandState = function() {
 
         if (this.service.listeners.click === true) {
             console.log("bag");
+            this.state = "";
+            this.conversation.enqueue("You do not own a bag!+", undefined);
+            this.conversation.enqueue("What will+" + this.playerMonster.name + " do?", function() {
+                this.state = "command";
+            }.bind(this));
         }
     }
 
@@ -413,6 +454,11 @@ Battle.prototype._commandState = function() {
 
         if (this.service.listeners.click === true) {
             console.log("pokemon");
+            this.state = "";
+            this.conversation.enqueue("Your monsters' name is:+" + this.playerMonster.name, undefined);
+            this.conversation.enqueue("What will+" + this.playerMonster.name + " do?", function() {
+                this.state = "command";
+            }.bind(this));
         }
     }
 
@@ -420,9 +466,21 @@ Battle.prototype._commandState = function() {
         this.runbtnTile.setFrame(1);
 
         if (this.service.listeners.click === true) {
-            this.service.events.push(function() {
-                this.service.setState("world");
-            });
+            this.state = "";
+
+            if (this.opponentMonster.level > this.playerMonster.level) {
+                this.conversation.enqueue("Can not escape+from a higher level monster!", undefined);
+                this.conversation.enqueue("What will+" + this.playerMonster.name + " do?", function() {
+                    this.state = "command";
+                }.bind(this));
+            } else {
+                this.conversation.enqueue("Got away safely!+", undefined);
+                this.conversation.enqueue("", function() {
+                    this.service.events.push(function() {
+                        this.service.setState("world");
+                    });
+                }.bind(this));
+            }
         }
     }
 }
@@ -1226,8 +1284,8 @@ function Loader(service, settings)
         return tile;
     }.bind(this);
 
-    this.service.resources.getRandomMonster = function() {
-        let index = this.service.tick % this.service.resources.monsters.length;
+    this.service.resources.getMonster = function(index) {
+        // let index = this.service.tick % this.service.resources.monsters.length;
 
         let monsterTemplate = this.service.resources.monsters[index];
 
@@ -1235,8 +1293,9 @@ function Loader(service, settings)
 
         monster.id = monsterTemplate.id;
         monster.name = monsterTemplate.name;
-        monster.HP = monsterTemplate.HP;
+        monster.HP = monsterTemplate.maxHP;
         monster.maxHP = monsterTemplate.maxHP;
+        monster.strength = monsterTemplate.strength;
         monster.tileFront = monsterTemplate.tileFront.copy();
         monster.tileBack = monsterTemplate.tileBack.copy();
         monster.cry = monsterTemplate.cry;
@@ -1402,7 +1461,8 @@ Loader.prototype._loadAudios = function() {
         "audio/pkmn-fajt.mp3",
         "audio/normaldamage.wav",
         "audio/faint.wav",
-        "audio/Refresh.mp3"
+        "audio/Refresh.mp3",
+        "audio/expfull.wav"
     ];
 
     // Make an audio element for every audio src
@@ -1661,7 +1721,14 @@ function MapManager(service, {}) {
             this.service.map.audio.pause();
             this.service.map.audio.volume = 0;
 
-            let monster = this.service.resources.getRandomMonster();
+            // Decide what monster to battle
+            // Depending on where player is standing there are different monster possibilites
+
+            // If on bridge -> snorlax!
+            if (true) {
+
+            }
+            let monster = this.service.resources.getMonster(this.service.tick % this.service.resources.monsters.length);
             monster.level = 3;
             this.service.battle = new Battle(this.service, {opponent: monster});
             // this.service.battle = new Battle(this.service, {opponent: monsters[this.service.tick % monsters.length]});
@@ -1672,7 +1739,21 @@ function MapManager(service, {}) {
     };
     this.waterEvent = function() {
         this.service.coolguy.setState("water");
-    }
+    };
+    this.snorlaxEvent = function() {
+        this.service.state = "battle";
+
+        this.service.map.audio.pause();
+        this.service.map.audio.volume = 0;
+
+        let snorlax = this.service.resources.getMonster(3);
+        snorlax.level = 20;
+
+        this.service.battle = new Battle(this.service, {opponent: snorlax});
+
+        this.service.worldCanvas.style.zIndex = -1;
+        this.service.battleCanvas.style.zIndex = 1;
+    };
 }
 
 MapManager.prototype.getMap = function(mapName) {
@@ -1693,8 +1774,8 @@ MapManager.prototype.createStartMap = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
-        [1,1,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,0,0,0,0,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,0,0,1,1,1,1,1,1],
+        [1,1,0,0,0,0,0,0,0,1,1,5,5,5,1,1,1,1,0,0,0,0,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,5,5,5,1,1,0,0,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
         [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
@@ -1742,6 +1823,13 @@ MapManager.prototype.createStartMap = function() {
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
+    let snorlaxTile = this.service.resources.getMonster(3).tileFront;
+    snorlaxTile.pause = false;
+    snorlaxTile.loop = true;
+    snorlaxTile.renderX = 11*32;
+    snorlaxTile.renderY = 2*32;
+    snorlaxTile.renderWidth = 96;
+    snorlaxTile.renderHeight = 96;
     let tiles = [
         this.service.resources.getTile("grass", 8*32, 30*29, 32, 32),
         this.service.resources.getTile("grass", 9*32, 30*29, 32, 32),
@@ -1794,7 +1882,9 @@ MapManager.prototype.createStartMap = function() {
         this.service.resources.getTile("sea(2,7)", 17*32, 37*32, 32, 32),
         this.service.resources.getTile("sea(3,7)", 18*32, 37*32, 32, 32),
         this.service.resources.getTile("sea(4,7)", 19*32, 37*32, 32, 32),
-        this.service.resources.getTile("sea(5,7)", 20*32, 37*32, 32, 32)
+        this.service.resources.getTile("sea(5,7)", 20*32, 37*32, 32, 32),
+
+        snorlaxTile
     ];
 
     let map = new Map(this.service, {
@@ -1828,6 +1918,11 @@ MapManager.prototype.createStartMap = function() {
             // Water! Swim!
             if (collisionMap[y][x] === 4) {
                 map.attachEvent(x, y, this.waterEvent);
+            }
+
+            // Snorlax!
+            if (collisionMap[y][x] === 5) {
+                map.attachEvent(x, y, this.snorlaxEvent);
             }
         }
     }
@@ -1922,21 +2017,6 @@ ScenarioManager.prototype.removeScenario = function(scenario) {
     this.scenarios.shift();
 
     this.scenariosTicks.shift();
-    // let index = -1;
-
-    // console.log(this.scenarios[0].toString());
-
-    // for (let i = 0; i < this.scenarios.length; i++) {
-    //     if (this.scenarios[i].toString() === scenario.toString()) {
-    //         index = i;
-    //         break;
-    //     }
-    // }
-    // // let index = this.scenarios.indexOf(scenario);
-    // console.log(index);
-    // this.scenarios.splice(index, 1);
-
-    // this.scenariosTicks.splice(index, 1);
 }
 
 ScenarioManager.prototype.update = function() {
@@ -1947,9 +2027,7 @@ ScenarioManager.prototype.update = function() {
     }
 }
 
-// ScenarioManager.prototype.render = function() {
-
-// }
+// ScenarioManager.prototype.render = function() {}
 
 module.exports = ScenarioManager;
 
@@ -2155,8 +2233,8 @@ module.exports=[
     {
         "id": 1,
         "name": "BULBASAUR",
-        "HP": 100,
-        "maxHP": 100,
+        "maxHP": 13,
+        "strength": 3,
         "tileFront": {
             "src": "img/monsters/001_bulbasaur_front.png",
             "tileWidth": 38,
@@ -2199,8 +2277,8 @@ module.exports=[
     {
         "id": 93,
         "name": "HAUNTER",
-        "HP": 100,
-        "maxHP": 100,
+        "maxHP": 12,
+        "strength": 4,
         "tileFront": {
             "src": "img/monsters/093_haunter_front.png",
             "tileWidth": 85,
@@ -2229,8 +2307,8 @@ module.exports=[
     {
         "id": 130,
         "name": "GYARADOS",
-        "HP": 100,
-        "maxHP": 100,
+        "maxHP": 13,
+        "strength": 4,
         "tileFront": {
             "src": "img/monsters/130_gyarados_front.png",
             "tileWidth": 102,
@@ -2255,14 +2333,45 @@ module.exports=[
             "pause": true
         },
         "crySrc": "audio/monster/130Cry.wav"
+    },
+    {
+        "id": 143,
+        "name": "SNORLAX",
+        "maxHP": 17,
+        "strength": 7,
+        "tileFront": {
+            "src": "img/monsters/143_snorlax_front.png",
+            "tileWidth": 75,
+            "tileHeight": 75,
+            "renderY": 30,
+            "renderWidth": 350,
+            "renderHeight": 350,
+            "numberOfFrames": 173,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "tileBack": {
+            "src": "img/monsters/143_snorlax_back.png",
+            "tileWidth": 75,
+            "tileHeight": 75,
+            "renderWidth": 350,
+            "renderHeight": 350,
+            "numberOfFrames": 173,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "crySrc": "audio/monster/143Cry.wav"
     }
 ]
+
 },{}],14:[function(require,module,exports){
 module.exports={
     "monsters": [
         {
             "name": "GYARADOS",
-            "level": 100
+            "level": 1
         }
     ]
 }
