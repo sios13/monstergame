@@ -4,9 +4,12 @@ const Conversation = require("./Conversation.js");
 
 function Battle(service, settings) {
     this.service = service;
+
     this.tick = 0;
 
     this.state = "";
+
+    this.special = settings.special;
 
     let index = 0;
     for (let i = 0; i < this.service.resources.monsters.length; i++) {
@@ -19,7 +22,8 @@ function Battle(service, settings) {
 
     // Read from save file
     this.playerMonster.level = this.service.save.monsters[0].level;
-    this.playerMonster.maxHP = this.service.save.monsters[0].maxHP ? this.service.save.monsters[0].maxHP : this.playerMonster.maxHP;
+    // this.playerMonster.maxHP = this.service.save.monsters[0].maxHP ? this.service.save.monsters[0].maxHP : this.playerMonster.maxHP;
+    this.playerMonster.maxHP = Math.round(this.playerMonster.maxHP * Math.pow(1.15, this.playerMonster.level-1));
     this.playerMonster.HP = this.service.save.monsters[0].HP ? this.service.save.monsters[0].HP : this.playerMonster.maxHP;
 
     this.playerMonster.tileBack.renderX = 86;
@@ -50,7 +54,7 @@ function Battle(service, settings) {
     this.playerMonsterTile = this.playerMonster.tileBack;
     this.playerMonsterTile.alpha = 0;
 
-    this.playerBoxTile = this.service.resources.getTile("battlePlayerBox", 1024 - 393, 430, 393, 93);
+    this.playerBoxTile = this.service.resources.getTile("battlePlayerBox", 1024 - 393 - 70, 430, 393, 93);
     this.playerBoxTile.alpha = 0;
 
     this.opponentbaseTile = this.service.resources.getTile("battleOpponentbase", -512, 200, 512, 256);
@@ -157,7 +161,12 @@ Battle.prototype._scenarioBattleIntroPart1 = function(tick) {
 
         this.opponentBoxTile.alpha = 1;
 
-        this.conversation.enqueue("Wild " + this.opponentMonster.name + " appeared!+", undefined);
+        if (this.special === "yes!!") {
+            this.conversation.enqueue("Snorlax is+blocking the bridge...", undefined);
+            this.conversation.enqueue("Kill him!!+", undefined);
+        } else {
+            this.conversation.enqueue("Wild " + this.opponentMonster.name + " appeared!+", undefined);
+        }
         this.conversation.next();
 
         this.service.ScenarioManager.removeScenario(this._scenarioBattleIntroPart1);
@@ -349,7 +358,7 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
         this.service.save.monsters[0].HP = null;
 
         this.playerMonster.level = 1;
-        this.conversation.enqueue("Game over!+" + this.playerMonster.name + " is now lvl " + this.service.save.monsters[0].level + ". :'''(", undefined);
+        this.conversation.enqueue("Game over! :'(+" + this.playerMonster.name + " is now lvl " + this.service.save.monsters[0].level + ".", undefined);
         this.conversation.enqueue("", function() {
             this.service.setState("world");
         }.bind(this));
@@ -385,6 +394,23 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
             this.service.save.monsters[0].HP = this.playerMonster.HP;
             this.service.save.monsters[0].maxHP = this.playerMonster.maxHP;
         }.bind(this));
+
+        if (this.special === "yes!!") {
+            // Move snorlax
+            let snorlaxTile = this.service.map.tiles[this.service.map.tiles.length-1];
+            snorlaxTile.renderX = 15*32;
+            snorlaxTile.renderY = 2*32;
+            snorlaxTile.renderWidth = 32;
+            snorlaxTile.renderHeight = 32;
+
+            // Remove snorlax battle events
+            this.service.map.collisionMap[4][11] = function() {this.service.coolguy.setState("walking")};
+            this.service.map.collisionMap[4][12] = function() {this.service.coolguy.setState("walking")};
+            this.service.map.collisionMap[4][13] = function() {this.service.coolguy.setState("walking")};
+
+            this.conversation.enqueue("Contragutaltions!+Snorlax have been defeated!", undefined);
+            this.conversation.enqueue("Thanks for playing :)+", undefined);
+        }
 
         this.conversation.enqueue("", function() {
             this.service.setState("world");
@@ -1749,7 +1775,7 @@ function MapManager(service, {}) {
         let snorlax = this.service.resources.getMonster(3);
         snorlax.level = 20;
 
-        this.service.battle = new Battle(this.service, {opponent: snorlax});
+        this.service.battle = new Battle(this.service, {opponent: snorlax, special: "yes!!"});
 
         this.service.worldCanvas.style.zIndex = -1;
         this.service.battleCanvas.style.zIndex = 1;
@@ -1774,7 +1800,7 @@ MapManager.prototype.createStartMap = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
-        [1,1,0,0,0,0,0,0,0,1,1,5,5,5,1,1,1,1,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,0,0,0,0,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,5,5,5,1,1,0,0,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],

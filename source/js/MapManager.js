@@ -68,7 +68,7 @@ function MapManager(service, {}) {
         let snorlax = this.service.resources.getMonster(3);
         snorlax.level = 20;
 
-        this.service.battle = new Battle(this.service, {opponent: snorlax});
+        this.service.battle = new Battle(this.service, {opponent: snorlax, special: "yes!!"});
 
         this.service.worldCanvas.style.zIndex = -1;
         this.service.battleCanvas.style.zIndex = 1;
@@ -93,7 +93,7 @@ MapManager.prototype.createStartMap = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],
-        [1,1,0,0,0,0,0,0,0,1,1,5,5,5,1,1,1,1,0,0,0,0,1,1],
+        [1,1,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,0,0,0,0,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,5,5,5,1,1,0,0,1,1,1,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1],
         [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
