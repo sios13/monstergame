@@ -83,6 +83,8 @@ function Battle(service, settings) {
 
 Battle.prototype._scenarioBattleIntroPart1 = function(tick) {
     // Transition!
+    if (tick > 180) {return;}
+
     if (tick >= 0 && tick < 5) {
         this.flashTile.alpha += 0.20;
     }
@@ -141,6 +143,8 @@ Battle.prototype._scenarioBattleIntroPart1 = function(tick) {
 }
 
 Battle.prototype._scenarioBattleIntroPart2 = function(tick) {
+    if (tick > 60) {return;}
+
     if (tick === 0) {
         this.playerTile.pause = false;
     }
@@ -176,34 +180,77 @@ Battle.prototype._scenarioBattleIntroPart2 = function(tick) {
     }
 }
 
-Battle.prototype._scenarioPlayerMonsterAttack = function(tick) {
+Battle.prototype._scenarioPlayerMonsterTackle = function(tick) {
+    if (tick > 60) {return;}
+
     // 
-    if (tick > 0 && tick < 8) {
+    if (tick > 30 && tick < 38) {
         this.playerMonsterTile.renderX += 40;
         this.playerMonsterTile.renderY -= 20;
     }
-    if (tick > 8 && tick < 16) {
+    if (tick > 38 && tick < 46) {
         this.playerMonsterTile.renderX -= 40;
         this.playerMonsterTile.renderY += 20;
     }
 
     // Opponent blink
-    if (tick === 8) {
+    if (tick === 38) {
         this.opponentMonsterTile.alpha = 0;
     }
-    if (tick === 10) {
+    if (tick === 40) {
         this.opponentMonsterTile.alpha = 1;
     }
-    if (tick === 12) {
+    if (tick === 42) {
         this.opponentMonsterTile.alpha = 0;
     }
-    if (tick === 14) {
+    if (tick === 44) {
         this.opponentMonsterTile.alpha = 1;
     }
 
     // Exit scenario
-    if (tick === 18) {
-        this.service.ScenarioManager.removeScenario(this._scenarioPlayerMonsterAttack);
+    if (tick === 60) {
+        this.service.ScenarioManager.removeScenario(this._scenarioPlayerMonsterTackle);
+
+        this.conversation.enqueue(this.opponentMonster.name + " used+TACKLE!", function() {
+            this.service.ScenarioManager.addScenario(this._scenarioOpponentMonsterTackle.bind(this));
+        }.bind(this));
+    }
+}
+
+Battle.prototype._scenarioOpponentMonsterTackle = function(tick) {
+    if (tick > 60) {return;}
+
+    // 
+    if (tick > 30 && tick < 38) {
+        this.opponentMonsterTile.renderX -= 40;
+        this.opponentMonsterTile.renderY += 20;
+    }
+    if (tick > 38 && tick < 46) {
+        this.opponentMonsterTile.renderX += 40;
+        this.opponentMonsterTile.renderY -= 20;
+    }
+
+    // Opponent blink
+    if (tick === 38) {
+        this.playerMonsterTile.alpha = 0;
+    }
+    if (tick === 40) {
+        this.playerMonsterTile.alpha = 1;
+    }
+    if (tick === 42) {
+        this.playerMonsterTile.alpha = 0;
+    }
+    if (tick === 44) {
+        this.playerMonsterTile.alpha = 1;
+    }
+
+    // Exit scenario
+    if (tick === 60) {
+        this.conversation.enqueue("What will+" + this.playerMonster.name + " do?", function() {
+            this.state = "command";
+        }.bind(this));
+
+        this.service.ScenarioManager.removeScenario(this._scenarioOpponentMonsterTackle);
     }
 }
 
@@ -243,7 +290,9 @@ Battle.prototype._commandState = function() {
         this.fightbtnTile.setFrame(1);
 
         if (this.service.listeners.click) {
-            this.state = "fight";
+            this.service.events.push(function() {
+                this.service.battle.state = "fight";
+            });
         }
     }
 
@@ -295,7 +344,11 @@ Battle.prototype._fightState = function() {
 
         if (this.service.listeners.click) {
             console.log("attack1!");
-            this.service.ScenarioManager.addScenario(this._scenarioPlayerMonsterAttack.bind(this));
+            this.state = "";
+            this.conversation.enqueue(this.playerMonster.name + " used+TACKLE!", function() {
+                this.service.ScenarioManager.addScenario(this._scenarioPlayerMonsterTackle.bind(this));
+            }.bind(this));
+            // this.conversation.next();
         }
     }
 
@@ -330,6 +383,10 @@ Battle.prototype._fightState = function() {
     }
 }
 
+Battle.prototype._attackState = function() {
+    this.service.ScenarioManager.addScenario(this._scenarioPlayerMonsterTackle.bind(this));
+}
+
 Battle.prototype.update = function() {
     this.tick += 1;
 
@@ -351,6 +408,10 @@ Battle.prototype.update = function() {
 
     if (this.state === "fight") {
         this._fightState();
+    }
+
+    if (this.state === "attack") {
+        this._attackState();
     }
 
     /**
@@ -1961,11 +2022,11 @@ module.exports=[
         "name": "HAUNTER",
         "tileFront": {
             "src": "img/monsters/093_haunter_front.png",
-            "tileWidth": 340,
-            "tileHeight": 340,
+            "tileWidth": 85,
+            "tileHeight": 85,
             "renderY": 80,
-            "renderWidth": 340,
-            "renderHeight": 340,
+            "renderWidth": 350,
+            "renderHeight": 350,
             "numberOfFrames": 25,
             "updateFrequency": 1,
             "loop": false,
@@ -1973,10 +2034,10 @@ module.exports=[
         },
         "tileBack": {
             "src": "img/monsters/093_haunter_back.png",
-            "tileWidth": 340,
-            "tileHeight": 340,
-            "renderWidth": 340,
-            "renderHeight": 340,
+            "tileWidth": 85,
+            "tileHeight": 85,
+            "renderWidth": 350,
+            "renderHeight": 350,
             "numberOfFrames": 25,
             "updateFrequency": 1,
             "loop": false,
@@ -1989,11 +2050,11 @@ module.exports=[
         "name": "GYARADOS",
         "tileFront": {
             "src": "img/monsters/130_gyarados_front.png",
-            "tileWidth": 357,
-            "tileHeight": 357,
+            "tileWidth": 102,
+            "tileHeight": 102,
             "renderY": 60,
-            "renderWidth": 357,
-            "renderHeight": 357,
+            "renderWidth": 350,
+            "renderHeight": 350,
             "numberOfFrames": 87,
             "updateFrequency": 1,
             "loop": false,
@@ -2001,10 +2062,10 @@ module.exports=[
         },
         "tileBack": {
             "src": "img/monsters/130_gyarados_back.png",
-            "tileWidth": 357,
-            "tileHeight": 357,
-            "renderWidth": 357,
-            "renderHeight": 357,
+            "tileWidth": 108,
+            "tileHeight": 108,
+            "renderWidth": 350,
+            "renderHeight": 350,
             "numberOfFrames": 87,
             "updateFrequency": 1,
             "loop": false,
@@ -2013,7 +2074,6 @@ module.exports=[
         "crySrc": "audio/monster/130Cry.wav"
     }
 ]
-
 },{}],14:[function(require,module,exports){
 module.exports={
     "monsters": [
