@@ -48,8 +48,7 @@ function MapManager(service, {}) {
 
             }
             let monster = this.service.resources.getMonster(this.service.tick % this.service.resources.monsters.length);
-            monster.level = 3;
-            this.service.battle = new Battle(this.service, {opponent: monster});
+            this.service.battle = new Battle(this.service, {opponent: monster, opponentLevel: 3});
             // this.service.battle = new Battle(this.service, {opponent: monsters[this.service.tick % monsters.length]});
 
             this.service.worldCanvas.style.zIndex = -1;
@@ -66,9 +65,8 @@ function MapManager(service, {}) {
         this.service.map.audio.volume = 0;
 
         let snorlax = this.service.resources.getMonster(3);
-        snorlax.level = 20;
 
-        this.service.battle = new Battle(this.service, {opponent: snorlax, special: "yes!!"});
+        this.service.battle = new Battle(this.service, {opponent: snorlax, opponentLevel: 20, special: "yes!!"});
 
         this.service.worldCanvas.style.zIndex = -1;
         this.service.battleCanvas.style.zIndex = 1;

@@ -107,7 +107,7 @@
         "id": 143,
         "name": "SNORLAX",
         "maxHP": 17,
-        "strength": 7,
+        "strength": 5,
         "tileFront": {
             "src": "img/monsters/143_snorlax_front.png",
             "tileWidth": 75,

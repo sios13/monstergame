@@ -22,15 +22,23 @@ function Battle(service, settings) {
 
     // Read from save file
     this.playerMonster.level = this.service.save.monsters[0].level;
-    // this.playerMonster.maxHP = this.service.save.monsters[0].maxHP ? this.service.save.monsters[0].maxHP : this.playerMonster.maxHP;
-    this.playerMonster.maxHP = Math.round(this.playerMonster.maxHP * Math.pow(1.15, this.playerMonster.level-1));
+    this.playerMonster.baseHP = this.playerMonster.maxHP;
+    for (let i = 0; i < this.playerMonster.level - 1; i++) {
+        this.playerMonster.maxHP += 1 + 0.25 * this.playerMonster.baseHP;
+    }
+    this.playerMonster.maxHP = Math.floor(this.playerMonster.maxHP);
     this.playerMonster.HP = this.service.save.monsters[0].HP ? this.service.save.monsters[0].HP : this.playerMonster.maxHP;
 
     this.playerMonster.tileBack.renderX = 86;
     this.playerMonster.tileBack.renderY = 768 - 340 - 192 + 60;
 
     this.opponentMonster = settings.opponent;
-    this.opponentMonster.maxHP = Math.round(this.opponentMonster.maxHP * Math.pow(1.20, this.opponentMonster.level-1));
+    this.opponentMonster.level = settings.opponentLevel;
+    this.opponentMonster.baseHP = this.opponentMonster.maxHP;
+    for (let i = 0; i < this.opponentMonster.level - 1; i++) {
+        this.opponentMonster.maxHP += 1 + 0.25 * this.opponentMonster.baseHP;
+    }
+    this.opponentMonster.maxHP = Math.floor(this.opponentMonster.maxHP);
     this.opponentMonster.HP = this.opponentMonster.maxHP;
 
     this.audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/pkmn-fajt.mp3");
@@ -228,7 +236,7 @@ Battle.prototype._scenarioPlayerMonsterTackle = function(tick) {
 
     // Damage!
     if (tick === 38) {
-        this.opponentMonster.HP -= Math.round(this.playerMonster.strength * Math.pow(1.15, this.playerMonster.level-1));
+        this.opponentMonster.HP -= Math.floor(this.playerMonster.strength * Math.pow(1.10, this.playerMonster.level-1));
 
         if (this.opponentMonster.HP < 0) {this.opponentMonster.HP = 0;}
 
@@ -281,7 +289,7 @@ Battle.prototype._scenarioOpponentMonsterTackle = function(tick) {
 
     // Damage!
     if (tick === 38) {
-        this.playerMonster.HP -= Math.round(this.opponentMonster.strength * Math.pow(1.15, this.opponentMonster.level-1));
+        this.playerMonster.HP -= Math.floor(this.opponentMonster.strength * Math.pow(1.10, this.opponentMonster.level-1));
 
         if (this.playerMonster.HP < 0) {this.playerMonster.HP = 0;}
 
@@ -321,7 +329,7 @@ Battle.prototype._scenarioOpponentMonsterTackle = function(tick) {
 
 Battle.prototype._scenarioPlayerMonsterHeal = function(tick) {
     if (tick === 1) {
-        this.playerMonster.HP = Math.round(this.playerMonster.HP + this.playerMonster.maxHP * 0.5);
+        this.playerMonster.HP = Math.floor(this.playerMonster.HP + this.playerMonster.maxHP * 0.5);
 
         if (this.playerMonster.HP > this.playerMonster.maxHP) {
             this.playerMonster.HP = this.playerMonster.maxHP;
@@ -386,8 +394,8 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
 
             // Update player monster (for visual)
             this.playerMonster.level += 1;
-            this.playerMonster.HP = Math.round(this.playerMonster.HP * 1.20);
-            this.playerMonster.maxHP = Math.round(this.playerMonster.maxHP * 1.20);
+            this.playerMonster.HP += Math.floor(1 + 0.25 * this.playerMonster.baseHP);
+            this.playerMonster.maxHP += Math.floor(1 + 0.25 * this.playerMonster.baseHP);
 
             // Update save file according to player monster
             this.service.save.monsters[0].level = this.playerMonster.level;
@@ -408,7 +416,7 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
             this.service.map.collisionMap[4][12] = function() {this.service.coolguy.setState("walking")};
             this.service.map.collisionMap[4][13] = function() {this.service.coolguy.setState("walking")};
 
-            this.conversation.enqueue("Contragutaltions!+Snorlax have been defeated!", undefined);
+            this.conversation.enqueue("Contragutaltions!+Snorlax has been defeated!", undefined);
             this.conversation.enqueue("Thanks for playing :)+", undefined);
         }
 
@@ -481,7 +489,7 @@ Battle.prototype._commandState = function() {
         if (this.service.listeners.click === true) {
             console.log("pokemon");
             this.state = "";
-            this.conversation.enqueue("Your monsters' name is:+" + this.playerMonster.name, undefined);
+            this.conversation.enqueue("Your monster's name is:+" + this.playerMonster.name, undefined);
             this.conversation.enqueue("What will+" + this.playerMonster.name + " do?", function() {
                 this.state = "command";
             }.bind(this));
@@ -1755,8 +1763,7 @@ function MapManager(service, {}) {
 
             }
             let monster = this.service.resources.getMonster(this.service.tick % this.service.resources.monsters.length);
-            monster.level = 3;
-            this.service.battle = new Battle(this.service, {opponent: monster});
+            this.service.battle = new Battle(this.service, {opponent: monster, opponentLevel: 3});
             // this.service.battle = new Battle(this.service, {opponent: monsters[this.service.tick % monsters.length]});
 
             this.service.worldCanvas.style.zIndex = -1;
@@ -1773,9 +1780,8 @@ function MapManager(service, {}) {
         this.service.map.audio.volume = 0;
 
         let snorlax = this.service.resources.getMonster(3);
-        snorlax.level = 20;
 
-        this.service.battle = new Battle(this.service, {opponent: snorlax, special: "yes!!"});
+        this.service.battle = new Battle(this.service, {opponent: snorlax, opponentLevel: 20, special: "yes!!"});
 
         this.service.worldCanvas.style.zIndex = -1;
         this.service.battleCanvas.style.zIndex = 1;
@@ -2364,7 +2370,7 @@ module.exports=[
         "id": 143,
         "name": "SNORLAX",
         "maxHP": 17,
-        "strength": 7,
+        "strength": 5,
         "tileFront": {
             "src": "img/monsters/143_snorlax_front.png",
             "tileWidth": 75,
@@ -2397,7 +2403,7 @@ module.exports={
     "monsters": [
         {
             "name": "GYARADOS",
-            "level": 1
+            "level": 100
         }
     ]
 }
