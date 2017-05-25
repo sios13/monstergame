@@ -1,8 +1,9 @@
 {
     "monsters": [
         {
-            "name": "GYARADOS",
-            "level": 100
+            "name": "PIKACHU",
+            "level": 1
         }
-    ]
+    ],
+    "snorlaxDefeated": false
 }

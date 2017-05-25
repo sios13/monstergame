@@ -44,6 +44,36 @@
         ]
     },
     {
+        "id": 25,
+        "name": "PIKACHU",
+        "maxHP": 16,
+        "strength": 4,
+        "tileFront": {
+            "src": "img/monsters/025_pikachu_front.png",
+            "tileWidth": 50,
+            "tileHeight": 50,
+            "renderY": 85,
+            "renderWidth": 250,
+            "renderHeight": 250,
+            "numberOfFrames": 112,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "tileBack": {
+            "src": "img/monsters/025_pikachu_back.png",
+            "tileWidth": 47,
+            "tileHeight": 47,
+            "renderWidth": 300,
+            "renderHeight": 300,
+            "numberOfFrames": 113,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "crySrc": "audio/monster/025Cry.wav"
+    },
+    {
         "id": 93,
         "name": "HAUNTER",
         "maxHP": 12,
@@ -107,7 +137,7 @@
         "id": 143,
         "name": "SNORLAX",
         "maxHP": 17,
-        "strength": 5,
+        "strength": 4,
         "tileFront": {
             "src": "img/monsters/143_snorlax_front.png",
             "tileWidth": 75,

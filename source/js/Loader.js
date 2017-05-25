@@ -203,7 +203,9 @@ Loader.prototype._loadAudios = function() {
         "audio/normaldamage.wav",
         "audio/faint.wav",
         "audio/Refresh.mp3",
-        "audio/expfull.wav"
+        "audio/expfull.wav",
+        "audio/Flee.wav",
+        "audio/OpenPokeball.wav"
     ];
 
     // Make an audio element for every audio src

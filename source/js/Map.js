@@ -53,7 +53,9 @@ Map.prototype.renderLayer1 = function() {
 Map.prototype.renderLayer2 = function() {
     let context = this.service.worldContext;
 
-    this.layer2Tile.render(context, this.x, this.y);
+    if (this.layer2Tile !== undefined) {
+        this.layer2Tile.render(context, this.x, this.y);
+    }
 
     /**
      * Render squares!

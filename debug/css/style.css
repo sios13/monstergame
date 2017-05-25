@@ -1,19 +1,15 @@
 @font-face { font-family: ConversationFont; src: url("../font/PokemonGB.ttf"); } 
 
-body {margin:0;}
+body {margin:0; background-color:rgb(224, 192, 96); font-family:"Open Sans", sans-serif;}
 
-canvas {
-    position:absolute;
-    top:10;
-    left:10;
-}
+.wrapper {margin:20px auto; width:1024px; height:calc(100% - 40px); position:relative;}
+
+.canvas {position:absolute; top:0; left:0;}
 
 .loadCanvas {}
 
 .battleCanvas {}
 
-.worldCanvas {
-    background-color:black;
-}
+.worldCanvas {background-color:black; box-shadow:0px 0px 15px 1px rgba(0,0,0,1);}
 
-.info {position:absolute; top:780; left:10;}
+.info {position:absolute; top:768px; width:100%; font-size:18px; text-align:center;}

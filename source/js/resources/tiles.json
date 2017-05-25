@@ -1,25 +1,25 @@
 [
     {
         "name": "map1layer1",
-        "src": "img/map1layer1.png",
+        "src": "img/maps/map1layer1.png",
         "tileWidth": 3200,
         "tileHeight": 3200
     },
     {
         "name": "map1layer2",
-        "src": "img/map1layer2.png",
+        "src": "img/maps/map1layer2.png",
         "tileWidth": 3200,
         "tileHeight": 3200
     },
     {
-        "name": "house1layer1",
-        "src": "img/house1layer1.png",
+        "name": "pokecenter_layer1",
+        "src": "img/maps/pokecenter_layer1.png",
         "tileWidth": 3200,
         "tileHeight": 3200
     },
     {
-        "name": "house1layer2",
-        "src": "img/house1layer2.png",
+        "name": "pokecenter_layer2",
+        "src": "img/maps/pokecenter_layer2.png",
         "tileWidth": 3200,
         "tileHeight": 3200
     },
@@ -32,14 +32,26 @@
         "updateFrequency": 3
     },
     {
-        "name": "battleOpponentbase",
+        "name": "battleOpponentbaseGrassEve",
         "src": "img/battle/enemybaseFieldGrassEve.png",
         "tileWidth": 256,
         "tileHeight": 128
     },
     {
-        "name": "battlePlayerbase",
+        "name": "battlePlayerbaseGrassEve",
         "src": "img/battle/playerbaseFieldGrassEve.png",
+        "tileWidth": 408,
+        "tileHeight": 64
+    },
+    {
+        "name": "battleOpponentbaseField",
+        "src": "img/battle/enemybaseFieldGrass.png",
+        "tileWidth": 256,
+        "tileHeight": 128
+    },
+    {
+        "name": "battlePlayerbaseField",
+        "src": "img/battle/playerbaseFieldGrass.png",
         "tileWidth": 408,
         "tileHeight": 64
     },
@@ -56,6 +68,12 @@
     {
         "name": "battleBgForestEve",
         "src": "img/battle/battlebgForestEve.png",
+        "tileWidth": 512,
+        "tileHeight": 288
+    },
+    {
+        "name": "battleBgField",
+        "src": "img/battle/battlebgField.png",
         "tileWidth": 512,
         "tileHeight": 288
     },
@@ -90,12 +108,9 @@
     },
     {
         "name": "grass",
-        "src": "img/grass2.png",
+        "src": "img/grass.png",
         "tileWidth": 16,
-        "tileHeight": 16,
-        "numberOfFrames": 2,
-        "loop": false,
-        "pause": true
+        "tileHeight": 16
     },
     {
         "name": "battleMessagebg",
@@ -141,5 +156,25 @@
         "src": "img/battle/battleOpponentBox.png",
         "tileWidth": 262,
         "tileHeight": 62
+    },
+    {
+        "name": "flower1",
+        "src": "img/Flowers1.png",
+        "tileWidth": 32,
+        "tileHeight": 32,
+        "numberOfFrames": 4,
+        "updateFrequency": 7,
+        "loop": true,
+        "pause": false
+    },
+    {
+        "name": "flower2",
+        "src": "img/Flowers2.png",
+        "tileWidth": 32,
+        "tileHeight": 32,
+        "numberOfFrames": 4,
+        "updateFrequency": 7,
+        "loop": true,
+        "pause": false
     }
 ]
