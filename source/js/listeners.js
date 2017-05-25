@@ -2,6 +2,8 @@ function addListeners(service) {
     service.listeners = {};
 
     let clickEvent = function(event) {
+        event.preventDefault();
+
         service.listeners.click = true;
     }
 
@@ -22,6 +24,7 @@ function addListeners(service) {
 
     let mousemoveEvent = function(event) {
         event.preventDefault();
+
         service.listeners.mousemove = true;
 
         let canvasRect = service.worldCanvas.getBoundingClientRect();

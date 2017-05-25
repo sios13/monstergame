@@ -1202,6 +1202,15 @@ Game.prototype.update = function() {
 
     this.service.listeners.click = false;
     this.service.listeners.mouseup = false;
+
+    // Set mouse pointer image
+    // if (this.service.listeners.mousedown === true) {
+    //     document.body.style.cursor = "";
+    //     document.body.style.cursor = "url(img/boxpoint2.png), default";
+    // } else {
+    //     document.body.style.cursor = "";
+    //     document.body.style.cursor = "url(img/boxpoint1.png), default";
+    // }
 }
 
 Game.prototype.render = function() {
@@ -2354,6 +2363,8 @@ function addListeners(service) {
     service.listeners = {};
 
     let clickEvent = function(event) {
+        event.preventDefault();
+
         service.listeners.click = true;
     }
 
@@ -2374,6 +2385,7 @@ function addListeners(service) {
 
     let mousemoveEvent = function(event) {
         event.preventDefault();
+
         service.listeners.mousemove = true;
 
         let canvasRect = service.worldCanvas.getBoundingClientRect();
