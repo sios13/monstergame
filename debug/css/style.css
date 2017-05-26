@@ -4,9 +4,7 @@ body {margin:0; background-color:rgb(224, 192, 96); font-family:"Open Sans", san
 
 .wrapper {margin:20px auto; width:1024px; height:calc(100% - 40px); position:relative;}
 
-.canvas {position:absolute; top:0; left:0; 
-cursor:url("../img/boxpoint1.png") 17 59, default;
-}
+.canvas {position:absolute; top:0; left:0; cursor:url("../img/boxpoint11.png") 17 59, default;}
 
 .loadCanvas {}
 
