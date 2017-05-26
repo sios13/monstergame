@@ -366,14 +366,52 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
 
     if (tick === 30) {
         // Game over :(
-        this.service.save.monsters[0].level = 1;
-        this.service.save.monsters[0].maxHP = null;
-        this.service.save.monsters[0].HP = null;
+        this.conversation.enqueue("Game over! :'(+" + this.playerMonster.name + " is now lvl " + (this.playerMonster.level - 1) + ".", function() {            
+            // Update player monster level and maxhp (for visual!)
+            if (this.playerMonster.level > 1) {
+                this.playerMonster.level -= 1;
+            }
 
-        this.playerMonster.level = 1;
-        this.conversation.enqueue("Game over! :'(+" + this.playerMonster.name + " is now lvl " + this.service.save.monsters[0].level + ".", undefined);
-        this.conversation.enqueue("", function() {
-            this.service.setState("world");
+            this.playerMonster.maxHP = this.playerMonster.baseHP;
+            for (let i = 0; i < this.playerMonster.level - 1; i++) {
+                this.playerMonster.maxHP += 1 + 0.10 * this.playerMonster.baseHP;
+            }
+            this.playerMonster.maxHP = Math.floor(this.playerMonster.maxHP);
+
+            this.service.save.monsters[0].level = this.playerMonster.level;
+            this.service.save.monsters[0].maxHP = null;
+            this.service.save.monsters[0].HP = null;
+
+            // Player decrease sound!
+            this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/decrease.wav").play();
+
+            // Set character position
+            if (this.type === "snorlax") {
+                this.service.coolguy.x = 60 * 32;
+                this.service.coolguy.y = 32 * 32;
+            }
+            
+            this.service.coolguy.direction = 3;
+        }.bind(this));
+
+        this.conversation.enqueue("+", function() {
+            this.service.events.push(function() {
+                this.loader.load(
+                    function() {
+                        this.service.pauseAudio(this.service.battle.audio);
+
+                        this.service.coolguy.stop = true;
+                    },
+                    function() {
+                        this.service.setState("world");
+                    },
+                    function() {
+                        this.service.playAudio(this.service.map.audio);
+
+                        this.service.coolguy.stop = false;
+                    }
+                );
+            });
         }.bind(this));
 
         this.service.ScenarioManager.removeScenario(this._scenarioPlayerMonsterFaint);
@@ -426,12 +464,28 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
             this.service.map.collisionMap[32][50] = function() {this.service.coolguy.setState("walking")};
             this.service.map.collisionMap[33][50] = function() {this.service.coolguy.setState("walking")};
 
-            this.conversation.enqueue("Contragutaltions!+Snorlax has been defeated!", undefined);
+            this.conversation.enqueue("Congratulations!+Snorlax has been defeated!", undefined);
             this.conversation.enqueue("Thanks for playing :)+", undefined);
         }
 
-        this.conversation.enqueue("", function() {
-            this.service.setState("world");
+        this.conversation.enqueue("+", function() {
+            this.service.events.push(function() {
+                this.loader.load(
+                    function() {
+                        this.service.pauseAudio(this.service.battle.audio);
+
+                        this.service.coolguy.stop = true;
+                    },
+                    function() {
+                        this.service.setState("world");
+                    },
+                    function() {
+                        this.service.playAudio(this.service.map.audio);
+
+                        this.service.coolguy.stop = false;
+                    }
+                );
+            });
         }.bind(this));
 
         this.service.ScenarioManager.removeScenario(this._scenarioOpponentMonsterFaint);
@@ -519,9 +573,23 @@ Battle.prototype._commandState = function() {
                 }.bind(this));
             } else {
                 this.conversation.enqueue("Got away safely!+", undefined);
-                this.conversation.enqueue("", function() {
+                this.conversation.enqueue("+", function() {
                     this.service.events.push(function() {
-                        this.service.setState("world");
+                        this.loader.load(
+                            function() {
+                                this.service.pauseAudio(this.service.battle.audio);
+
+                                this.service.coolguy.stop = true;
+                            },
+                            function() {
+                                this.service.setState("world");
+                            },
+                            function() {
+                                this.service.playAudio(this.service.map.audio);
+
+                                this.service.coolguy.stop = false;
+                            }
+                        );
                     });
                 }.bind(this));
 
@@ -656,7 +724,7 @@ Battle.prototype.render = function() {
         context.fillText(this.opponentMonster.name, 85, 148);
         context.font = "20px 'ConversationFont'";
         context.fillText("Lvl:" + this.opponentMonster.level, 85, 180);
-        context.fillText(this.opponentMonster.HP + "/" + this.opponentMonster.maxHP, 270, 180);
+        context.fillText("HP:" + this.opponentMonster.HP + "/" + this.opponentMonster.maxHP, 250, 180);
 
         context.restore();
     }
@@ -679,7 +747,7 @@ Battle.prototype.render = function() {
         context.fillText(this.playerMonster.name, this.playerBoxTile.renderX + 50, this.playerBoxTile.renderY + 48);
         context.font = "20px 'ConversationFont'";
         context.fillText("Lvl:" + this.playerMonster.level, this.playerBoxTile.renderX + 50, this.playerBoxTile.renderY + 80);
-        context.fillText(this.playerMonster.HP + "/" + this.playerMonster.maxHP, this.playerBoxTile.renderX + 235, this.playerBoxTile.renderY + 80);
+        context.fillText("HP:" + this.playerMonster.HP + "/" + this.playerMonster.maxHP, this.playerBoxTile.renderX + 215, this.playerBoxTile.renderY + 80);
 
         context.restore();
     }

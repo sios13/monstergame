@@ -1,13 +1,13 @@
 [
     {
         "name": "map1layer1",
-        "src": "img/maps/map1layer1.png",
+        "src": "img/maps/map1_layer1.png",
         "tileWidth": 3200,
         "tileHeight": 3200
     },
     {
         "name": "map1layer2",
-        "src": "img/maps/map1layer2.png",
+        "src": "img/maps/map1_layer2.png",
         "tileWidth": 3200,
         "tileHeight": 3200
     },
@@ -20,6 +20,30 @@
     {
         "name": "pokecenter_layer2",
         "src": "img/maps/pokecenter_layer2.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "pokemart_layer1",
+        "src": "img/maps/pokemart_layer1.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "pokemart_layer2",
+        "src": "img/maps/pokemart_layer2.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "house1_layer1",
+        "src": "img/maps/house1_layer1.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "house1_layer2",
+        "src": "img/maps/house1_layer2.png",
         "tileWidth": 3200,
         "tileHeight": 3200
     },
@@ -174,6 +198,16 @@
         "tileHeight": 32,
         "numberOfFrames": 4,
         "updateFrequency": 7,
+        "loop": true,
+        "pause": false
+    },
+    {
+        "name": "snorlax",
+        "src": "img/monsters/143_snorlax_front.png",
+        "tileWidth": 75,
+        "tileHeight": 75,
+        "numberOfFrames": 173,
+        "updateFrequency": 1,
         "loop": true,
         "pause": false
     }

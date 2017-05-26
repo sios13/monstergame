@@ -367,14 +367,52 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
 
     if (tick === 30) {
         // Game over :(
-        this.service.save.monsters[0].level = 1;
-        this.service.save.monsters[0].maxHP = null;
-        this.service.save.monsters[0].HP = null;
+        this.conversation.enqueue("Game over! :'(+" + this.playerMonster.name + " is now lvl " + (this.playerMonster.level - 1) + ".", function() {            
+            // Update player monster level and maxhp (for visual!)
+            if (this.playerMonster.level > 1) {
+                this.playerMonster.level -= 1;
+            }
 
-        this.playerMonster.level = 1;
-        this.conversation.enqueue("Game over! :'(+" + this.playerMonster.name + " is now lvl " + this.service.save.monsters[0].level + ".", undefined);
-        this.conversation.enqueue("", function() {
-            this.service.setState("world");
+            this.playerMonster.maxHP = this.playerMonster.baseHP;
+            for (let i = 0; i < this.playerMonster.level - 1; i++) {
+                this.playerMonster.maxHP += 1 + 0.10 * this.playerMonster.baseHP;
+            }
+            this.playerMonster.maxHP = Math.floor(this.playerMonster.maxHP);
+
+            this.service.save.monsters[0].level = this.playerMonster.level;
+            this.service.save.monsters[0].maxHP = null;
+            this.service.save.monsters[0].HP = null;
+
+            // Player decrease sound!
+            this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/decrease.wav").play();
+
+            // Set character position
+            if (this.type === "snorlax") {
+                this.service.coolguy.x = 60 * 32;
+                this.service.coolguy.y = 32 * 32;
+            }
+            
+            this.service.coolguy.direction = 3;
+        }.bind(this));
+
+        this.conversation.enqueue("+", function() {
+            this.service.events.push(function() {
+                this.loader.load(
+                    function() {
+                        this.service.pauseAudio(this.service.battle.audio);
+
+                        this.service.coolguy.stop = true;
+                    },
+                    function() {
+                        this.service.setState("world");
+                    },
+                    function() {
+                        this.service.playAudio(this.service.map.audio);
+
+                        this.service.coolguy.stop = false;
+                    }
+                );
+            });
         }.bind(this));
 
         this.service.ScenarioManager.removeScenario(this._scenarioPlayerMonsterFaint);
@@ -427,12 +465,28 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
             this.service.map.collisionMap[32][50] = function() {this.service.coolguy.setState("walking")};
             this.service.map.collisionMap[33][50] = function() {this.service.coolguy.setState("walking")};
 
-            this.conversation.enqueue("Contragutaltions!+Snorlax has been defeated!", undefined);
+            this.conversation.enqueue("Congratulations!+Snorlax has been defeated!", undefined);
             this.conversation.enqueue("Thanks for playing :)+", undefined);
         }
 
-        this.conversation.enqueue("", function() {
-            this.service.setState("world");
+        this.conversation.enqueue("+", function() {
+            this.service.events.push(function() {
+                this.loader.load(
+                    function() {
+                        this.service.pauseAudio(this.service.battle.audio);
+
+                        this.service.coolguy.stop = true;
+                    },
+                    function() {
+                        this.service.setState("world");
+                    },
+                    function() {
+                        this.service.playAudio(this.service.map.audio);
+
+                        this.service.coolguy.stop = false;
+                    }
+                );
+            });
         }.bind(this));
 
         this.service.ScenarioManager.removeScenario(this._scenarioOpponentMonsterFaint);
@@ -520,9 +574,23 @@ Battle.prototype._commandState = function() {
                 }.bind(this));
             } else {
                 this.conversation.enqueue("Got away safely!+", undefined);
-                this.conversation.enqueue("", function() {
+                this.conversation.enqueue("+", function() {
                     this.service.events.push(function() {
-                        this.service.setState("world");
+                        this.loader.load(
+                            function() {
+                                this.service.pauseAudio(this.service.battle.audio);
+
+                                this.service.coolguy.stop = true;
+                            },
+                            function() {
+                                this.service.setState("world");
+                            },
+                            function() {
+                                this.service.playAudio(this.service.map.audio);
+
+                                this.service.coolguy.stop = false;
+                            }
+                        );
                     });
                 }.bind(this));
 
@@ -657,7 +725,7 @@ Battle.prototype.render = function() {
         context.fillText(this.opponentMonster.name, 85, 148);
         context.font = "20px 'ConversationFont'";
         context.fillText("Lvl:" + this.opponentMonster.level, 85, 180);
-        context.fillText(this.opponentMonster.HP + "/" + this.opponentMonster.maxHP, 270, 180);
+        context.fillText("HP:" + this.opponentMonster.HP + "/" + this.opponentMonster.maxHP, 250, 180);
 
         context.restore();
     }
@@ -680,7 +748,7 @@ Battle.prototype.render = function() {
         context.fillText(this.playerMonster.name, this.playerBoxTile.renderX + 50, this.playerBoxTile.renderY + 48);
         context.font = "20px 'ConversationFont'";
         context.fillText("Lvl:" + this.playerMonster.level, this.playerBoxTile.renderX + 50, this.playerBoxTile.renderY + 80);
-        context.fillText(this.playerMonster.HP + "/" + this.playerMonster.maxHP, this.playerBoxTile.renderX + 235, this.playerBoxTile.renderY + 80);
+        context.fillText("HP:" + this.playerMonster.HP + "/" + this.playerMonster.maxHP, this.playerBoxTile.renderX + 215, this.playerBoxTile.renderY + 80);
 
         context.restore();
     }
@@ -860,8 +928,11 @@ module.exports = Conversation;
 function Entity(service, settings) {
     this.service = service;
 
-    this.x = 60*32;
-    this.y = 72*32;
+    // this.x = 60*32;
+    // this.y = 72*32;
+
+    this.x = this.service.save.characterStartPositionX * 32;
+    this.y = this.service.save.characterStartPositionY * 32;
 
     this.collisionSquare = 20;
 
@@ -1521,7 +1592,8 @@ Loader.prototype._loadAudios = function() {
         "audio/Refresh.mp3",
         "audio/expfull.wav",
         "audio/Flee.wav",
-        "audio/OpenPokeball.wav"
+        "audio/OpenPokeball.wav",
+        "audio/decrease.wav"
     ];
 
     // Make an audio element for every audio src
@@ -1650,15 +1722,22 @@ Loader.prototype.render = function()
 
     context.clearRect(0, 0, this.service.loadCanvas.width, this.service.loadCanvas.height);
 
+    context.save();
+
     context.beginPath();
 
     context.fillStyle = "rgba(0, 0, 0, " + this.alpha + ")";
     context.fillRect(0, 0, this.service.loadCanvas.width, this.service.loadCanvas.height);
     context.stroke();
 
-    context.font = "26px Georgia";
-    context.fillStyle = "rgba(255, 255, 255, " + this.alpha + ")";
-    context.fillText("" + this.loadedImages + "/" + this.nrOfImages, context.canvas.width/2 - 50, context.canvas.height/2 - 10);
+    context.font = "26px Arial";
+    context.fillStyle = "rgba(200, 200, 200, " + this.alpha + ")";
+    context.fillText("Loading...", context.canvas.width/2 - 30, context.canvas.height/2 - 13 - 20);
+
+    context.font = "20px Arial";
+    context.fillText("Images: " + this.loadedImages + "/" + this.nrOfImages, context.canvas.width/2 - 40, context.canvas.height/2 - 13 + 40);
+
+    context.restore();
 }
 
 module.exports = Loader;
@@ -1777,7 +1856,8 @@ function MapManager(service, {}) {
         } else {
             // if (true) {
             // if (false) {
-            if (this.service.tick % 10 === 0) {
+            if (Math.floor(Math.random() * 8) % 8 === 0) {
+            // if (this.service.tick % 10 === 0) {
                 // Get a "random" mosnter
                 let min = 0;
                 let max = this.service.resources.monsters.length;
@@ -1837,8 +1917,28 @@ MapManager.prototype.getMap = function(mapName) {
         return this.createStartMap();
     }
 
+    if (mapName === "pokemart") {
+        return this.createPokemartMap();
+    }
+
     if (mapName === "pokecenter") {
         return this.createPokecenterMap();
+    }
+
+    if (mapName === "house1") {
+        return this.createHouse1Map();
+    }
+
+    if (mapName === "house2") {
+        return this.createHouse2Map();
+    }
+
+    if (mapName === "house3") {
+        return this.createHouse3Map();
+    }
+
+    if (mapName === "house4") {
+        return this.createHouse4Map();
     }
 }
 
@@ -1871,21 +1971,21 @@ MapManager.prototype.createStartMap = function() {
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,1],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,6,6,6,6,2,2,2,2,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,6,6,6,6,2,2,2,2,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,6,6,6,6,2,2,2,2,2,2,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,6,6,6,2,2,2,2,2,2,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,6,6,2,2,2,2,2,2,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,7,7,7,7,2,2,2,2,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,7,7,7,7,2,2,2,2,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,7,7,7,7,2,2,2,2,2,2,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,7,7,7,2,2,2,2,2,2,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,7,7,2,2,2,2,2,2,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,1,13,1,1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,1,8,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,11,1,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,14,1,1,0,0,0,0,0,1,9,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -1917,7 +2017,7 @@ MapManager.prototype.createStartMap = function() {
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,10,1,0,0,0,0,0,0,1,11,1,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -1955,13 +2055,14 @@ MapManager.prototype.createStartMap = function() {
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
-    let snorlaxTile = this.service.resources.getMonster(4).tileFront;
-    snorlaxTile.pause = false;
-    snorlaxTile.loop = true;
-    snorlaxTile.renderX = 48*32;
-    snorlaxTile.renderY = 31*32;
-    snorlaxTile.renderWidth = 96;
-    snorlaxTile.renderHeight = 96;
+    let snorlaxTile = this.service.resources.getTile("snorlax", 48*32, 31*32, 96, 96);
+
+    // snorlaxTile.pause = false;
+    // snorlaxTile.loop = true;
+    // snorlaxTile.renderX = 48*32;
+    // snorlaxTile.renderY = 31*32;
+    // snorlaxTile.renderWidth = 96;
+    // snorlaxTile.renderHeight = 96;
     let tiles = [
         // this.service.resources.getTile("grass", 8*32, 30*29, 32, 32),
         // this.service.resources.getTile("grass", 9*32, 30*29, 32, 32),
@@ -2093,24 +2194,102 @@ MapManager.prototype.createStartMap = function() {
                 map.attachEvent(x, y, this.grassEvent.bindArgs("hard"));
             }
 
-            // Snorlax!
+            // Gyarados!
             if (collisionMap[y][x] === 5) {
+                map.attachEvent(x, y, this.grassEvent.bindArgs("gyarados"));
+            }
+
+            // Snorlax!
+            if (collisionMap[y][x] === 6) {
                 map.attachEvent(x, y, this.grassEvent.bindArgs("snorlax"));
             }
 
             // Very hard grass!
-            if (collisionMap[y][x] === 6) {
+            if (collisionMap[y][x] === 7) {
                 map.attachEvent(x, y, this.grassEvent.bindArgs("very hard"));
             }
 
             // Teleport!
-            if (collisionMap[y][x] === 7) {
-                map.attachEvent(x, y, this.newMapEvent.bindArgs("house1Map", 5, 5));
+            if (collisionMap[y][x] === 8) {
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("house1", 5, 8));
+            }
+
+            // Teleport!
+            if (collisionMap[y][x] === 9) {
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("house2", 5, 8));
+            }
+
+            // Teleport!
+            if (collisionMap[y][x] === 10) {
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("house3", 5, 8));
             }
 
             // Teleport!
             if (collisionMap[y][x] === 11) {
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("house4", 5, 8));
+            }
+
+            // Teleport!
+            if (collisionMap[y][x] === 13) {
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("pokemart", 5, 8));
+            }
+
+            // Teleport!
+            if (collisionMap[y][x] === 14) {
                 map.attachEvent(x, y, this.newMapEvent.bindArgs("pokecenter", 8, 9));
+            }
+        }
+    }
+
+    return map;
+}
+
+MapManager.prototype.createPokemartMap = function() {
+    let x = 0;
+    let y = 0;
+
+    let collisionMap = [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,1,0,0,0,0,0,0,1,1],
+        [1,0,0,0,1,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,0,0,0,1,1,0,1,1],
+        [1,0,0,0,0,0,0,0,1,1,0,1,1],
+        [1,0,1,1,0,0,0,0,1,1,0,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,2,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1],
+    ];
+
+    let layer1Tile = this.service.resources.getTile("pokemart_layer1", 0, 0, 3200, 3200);
+
+    let layer2Tile = this.service.resources.getTile("pokemart_layer2", 0, 0, 3200, 3200);
+
+    let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music2.mp3");
+
+    let tiles = [];
+
+    let map = new Map(this.service, {
+        x: 0,
+        y: 0,
+        collisionMap: collisionMap,
+        layer1Tile: layer1Tile,
+        layer2Tile: layer2Tile,
+        audio: audio,
+        tiles: tiles
+    });
+
+    for (let y = 0; y < collisionMap.length; y++) {
+        for (let x = 0; x < collisionMap[y].length; x++) {
+            // Normal state!
+            if (collisionMap[y][x] === 0) {
+                map.attachEvent(x, y, this.normalEvent);
+            }
+
+            // Teleport!
+            if (collisionMap[y][x] === 2) {
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 64, 29));
             }
         }
     }
@@ -2165,6 +2344,218 @@ MapManager.prototype.createPokecenterMap = function() {
             // Teleport!
             if (collisionMap[y][x] === 2) {
                 map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 56, 39));
+            }
+        }
+    }
+
+    return map;
+}
+
+MapManager.prototype.createHouse1Map = function() {
+    let x = 0;
+    let y = 0;
+
+    let collisionMap = [
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,1,1,0,0,0,0,1],
+        [1,0,0,1,1,0,0,0,1,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,2,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1]
+    ];
+
+    let layer1Tile = this.service.resources.getTile("house1_layer1", 0, 0, 3200, 3200);
+
+    let layer2Tile = this.service.resources.getTile("house1_layer2", 0, 0, 3200, 3200);
+
+    let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music2.mp3");
+
+    let tiles = [];
+
+    let map = new Map(this.service, {
+        x: 0,
+        y: 0,
+        collisionMap: collisionMap,
+        layer1Tile: layer1Tile,
+        layer2Tile: layer2Tile,
+        audio: audio,
+        tiles: tiles
+    });
+
+    for (let y = 0; y < collisionMap.length; y++) {
+        for (let x = 0; x < collisionMap[y].length; x++) {
+            // Normal state!
+            if (collisionMap[y][x] === 0) {
+                map.attachEvent(x, y, this.normalEvent);
+            }
+
+            // Teleport!
+            if (collisionMap[y][x] === 2) {
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 55, 30));
+            }
+        }
+    }
+
+    return map;
+}
+
+MapManager.prototype.createHouse2Map = function() {
+    let x = 0;
+    let y = 0;
+
+    let collisionMap = [
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,1,1,0,0,0,0,1],
+        [1,0,0,1,1,0,0,0,1,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,2,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1]
+    ];
+
+    let layer1Tile = this.service.resources.getTile("house1_layer1", 0, 0, 3200, 3200);
+
+    let layer2Tile = this.service.resources.getTile("house1_layer2", 0, 0, 3200, 3200);
+
+    let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music2.mp3");
+
+    let tiles = [];
+
+    let map = new Map(this.service, {
+        x: 0,
+        y: 0,
+        collisionMap: collisionMap,
+        layer1Tile: layer1Tile,
+        layer2Tile: layer2Tile,
+        audio: audio,
+        tiles: tiles
+    });
+
+    for (let y = 0; y < collisionMap.length; y++) {
+        for (let x = 0; x < collisionMap[y].length; x++) {
+            // Normal state!
+            if (collisionMap[y][x] === 0) {
+                map.attachEvent(x, y, this.normalEvent);
+            }
+
+            // Teleport!
+            if (collisionMap[y][x] === 2) {
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 65, 39));
+            }
+        }
+    }
+
+    return map;
+}
+
+MapManager.prototype.createHouse3Map = function() {
+    let x = 0;
+    let y = 0;
+
+    let collisionMap = [
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,1,1,0,0,0,0,1],
+        [1,0,0,1,1,0,0,0,1,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,2,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1]
+    ];
+
+    let layer1Tile = this.service.resources.getTile("house1_layer1", 0, 0, 3200, 3200);
+
+    let layer2Tile = this.service.resources.getTile("house1_layer2", 0, 0, 3200, 3200);
+
+    let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music2.mp3");
+
+    let tiles = [];
+
+    let map = new Map(this.service, {
+        x: 0,
+        y: 0,
+        collisionMap: collisionMap,
+        layer1Tile: layer1Tile,
+        layer2Tile: layer2Tile,
+        audio: audio,
+        tiles: tiles
+    });
+
+    for (let y = 0; y < collisionMap.length; y++) {
+        for (let x = 0; x < collisionMap[y].length; x++) {
+            // Normal state!
+            if (collisionMap[y][x] === 0) {
+                map.attachEvent(x, y, this.normalEvent);
+            }
+
+            // Teleport!
+            if (collisionMap[y][x] === 2) {
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 55, 71));
+            }
+        }
+    }
+
+    return map;
+}
+
+MapManager.prototype.createHouse4Map = function() {
+    let x = 0;
+    let y = 0;
+
+    let collisionMap = [
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,1,1,0,0,0,0,1],
+        [1,0,0,1,1,0,0,0,1,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,2,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1]
+    ];
+
+    let layer1Tile = this.service.resources.getTile("house1_layer1", 0, 0, 3200, 3200);
+
+    let layer2Tile = this.service.resources.getTile("house1_layer2", 0, 0, 3200, 3200);
+
+    let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music2.mp3");
+
+    let tiles = [];
+
+    let map = new Map(this.service, {
+        x: 0,
+        y: 0,
+        collisionMap: collisionMap,
+        layer1Tile: layer1Tile,
+        layer2Tile: layer2Tile,
+        audio: audio,
+        tiles: tiles
+    });
+
+    for (let y = 0; y < collisionMap.length; y++) {
+        for (let x = 0; x < collisionMap[y].length; x++) {
+            // Normal state!
+            if (collisionMap[y][x] === 0) {
+                map.attachEvent(x, y, this.normalEvent);
+            }
+
+            // Teleport!
+            if (collisionMap[y][x] === 2) {
+                map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 64, 71));
             }
         }
     }
@@ -2577,13 +2968,15 @@ module.exports=[
 
 },{}],14:[function(require,module,exports){
 module.exports={
+    "characterStartPositionX": 60,
+    "characterStartPositionY": 72,
+    "snorlaxDefeated": false,
     "monsters": [
         {
             "name": "PIKACHU",
-            "level": 1
+            "level": 3
         }
-    ],
-    "snorlaxDefeated": false
+    ]
 }
 
 },{}],15:[function(require,module,exports){
@@ -2652,13 +3045,13 @@ module.exports=[
 module.exports=[
     {
         "name": "map1layer1",
-        "src": "img/maps/map1layer1.png",
+        "src": "img/maps/map1_layer1.png",
         "tileWidth": 3200,
         "tileHeight": 3200
     },
     {
         "name": "map1layer2",
-        "src": "img/maps/map1layer2.png",
+        "src": "img/maps/map1_layer2.png",
         "tileWidth": 3200,
         "tileHeight": 3200
     },
@@ -2671,6 +3064,30 @@ module.exports=[
     {
         "name": "pokecenter_layer2",
         "src": "img/maps/pokecenter_layer2.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "pokemart_layer1",
+        "src": "img/maps/pokemart_layer1.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "pokemart_layer2",
+        "src": "img/maps/pokemart_layer2.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "house1_layer1",
+        "src": "img/maps/house1_layer1.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "house1_layer2",
+        "src": "img/maps/house1_layer2.png",
         "tileWidth": 3200,
         "tileHeight": 3200
     },
@@ -2825,6 +3242,16 @@ module.exports=[
         "tileHeight": 32,
         "numberOfFrames": 4,
         "updateFrequency": 7,
+        "loop": true,
+        "pause": false
+    },
+    {
+        "name": "snorlax",
+        "src": "img/monsters/143_snorlax_front.png",
+        "tileWidth": 75,
+        "tileHeight": 75,
+        "numberOfFrames": 173,
+        "updateFrequency": 1,
         "loop": true,
         "pause": false
     }

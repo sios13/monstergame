@@ -1,8 +1,11 @@
 function Entity(service, settings) {
     this.service = service;
 
-    this.x = 60*32;
-    this.y = 72*32;
+    // this.x = 60*32;
+    // this.y = 72*32;
+
+    this.x = this.service.save.characterStartPositionX * 32;
+    this.y = this.service.save.characterStartPositionY * 32;
 
     this.collisionSquare = 20;
 

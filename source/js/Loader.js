@@ -205,7 +205,8 @@ Loader.prototype._loadAudios = function() {
         "audio/Refresh.mp3",
         "audio/expfull.wav",
         "audio/Flee.wav",
-        "audio/OpenPokeball.wav"
+        "audio/OpenPokeball.wav",
+        "audio/decrease.wav"
     ];
 
     // Make an audio element for every audio src
@@ -334,15 +335,22 @@ Loader.prototype.render = function()
 
     context.clearRect(0, 0, this.service.loadCanvas.width, this.service.loadCanvas.height);
 
+    context.save();
+
     context.beginPath();
 
     context.fillStyle = "rgba(0, 0, 0, " + this.alpha + ")";
     context.fillRect(0, 0, this.service.loadCanvas.width, this.service.loadCanvas.height);
     context.stroke();
 
-    context.font = "26px Georgia";
-    context.fillStyle = "rgba(255, 255, 255, " + this.alpha + ")";
-    context.fillText("" + this.loadedImages + "/" + this.nrOfImages, context.canvas.width/2 - 50, context.canvas.height/2 - 10);
+    context.font = "26px Arial";
+    context.fillStyle = "rgba(200, 200, 200, " + this.alpha + ")";
+    context.fillText("Loading...", context.canvas.width/2 - 30, context.canvas.height/2 - 13 - 20);
+
+    context.font = "20px Arial";
+    context.fillText("Images: " + this.loadedImages + "/" + this.nrOfImages, context.canvas.width/2 - 40, context.canvas.height/2 - 13 + 40);
+
+    context.restore();
 }
 
 module.exports = Loader;
