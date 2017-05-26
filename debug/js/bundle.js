@@ -2974,7 +2974,7 @@ module.exports={
     "monsters": [
         {
             "name": "PIKACHU",
-            "level": 3
+            "level": 1
         }
     ]
 }
