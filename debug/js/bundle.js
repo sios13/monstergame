@@ -170,12 +170,7 @@ Battle.prototype._scenarioBattleIntroPart1 = function(tick) {
 
         this.opponentBoxTile.alpha = 1;
 
-        if (this.type === "snorlax") {
-            this.conversation.enqueue("Snorlax is+blocking the road...", undefined);
-            this.conversation.enqueue("Kill him!!+", undefined);
-        } else {
-            this.conversation.enqueue("Wild " + this.opponentMonster.name + " appeared!+", undefined);
-        }
+        this.conversation.enqueue("Wild " + this.opponentMonster.name + " appeared!+", undefined);
         this.conversation.next();
 
         this.service.ScenarioManager.removeScenario(this._scenarioBattleIntroPart1);
@@ -367,7 +362,7 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
 
     if (tick === 30) {
         // Game over :(
-        this.conversation.enqueue("Game over! :'(+" + this.playerMonster.name + " is now lvl " + (this.playerMonster.level - 1) + ".", function() {            
+        this.conversation.enqueue("Noooooooooo!!+" + this.playerMonster.name + " is now lvl " + (this.playerMonster.level - 1) + ".", function() {            
             // Update player monster level and maxhp (for visual!)
             if (this.playerMonster.level > 1) {
                 this.playerMonster.level -= 1;
@@ -465,8 +460,12 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
             this.service.map.collisionMap[32][50] = function() {this.service.coolguy.setState("walking")};
             this.service.map.collisionMap[33][50] = function() {this.service.coolguy.setState("walking")};
 
-            this.conversation.enqueue("Congratulations!+Snorlax has been defeated!", undefined);
-            this.conversation.enqueue("Thanks for playing :)+", undefined);
+            this.service.conversation.enqueue("Congratulations!+Snorlax has been defeated!", function() {
+                this.service.coolguy.stop = true;
+                this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/Applause.ogg").play();
+            }.bind(this));
+            this.service.conversation.enqueue("Thanks for playing :)+", undefined);
+            this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
         }
 
         this.conversation.enqueue("+", function() {
@@ -484,6 +483,8 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
                         this.service.playAudio(this.service.map.audio);
 
                         this.service.coolguy.stop = false;
+
+                        this.service.conversation.next();
                     }
                 );
             });
@@ -573,6 +574,13 @@ Battle.prototype._commandState = function() {
                     this.state = "command";
                 }.bind(this));
             } else {
+                if (this.type === "snorlax") {
+                    this.service.coolguy.x = 60 * 32;
+                    this.service.coolguy.y = 32 * 32;
+
+                    this.service.coolguy.direction = 3;
+                }
+
                 this.conversation.enqueue("Got away safely!+", undefined);
                 this.conversation.enqueue("+", function() {
                     this.service.events.push(function() {
@@ -807,6 +815,7 @@ function Conversation(service, settings) {
     } else {
         this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 192, 1024, 192);
     }
+    console.log(this.backgroundTile);
 
     this.arrowTile = this.service.resources.getTile("conversationArrow", 880, 768 - 192 + 50, 56, 80);
     this.arrowTile.alpha = 0;
@@ -902,6 +911,10 @@ Conversation.prototype.update = function() {
 }
 
 Conversation.prototype.render = function(context) {
+    if (this.texts[0] === "+") {
+        return;
+    }
+
     this.backgroundTile.render(context);
 
     this.arrowTile.render(context);
@@ -1091,7 +1104,7 @@ Entity.prototype.update = function() {
 
     this.activeTile = this.activeTiles[this.direction];
 
-    if (this.service.listeners.mousedown)
+    if (this.service.listeners.mousedown && this.stop === false)
     {
         // Use the mouse position to determine the entity speed (speedX speedY)
         this._setSpeed();
@@ -1102,11 +1115,6 @@ Entity.prototype.update = function() {
         // Detect collision.
         // If collision is detected -> set the speed to 0
         this._detectCollision();
-
-        if (this.stop === true) {
-            this.speedX = 0;
-            this.speedY = 0;
-        }
 
         // Finally, add the speed to the position
         this.x += this.speedX;
@@ -1151,6 +1159,7 @@ const Entity = require("./Entity.js");
 const MapManager = require("./MapManager.js");
 const Battle = require("./Battle.js");
 const Loader = require("./Loader.js");
+const Conversation = require("./Conversation.js");
 const ScenarioManager = require("./ScenarioManager.js");
 
 Function.prototype.bindArgs = function(...boundArgs)
@@ -1180,8 +1189,6 @@ function Game() {
 
     this.service.events = [];
 
-    this.service.ScenarioManager = new ScenarioManager(this.service, {});
-
     // Load resources to service.resouces
     this.loader = new Loader(this.service, {});
     // Initialize world state
@@ -1195,6 +1202,12 @@ function Game() {
 
                 this.service.map = this.service.mapManager.getMap("startMap");
 
+                this.service.conversation = new Conversation(this.service, {});
+                this.service.conversation.enqueue("Welcome to the+world of MONSTERS!", function() {this.service.coolguy.stop = true;}.bind(this));
+                this.service.conversation.enqueue("Enjoy! :)+", undefined);
+                this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
+                this.service.conversation.next();
+
                 this.service.state = "world";
             },
             function() {
@@ -1204,6 +1217,8 @@ function Game() {
             }
         );
     });
+
+    this.service.ScenarioManager = new ScenarioManager(this.service, {});
 
     // Loading properties
     this.service.loadCanvas = document.querySelector(".loadCanvas");
@@ -1267,6 +1282,8 @@ Game.prototype.update = function() {
 
         // Update map
         this.service.map.update();
+
+        this.service.conversation.update();
     }
 
     this.service.ScenarioManager.update();
@@ -1305,6 +1322,8 @@ Game.prototype.render = function() {
         this.service.coolguy.render();
 
         this.service.map.renderLayer2();
+
+        this.service.conversation.render(context);
     }
 }
 
@@ -1329,7 +1348,7 @@ Game.prototype.checkEvents = function() {
 
 module.exports = Game;
 
-},{"./Battle.js":1,"./Entity.js":3,"./InitializeService.js":5,"./Loader.js":6,"./MapManager.js":8,"./ScenarioManager.js":9,"./listeners.js":12,"./resources/savefile.json":14}],5:[function(require,module,exports){
+},{"./Battle.js":1,"./Conversation.js":2,"./Entity.js":3,"./InitializeService.js":5,"./Loader.js":6,"./MapManager.js":8,"./ScenarioManager.js":9,"./listeners.js":12,"./resources/savefile.json":14}],5:[function(require,module,exports){
 module.exports = function() {
     let service = {};
 
@@ -1593,7 +1612,8 @@ Loader.prototype._loadAudios = function() {
         "audio/expfull.wav",
         "audio/Flee.wav",
         "audio/OpenPokeball.wav",
-        "audio/decrease.wav"
+        "audio/decrease.wav",
+        "audio/Applause.ogg",
     ];
 
     // Make an audio element for every audio src
@@ -1834,29 +1854,34 @@ function MapManager(service, {}) {
         this.service.coolguy.setState("water");
     };
     this.grassEvent = function(type) {
-        this.service.coolguy.setState("grass");
-
         if (type === "snorlax") {
-            let monsterLevel = 10;
+            this.service.conversation.enqueue("Snorlax is+blocking the road...", function() {this.service.coolguy.stop = true;}.bind(this));
+            this.service.conversation.enqueue("Kill him!!+", undefined);
+            this.service.conversation.enqueue("+", function() {
+                let monsterLevel = 10;
 
-            snorlax = this.service.resources.getMonster(4);
-            snorlax.maxHP = 35;
-            snorlax.strength = 5;
+                snorlax = this.service.resources.getMonster(4);
+                snorlax.maxHP = 35;
+                snorlax.strength = 5;
 
-            this.service.battle = new Battle(this.service, {opponent: snorlax, opponentLevel: monsterLevel, type: "snorlax"});
+                this.service.battle = new Battle(this.service, {opponent: snorlax, opponentLevel: monsterLevel, type: "snorlax"});
 
-            // Switch state
-            this.service.state = "battle";
+                // Switch state
+                this.service.state = "battle";
 
-            this.service.map.audio.pause();
-            this.service.map.audio.volume = 0;
+                this.service.map.audio.pause();
+                this.service.map.audio.volume = 0;
 
-            this.service.worldCanvas.style.zIndex = -1;
-            this.service.battleCanvas.style.zIndex = 1;
+                this.service.worldCanvas.style.zIndex = -1;
+                this.service.battleCanvas.style.zIndex = 1;
+            }.bind(this));
+            this.service.conversation.next();
         } else {
+            this.service.coolguy.setState("grass");
+
             // if (true) {
             // if (false) {
-            if (Math.floor(Math.random() * 8) % 8 === 0) {
+            if (Math.floor(Math.random() * 10) % 10 === 0) {
             // if (this.service.tick % 10 === 0) {
                 // Get a "random" mosnter
                 let min = 0;
@@ -2022,7 +2047,7 @@ MapManager.prototype.createStartMap = function() {
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -2238,6 +2263,15 @@ MapManager.prototype.createStartMap = function() {
             if (collisionMap[y][x] === 14) {
                 map.attachEvent(x, y, this.newMapEvent.bindArgs("pokecenter", 8, 9));
             }
+
+            // Conversation!
+            if (collisionMap[y][x] === 20) {
+                map.attachEvent(x, y, function() {
+                    this.service.conversation.enqueue("hahah+hej!", function() {this.service.coolguy.stop = true;}.bind(this));
+                    this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
+                    this.service.conversation.next();
+                });
+            }
         }
     }
 
@@ -2307,7 +2341,7 @@ MapManager.prototype.createPokecenterMap = function() {
         [1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1],
         [1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,1],
         [1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,3,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,1,1,0,0,0,0,0,0,0,0,0,1,1,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1],
@@ -2344,6 +2378,18 @@ MapManager.prototype.createPokecenterMap = function() {
             // Teleport!
             if (collisionMap[y][x] === 2) {
                 map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 56, 39));
+            }
+
+            // Heal!
+            if (collisionMap[y][x] === 3) {
+                map.attachEvent(x, y, function() {
+                    this.service.conversation.enqueue("We've restored your+MONSTERS to full health.", function() {
+                        this.service.coolguy.stop = true;
+                        this.service.save.monsters[0].HP = this.service.save.monsters[0].maxHP;
+                    }.bind(this));
+                    this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
+                    this.service.conversation.next();
+                });
             }
         }
     }
@@ -2969,12 +3015,12 @@ module.exports=[
 },{}],14:[function(require,module,exports){
 module.exports={
     "characterStartPositionX": 60,
-    "characterStartPositionY": 72,
+    "characterStartPositionY": 32,
     "snorlaxDefeated": false,
     "monsters": [
         {
             "name": "PIKACHU",
-            "level": 1
+            "level": 100
         }
     ]
 }
@@ -3154,8 +3200,8 @@ module.exports=[
     {
         "name": "conversationBg",
         "src": "img/conversation/background_normal.png",
-        "tileWidth": 512,
-        "tileHeight": 96
+        "tileWidth": 1028,
+        "tileHeight": 179
     },
     {
         "name": "conversationBattleBg",

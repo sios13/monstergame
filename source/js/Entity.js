@@ -164,7 +164,7 @@ Entity.prototype.update = function() {
 
     this.activeTile = this.activeTiles[this.direction];
 
-    if (this.service.listeners.mousedown)
+    if (this.service.listeners.mousedown && this.stop === false)
     {
         // Use the mouse position to determine the entity speed (speedX speedY)
         this._setSpeed();
@@ -175,11 +175,6 @@ Entity.prototype.update = function() {
         // Detect collision.
         // If collision is detected -> set the speed to 0
         this._detectCollision();
-
-        if (this.stop === true) {
-            this.speedX = 0;
-            this.speedY = 0;
-        }
 
         // Finally, add the speed to the position
         this.x += this.speedX;

@@ -206,7 +206,8 @@ Loader.prototype._loadAudios = function() {
         "audio/expfull.wav",
         "audio/Flee.wav",
         "audio/OpenPokeball.wav",
-        "audio/decrease.wav"
+        "audio/decrease.wav",
+        "audio/Applause.ogg",
     ];
 
     // Make an audio element for every audio src

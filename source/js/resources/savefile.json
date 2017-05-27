@@ -1,11 +1,11 @@
 {
     "characterStartPositionX": 60,
-    "characterStartPositionY": 72,
+    "characterStartPositionY": 32,
     "snorlaxDefeated": false,
     "monsters": [
         {
             "name": "PIKACHU",
-            "level": 1
+            "level": 100
         }
     ]
 }

@@ -13,29 +13,34 @@ function MapManager(service, {}) {
         this.service.coolguy.setState("water");
     };
     this.grassEvent = function(type) {
-        this.service.coolguy.setState("grass");
-
         if (type === "snorlax") {
-            let monsterLevel = 10;
+            this.service.conversation.enqueue("Snorlax is+blocking the road...", function() {this.service.coolguy.stop = true;}.bind(this));
+            this.service.conversation.enqueue("Kill him!!+", undefined);
+            this.service.conversation.enqueue("+", function() {
+                let monsterLevel = 10;
 
-            snorlax = this.service.resources.getMonster(4);
-            snorlax.maxHP = 35;
-            snorlax.strength = 5;
+                snorlax = this.service.resources.getMonster(4);
+                snorlax.maxHP = 35;
+                snorlax.strength = 5;
 
-            this.service.battle = new Battle(this.service, {opponent: snorlax, opponentLevel: monsterLevel, type: "snorlax"});
+                this.service.battle = new Battle(this.service, {opponent: snorlax, opponentLevel: monsterLevel, type: "snorlax"});
 
-            // Switch state
-            this.service.state = "battle";
+                // Switch state
+                this.service.state = "battle";
 
-            this.service.map.audio.pause();
-            this.service.map.audio.volume = 0;
+                this.service.map.audio.pause();
+                this.service.map.audio.volume = 0;
 
-            this.service.worldCanvas.style.zIndex = -1;
-            this.service.battleCanvas.style.zIndex = 1;
+                this.service.worldCanvas.style.zIndex = -1;
+                this.service.battleCanvas.style.zIndex = 1;
+            }.bind(this));
+            this.service.conversation.next();
         } else {
+            this.service.coolguy.setState("grass");
+
             // if (true) {
             // if (false) {
-            if (Math.floor(Math.random() * 8) % 8 === 0) {
+            if (Math.floor(Math.random() * 10) % 10 === 0) {
             // if (this.service.tick % 10 === 0) {
                 // Get a "random" mosnter
                 let min = 0;
@@ -201,7 +206,7 @@ MapManager.prototype.createStartMap = function() {
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -417,6 +422,15 @@ MapManager.prototype.createStartMap = function() {
             if (collisionMap[y][x] === 14) {
                 map.attachEvent(x, y, this.newMapEvent.bindArgs("pokecenter", 8, 9));
             }
+
+            // Conversation!
+            if (collisionMap[y][x] === 20) {
+                map.attachEvent(x, y, function() {
+                    this.service.conversation.enqueue("hahah+hej!", function() {this.service.coolguy.stop = true;}.bind(this));
+                    this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
+                    this.service.conversation.next();
+                });
+            }
         }
     }
 
@@ -486,7 +500,7 @@ MapManager.prototype.createPokecenterMap = function() {
         [1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1],
         [1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,1],
         [1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,3,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,1,1,0,0,0,0,0,0,0,0,0,1,1,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1],
@@ -523,6 +537,18 @@ MapManager.prototype.createPokecenterMap = function() {
             // Teleport!
             if (collisionMap[y][x] === 2) {
                 map.attachEvent(x, y, this.newMapEvent.bindArgs("startMap", 56, 39));
+            }
+
+            // Heal!
+            if (collisionMap[y][x] === 3) {
+                map.attachEvent(x, y, function() {
+                    this.service.conversation.enqueue("We've restored your+MONSTERS to full health.", function() {
+                        this.service.coolguy.stop = true;
+                        this.service.save.monsters[0].HP = this.service.save.monsters[0].maxHP;
+                    }.bind(this));
+                    this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
+                    this.service.conversation.next();
+                });
             }
         }
     }

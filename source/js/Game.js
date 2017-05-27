@@ -2,6 +2,7 @@ const Entity = require("./Entity.js");
 const MapManager = require("./MapManager.js");
 const Battle = require("./Battle.js");
 const Loader = require("./Loader.js");
+const Conversation = require("./Conversation.js");
 const ScenarioManager = require("./ScenarioManager.js");
 
 Function.prototype.bindArgs = function(...boundArgs)
@@ -31,8 +32,6 @@ function Game() {
 
     this.service.events = [];
 
-    this.service.ScenarioManager = new ScenarioManager(this.service, {});
-
     // Load resources to service.resouces
     this.loader = new Loader(this.service, {});
     // Initialize world state
@@ -46,6 +45,12 @@ function Game() {
 
                 this.service.map = this.service.mapManager.getMap("startMap");
 
+                this.service.conversation = new Conversation(this.service, {});
+                this.service.conversation.enqueue("Welcome to the+world of MONSTERS!", function() {this.service.coolguy.stop = true;}.bind(this));
+                this.service.conversation.enqueue("Enjoy! :)+", undefined);
+                this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
+                this.service.conversation.next();
+
                 this.service.state = "world";
             },
             function() {
@@ -55,6 +60,8 @@ function Game() {
             }
         );
     });
+
+    this.service.ScenarioManager = new ScenarioManager(this.service, {});
 
     // Loading properties
     this.service.loadCanvas = document.querySelector(".loadCanvas");
@@ -118,6 +125,8 @@ Game.prototype.update = function() {
 
         // Update map
         this.service.map.update();
+
+        this.service.conversation.update();
     }
 
     this.service.ScenarioManager.update();
@@ -156,6 +165,8 @@ Game.prototype.render = function() {
         this.service.coolguy.render();
 
         this.service.map.renderLayer2();
+
+        this.service.conversation.render(context);
     }
 }
 

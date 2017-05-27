@@ -169,12 +169,7 @@ Battle.prototype._scenarioBattleIntroPart1 = function(tick) {
 
         this.opponentBoxTile.alpha = 1;
 
-        if (this.type === "snorlax") {
-            this.conversation.enqueue("Snorlax is+blocking the road...", undefined);
-            this.conversation.enqueue("Kill him!!+", undefined);
-        } else {
-            this.conversation.enqueue("Wild " + this.opponentMonster.name + " appeared!+", undefined);
-        }
+        this.conversation.enqueue("Wild " + this.opponentMonster.name + " appeared!+", undefined);
         this.conversation.next();
 
         this.service.ScenarioManager.removeScenario(this._scenarioBattleIntroPart1);
@@ -366,7 +361,7 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
 
     if (tick === 30) {
         // Game over :(
-        this.conversation.enqueue("Game over! :'(+" + this.playerMonster.name + " is now lvl " + (this.playerMonster.level - 1) + ".", function() {            
+        this.conversation.enqueue("Noooooooooo!!+" + this.playerMonster.name + " is now lvl " + (this.playerMonster.level - 1) + ".", function() {            
             // Update player monster level and maxhp (for visual!)
             if (this.playerMonster.level > 1) {
                 this.playerMonster.level -= 1;
@@ -464,8 +459,12 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
             this.service.map.collisionMap[32][50] = function() {this.service.coolguy.setState("walking")};
             this.service.map.collisionMap[33][50] = function() {this.service.coolguy.setState("walking")};
 
-            this.conversation.enqueue("Congratulations!+Snorlax has been defeated!", undefined);
-            this.conversation.enqueue("Thanks for playing :)+", undefined);
+            this.service.conversation.enqueue("Congratulations!+Snorlax has been defeated!", function() {
+                this.service.coolguy.stop = true;
+                this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/Applause.ogg").play();
+            }.bind(this));
+            this.service.conversation.enqueue("Thanks for playing :)+", undefined);
+            this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
         }
 
         this.conversation.enqueue("+", function() {
@@ -483,6 +482,8 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
                         this.service.playAudio(this.service.map.audio);
 
                         this.service.coolguy.stop = false;
+
+                        this.service.conversation.next();
                     }
                 );
             });
@@ -572,6 +573,13 @@ Battle.prototype._commandState = function() {
                     this.state = "command";
                 }.bind(this));
             } else {
+                if (this.type === "snorlax") {
+                    this.service.coolguy.x = 60 * 32;
+                    this.service.coolguy.y = 32 * 32;
+
+                    this.service.coolguy.direction = 3;
+                }
+
                 this.conversation.enqueue("Got away safely!+", undefined);
                 this.conversation.enqueue("+", function() {
                     this.service.events.push(function() {

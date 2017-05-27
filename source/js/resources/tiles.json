@@ -110,8 +110,8 @@
     {
         "name": "conversationBg",
         "src": "img/conversation/background_normal.png",
-        "tileWidth": 512,
-        "tileHeight": 96
+        "tileWidth": 1028,
+        "tileHeight": 179
     },
     {
         "name": "conversationBattleBg",

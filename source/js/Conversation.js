@@ -8,6 +8,7 @@ function Conversation(service, settings) {
     } else {
         this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 192, 1024, 192);
     }
+    console.log(this.backgroundTile);
 
     this.arrowTile = this.service.resources.getTile("conversationArrow", 880, 768 - 192 + 50, 56, 80);
     this.arrowTile.alpha = 0;
@@ -103,6 +104,10 @@ Conversation.prototype.update = function() {
 }
 
 Conversation.prototype.render = function(context) {
+    if (this.texts[0] === "+") {
+        return;
+    }
+
     this.backgroundTile.render(context);
 
     this.arrowTile.render(context);
