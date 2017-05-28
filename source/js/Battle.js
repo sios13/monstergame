@@ -482,8 +482,6 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
                         this.service.playAudio(this.service.map.audio);
 
                         this.service.coolguy.stop = false;
-
-                        this.service.conversation.next();
                     }
                 );
             });
