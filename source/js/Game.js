@@ -46,10 +46,6 @@ function Game() {
                 this.service.map = this.service.mapManager.getMap("startMap");
 
                 this.service.conversation = new Conversation(this.service, {});
-                this.service.conversation.enqueue("Welcome to the+world of MONSTERS!", function() {this.service.coolguy.stop = true;}.bind(this));
-                this.service.conversation.enqueue("Enjoy! :)+", undefined);
-                this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
-                this.service.conversation.next();
 
                 this.service.state = "world";
             },

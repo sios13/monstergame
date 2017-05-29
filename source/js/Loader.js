@@ -200,6 +200,8 @@ Loader.prototype._loadAudios = function() {
         "audio/music1.mp3",
         "audio/music2.mp3",
         "audio/pkmn-fajt.mp3",
+        "audio/pokecenter.ogg",
+        "audio/pokecenter_heal.ogg",
         "audio/normaldamage.wav",
         "audio/faint.wav",
         "audio/Refresh.mp3",
@@ -207,7 +209,11 @@ Loader.prototype._loadAudios = function() {
         "audio/Flee.wav",
         "audio/OpenPokeball.wav",
         "audio/decrease.wav",
-        "audio/Applause.ogg",
+        "audio/SlotsBigWin.mp3",
+        "audio/Choose.wav",
+        "audio/monsterroar.mp3",
+        "audio/EnteringDoor.wav",
+        "audio/ExitDoor.wav"
     ];
 
     // Make an audio element for every audio src

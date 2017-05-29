@@ -6,7 +6,7 @@ function Conversation(service, settings) {
     if (settings.state === "battle") {
         this.backgroundTile = this.service.resources.getTile("conversationBattleBg", 0, 768 - 192, 1024, 192);
     } else {
-        this.backgroundTile = this.service.resources.getTile("conversationBg", 0, 768 - 192, 1024, 192);
+        this.backgroundTile = this.service.resources.getTile("conversationBg", 2, 768 - 185, 1022, 179);
     }
     console.log(this.backgroundTile);
 
@@ -100,6 +100,8 @@ Conversation.prototype.update = function() {
     // If clicked at conversation bar
     if (this.nextable === true && this.service.listeners.click && this.backgroundTile.pointerInside()) {
         this.next();
+
+        this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/Choose.wav").play();
     }
 }
 

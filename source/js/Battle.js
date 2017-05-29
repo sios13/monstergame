@@ -461,7 +461,7 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
 
             this.service.conversation.enqueue("Congratulations!+Snorlax has been defeated!", function() {
                 this.service.coolguy.stop = true;
-                this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/Applause.ogg").play();
+                this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/SlotsBigWin.mp3").play();
             }.bind(this));
             this.service.conversation.enqueue("Thanks for playing :)+", undefined);
             this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
@@ -482,6 +482,10 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
                         this.service.playAudio(this.service.map.audio);
 
                         this.service.coolguy.stop = false;
+
+                        if (this.service.battle.type === "snorlax") {
+                            this.service.conversation.next();
+                        }
                     }
                 );
             });
