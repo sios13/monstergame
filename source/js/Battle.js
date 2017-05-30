@@ -426,10 +426,13 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
     }
 
     if (tick === 30) {
-        if (this.playerMonster.level - this.opponentMonster.level < 1) {
+        if (this.playerMonster.level - this.opponentMonster.level < 2) {
             this.conversation.enqueue(this.playerMonster.name + " reached lvl " + (this.playerMonster.level + 1) + "!+Yaaaaaaaay!", function() {
                 // Play new level sound!
                 this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/expfull.wav").play();
+                setTimeout(function() {
+                    this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/lvlup.ogg").play();
+                }.bind(this), 300);
 
                 // Update player monster (for visual)
                 this.playerMonster.level += 1;
@@ -449,15 +452,15 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
             this.service.save.snorlaxDefeated = true;
 
             // Move snorlax
-            let snorlaxTile = this.service.map.tiles[this.service.map.tiles.length-1];
-            snorlaxTile.renderX = 42*32;
-            snorlaxTile.renderY = 26*32;
+            let snorlaxTile = this.service.map.tiles.find(x => x.name === "snorlax");
+            snorlaxTile.renderX = 32*32;
+            snorlaxTile.renderY = 36*32;
             snorlaxTile.renderWidth = 32;
             snorlaxTile.renderHeight = 32;
 
             // Remove snorlax battle events
-            this.service.map.collisionMap[32][50] = function() {this.service.coolguy.setState("walking")};
-            this.service.map.collisionMap[33][50] = function() {this.service.coolguy.setState("walking")};
+            this.service.map.collisionMap[42][40] = function() {this.service.coolguy.setState("walking")};
+            this.service.map.collisionMap[43][40] = function() {this.service.coolguy.setState("walking")};
 
             this.service.conversation.enqueue("Congratulations!+Snorlax has been defeated!", function() {
                 this.service.coolguy.stop = true;
@@ -465,6 +468,16 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
             }.bind(this));
             this.service.conversation.enqueue("Thanks for playing :)+", undefined);
             this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
+        }
+
+        if (this.type === "gyarados") {
+            this.service.save.gyaradosDefeated = true;
+
+            // Remove gyarados battle events
+            this.service.map.collisionMap[21][75] = function() {this.service.coolguy.setState("walking")};
+            this.service.map.collisionMap[21][76] = function() {this.service.coolguy.setState("walking")};
+            this.service.map.collisionMap[22][75] = function() {this.service.coolguy.setState("walking")};
+            this.service.map.collisionMap[22][76] = function() {this.service.coolguy.setState("walking")};
         }
 
         this.conversation.enqueue("+", function() {

@@ -1,7 +1,8 @@
 {
-    "characterStartPositionX": 60,
-    "characterStartPositionY": 72,
+    "characterStartPositionX": 50,
+    "characterStartPositionY": 82,
     "snorlaxDefeated": false,
+    "gyaradosDefeated": false,
     "monsters": [
         {
             "name": "PIKACHU",

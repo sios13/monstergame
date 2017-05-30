@@ -212,8 +212,9 @@ Loader.prototype._loadAudios = function() {
         "audio/SlotsBigWin.mp3",
         "audio/Choose.wav",
         "audio/monsterroar.mp3",
-        "audio/EnteringDoor.wav",
-        "audio/ExitDoor.wav"
+        // "audio/EnteringDoor.wav",
+        "audio/ExitDoor.wav",
+        "audio/lvlup.ogg"
     ];
 
     // Make an audio element for every audio src

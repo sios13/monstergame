@@ -3,13 +3,13 @@
         "name": "map1layer1",
         "src": "img/maps/map1_layer1.png",
         "tileWidth": 3200,
-        "tileHeight": 3200
+        "tileHeight": 3520
     },
     {
         "name": "map1layer2",
         "src": "img/maps/map1_layer2.png",
         "tileWidth": 3200,
-        "tileHeight": 3200
+        "tileHeight": 3520
     },
     {
         "name": "pokecenter_layer1",
@@ -44,6 +44,18 @@
     {
         "name": "house1_layer2",
         "src": "img/maps/house1_layer2.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "bighouse1_layer1",
+        "src": "img/maps/bighouse1_layer1.png",
+        "tileWidth": 3200,
+        "tileHeight": 3200
+    },
+    {
+        "name": "bighouse1_layer2",
+        "src": "img/maps/bighouse1_layer2.png",
         "tileWidth": 3200,
         "tileHeight": 3200
     },
@@ -207,6 +219,16 @@
         "tileWidth": 75,
         "tileHeight": 75,
         "numberOfFrames": 173,
+        "updateFrequency": 1,
+        "loop": true,
+        "pause": false
+    },
+    {
+        "name": "gyarados",
+        "src": "img/monsters/130_gyarados_front.png",
+        "tileWidth": 102,
+        "tileHeight": 102,
+        "numberOfFrames": 87,
         "updateFrequency": 1,
         "loop": true,
         "pause": false
