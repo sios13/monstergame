@@ -214,7 +214,9 @@ Loader.prototype._loadAudios = function() {
         "audio/monsterroar.mp3",
         // "audio/EnteringDoor.wav",
         "audio/ExitDoor.wav",
-        "audio/lvlup.ogg"
+        "audio/lvlup.ogg",
+        "audio/pokemart.ogg",
+        "audio/bump.mp3"
     ];
 
     // Make an audio element for every audio src

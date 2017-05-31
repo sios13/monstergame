@@ -23,7 +23,7 @@ function MapManager(service, {}) {
             this.service.conversation.enqueue("+", function() {
                 let monsterLevel = 10;
 
-                let snorlax = this.service.resources.getMonster(4);
+                let snorlax = this.service.resources.getMonster(5);
                 snorlax.maxHP = 35;
                 snorlax.strength = 5;
 
@@ -40,9 +40,9 @@ function MapManager(service, {}) {
             }.bind(this));
             this.service.conversation.next();
         } else if (type === "gyarados") {
-            this.service.conversation.enqueue("GYARADOS: Hello!+", function() {this.service.coolguy.stop = true;}.bind(this));
+            this.service.conversation.enqueue("GYARADOS: Gyashaa!+", function() {this.service.coolguy.stop = true;}.bind(this));
             this.service.conversation.enqueue("+", function() {
-                let gyarados = this.service.resources.getMonster(3);
+                let gyarados = this.service.resources.getMonster(4);
 
                 this.service.battle = new Battle(this.service, {opponent: gyarados, opponentLevel: 8, type: "gyarados"});
 
@@ -68,7 +68,7 @@ function MapManager(service, {}) {
                 let max = this.service.resources.monsters.length;
                 let monster = this.service.resources.getMonster(Math.floor(Math.random() * (max - min)) + min);
 
-                // Set mosnter level depending on type
+                // Set monster level depending on type
                 let monsterLevel;
 
                 if (type === "easy") {
@@ -544,8 +544,7 @@ MapManager.prototype.createStartMap = function() {
             // Conversation!
             if (collisionMap[y][x] === 28) {
                 map.attachEvent(x, y, function() {
-                    this.service.conversation.enqueue("Heeeeeeey!+", function() {this.service.coolguy.stop = true;}.bind(this));
-                    this.service.conversation.enqueue("Yaaaaaaaaaaay!+", undefined);
+                    this.service.conversation.enqueue("CAUTION!+No swimming!", function() {this.service.coolguy.stop = true;}.bind(this));
                     this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
                     this.service.conversation.next();
                 });
@@ -587,7 +586,7 @@ MapManager.prototype.createPokemartMap = function() {
 
     let layer2Tile = this.service.resources.getTile("pokemart_layer2", 0, 0, 3200, 3200);
 
-    let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music2.mp3");
+    let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/pokemart.ogg");
 
     let tiles = [];
 
@@ -626,7 +625,7 @@ MapManager.prototype.createPokecenterMap = function() {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1],
         [1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1],
-        [1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,1],
+        [1,1,0,0,0,1,0,0,0,0,1,0,0,0,1,1],
         [1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,3,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -670,20 +669,23 @@ MapManager.prototype.createPokecenterMap = function() {
             // Heal!
             if (collisionMap[y][x] === 3) {
                 map.attachEvent(x, y, function() {
-                    this.service.conversation.enqueue("We've restored your+MONSTERS to full health.", function() {
+                    this.service.conversation.enqueue("Welcome to our MONSTER CENTER!+", function() {
                         this.service.coolguy.stop = true;
-
+                    }.bind(this));
+                    this.service.conversation.enqueue("We've restored your+MONSTERS to full health.", function() {
                         this.service.save.monsters[0].HP = this.service.save.monsters[0].maxHP;
 
                         this.service.pauseAudio(this.service.map.audio);
                         setTimeout(function() {
                             this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/pokecenter_heal.ogg").play();
-                        }.bind(this), 100);
-                    }.bind(this));
-                    this.service.conversation.enqueue("+", function() {
-                        this.service.coolguy.stop = false;
-                        this.service.map.audio.volume = 0;
-                        this.service.playAudio(this.service.map.audio);
+                        }.bind(this), 200);
+                        setTimeout(function() {                            
+                            this.service.conversation.enqueue("+", function() {
+                                this.service.coolguy.stop = false;
+                                this.service.map.audio.volume = 0;
+                                this.service.playAudio(this.service.map.audio);
+                            }.bind(this));
+                        }.bind(this), 3000);
                     }.bind(this));
                     this.service.conversation.next();
                 });

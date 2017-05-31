@@ -126,7 +126,7 @@ Conversation.prototype.render = function(context) {
     context.shadowColor = "rgba(0,0,0,0.2)";
     context.shadowOffsetX = 5;
     context.shadowOffsetY = 3;
-    // context.shadowBlur = 3;
+    context.shadowBlur = 3;
 
     context.fillText(this.line1, 70, 662);
 

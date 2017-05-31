@@ -27,26 +27,42 @@
             "loop": false,
             "pause": true
         },
-        "crySrc": "audio/monster/001Cry.wav",
-        "moves": [
-            {
-                "name": "Tackle1"
-            },
-            {
-                "name": "Tackle2"
-            },
-            {
-                "name": "Tackle3"
-            },
-            {
-                "name": "Tackle4"
-            }
-        ]
+        "crySrc": "audio/monster/001Cry.wav"
+    },
+    {
+        "id": 2,
+        "name": "IVYSAUR",
+        "maxHP": 16,
+        "strength": 4,
+        "tileFront": {
+            "src": "img/monsters/002_ivysaur_front.png",
+            "tileWidth": 58,
+            "tileHeight": 58,
+            "renderY": 100,
+            "renderWidth": 200,
+            "renderHeight": 200,
+            "numberOfFrames": 111,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "tileBack": {
+            "src": "img/monsters/002_ivysaur_back.png",
+            "tileWidth": 57,
+            "tileHeight": 57,
+            "renderWidth": 300,
+            "renderHeight": 300,
+            "numberOfFrames": 111,
+            "updateFrequency": 1,
+            "loop": false,
+            "pause": true
+        },
+        "crySrc": "audio/monster/002Cry.wav"
     },
     {
         "id": 25,
         "name": "PIKACHU",
-        "maxHP": 16,
+        "maxHP": 15,
         "strength": 4,
         "tileFront": {
             "src": "img/monsters/025_pikachu_front.png",

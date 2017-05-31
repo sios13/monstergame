@@ -140,6 +140,8 @@ Entity.prototype._detectCollision = function() {
             if (newRow !== oldRow) {
                 this.speedY = 0;
             }
+
+            this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/bump.mp3").play();            
         }
     }
 }

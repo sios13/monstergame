@@ -18,6 +18,7 @@ function Battle(service, settings) {
         }
     }
     this.playerMonster = this.service.resources.getMonster(index);
+    this.playerMonster.maxHP = 16;
     this.playerMonster.strength = 7;
 
     // Read from save file
@@ -379,11 +380,12 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
             // Player decrease sound!
             this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/decrease.wav").play();
 
-            // Set character position
-            if (this.type === "snorlax") {
-                this.service.coolguy.x = 50 * 32;
-                this.service.coolguy.y = 42 * 32;
-            }
+            // // Set character position
+            // if (this.type === "snorlax") {
+            //     console.log("hej!");
+            //     this.service.coolguy.x = 40 * 32;
+            //     this.service.coolguy.y = 52 * 32;
+            // }
             
             this.service.coolguy.direction = 3;
         }.bind(this));
@@ -463,10 +465,18 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
 
             this.service.conversation.enqueue("Congratulations!+Snorlax has been defeated!", function() {
                 this.service.coolguy.stop = true;
-                this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/SlotsBigWin.mp3").play();
+                this.service.pauseAudio(this.service.map.audio);
+                setTimeout(function() {
+                    this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/SlotsBigWin.mp3").play();
+                }.bind(this), 200);
+                setTimeout(function() {
+                    this.service.conversation.enqueue("Thanks for playing :)+", function() {
+                        this.service.map.audio.volume = 0;
+                        this.service.playAudio(this.service.map.audio);
+                    }.bind(this));
+                    this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
+                }.bind(this), 4000);
             }.bind(this));
-            this.service.conversation.enqueue("Thanks for playing :)+", undefined);
-            this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
         }
 
         if (this.type === "gyarados") {
@@ -592,8 +602,8 @@ Battle.prototype._commandState = function() {
                 }.bind(this));
             } else {
                 if (this.type === "snorlax") {
-                    this.service.coolguy.x = 60 * 32;
-                    this.service.coolguy.y = 32 * 32;
+                    this.service.coolguy.x = 50 * 32;
+                    this.service.coolguy.y = 42 * 32;
 
                     this.service.coolguy.direction = 3;
                 }
