@@ -1,5 +1,10 @@
 function Tile(service, settings) {
     this.service = service;
+    this.settings = settings;
+
+    if (this.settings.mode === "testing") {
+        return;
+    }
 
     this.name = settings.name ? settings.name : "tilename";
 
@@ -124,14 +129,14 @@ Tile.prototype.render = function(context, rX, rY) {
 
     context.drawImage(
         this.image,
-        Math.floor(xInImage),
-        Math.floor(yInImage),
-        Math.floor(this.tileWidth),
-        Math.floor(this.tileHeight),
-        Math.floor(rX + this.renderX),
-        Math.floor(rY + this.renderY),
-        Math.floor(this.renderWidth),
-        Math.floor(this.renderHeight)
+        Math.round(xInImage),
+        Math.round(yInImage),
+        Math.round(this.tileWidth),
+        Math.round(this.tileHeight),
+        Math.round(rX + this.renderX),
+        Math.round(rY + this.renderY),
+        Math.round(this.renderWidth),
+        Math.round(this.renderHeight)
     );
 
     context.restore();

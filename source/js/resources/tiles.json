@@ -128,7 +128,6 @@
     {
         "name": "conversationBattleBg",
         "image": "-",
-        // "src": "img/conversation/background_battle.png",
         "tileWidth": 512,
         "tileHeight": 96
     },

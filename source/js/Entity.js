@@ -1,5 +1,10 @@
 function Entity(service, settings) {
     this.service = service;
+    this.settings = settings;
+
+    if (this.settings.mode === "testing") {
+        return;
+    }
 
     // this.x = 60*32;
     // this.y = 72*32;
@@ -51,7 +56,7 @@ function Entity(service, settings) {
     // Render width and render height should always be > collision square !!
     this.renderX = this.service.worldCanvas.width/2 - (this.activeTile.renderWidth - this.collisionSquare) / 2;
     this.renderY = this.service.worldCanvas.height/2 - (this.activeTile.renderHeight - this.collisionSquare);
-    
+
     this.canvasX = 512; // x position on canvas
     this.canvasY = 384; // y position on canvas
 }
@@ -140,24 +145,26 @@ Entity.prototype._detectCollision = function() {
 }
 
 Entity.prototype.setState = function(state) {
-    if (state === "walking") {
-        this.activeTiles = this.walkTiles;
-    }
+    if (this.settings.mode !== "testing") {
+        if (state === "walking") {
+            this.activeTiles = this.walkTiles;
+        }
 
-    if (state === "grass") {
-        this.activeTiles = this.grassTiles;
-    }
+        if (state === "grass") {
+            this.activeTiles = this.grassTiles;
+        }
 
-    if (state === "water") {
-        this.activeTiles = this.waterTiles;
+        if (state === "water") {
+            this.activeTiles = this.waterTiles;
+        }
     }
 
     this.state = state;
 
-    this.renderX = this.service.worldCanvas.width/2 - (this.activeTiles[0].renderWidth - this.collisionSquare) / 2;
-    this.renderY = this.service.worldCanvas.height/2 - (this.activeTiles[0].renderHeight - this.collisionSquare);
-
-    console.log(this.state);
+    if (this.settings.mode !== "testing") {
+        this.renderX = this.service.worldCanvas.width/2 - (this.activeTiles[0].renderWidth - this.collisionSquare) / 2;
+        this.renderY = this.service.worldCanvas.height/2 - (this.activeTiles[0].renderHeight - this.collisionSquare);
+    }
 }
 
 Entity.prototype.update = function() {
