@@ -124,14 +124,14 @@ Tile.prototype.render = function(context, rX, rY) {
 
     context.drawImage(
         this.image,
-        xInImage,
-        yInImage,
-        this.tileWidth,
-        this.tileHeight,
-        rX + this.renderX,
-        rY + this.renderY,
-        this.renderWidth,
-        this.renderHeight
+        Math.floor(xInImage),
+        Math.floor(yInImage),
+        Math.floor(this.tileWidth),
+        Math.floor(this.tileHeight),
+        Math.floor(rX + this.renderX),
+        Math.floor(rY + this.renderY),
+        Math.floor(this.renderWidth),
+        Math.floor(this.renderHeight)
     );
 
     context.restore();

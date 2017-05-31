@@ -362,12 +362,11 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
 
     if (tick === 30) {
         // Game over :(
-        this.conversation.enqueue("Noooooooooo!!+" + this.playerMonster.name + " is now lvl " + (this.playerMonster.level - 1) + ".", function() {            
-            // Update player monster level and maxhp (for visual!)
-            if (this.playerMonster.level > 1) {
-                this.playerMonster.level -= 1;
-            }
-
+        // Update player monster level and maxhp (for visual!)
+        if (this.playerMonster.level > 1) {
+            this.playerMonster.level -= 1;
+        }
+        this.conversation.enqueue("Noooooooooo!!+" + this.playerMonster.name + " is now lvl " + this.playerMonster.level + ".", function() {            
             this.playerMonster.maxHP = this.playerMonster.baseHP;
             for (let i = 0; i < this.playerMonster.level - 1; i++) {
                 this.playerMonster.maxHP += 1 + 0.10 * this.playerMonster.baseHP;
@@ -383,8 +382,8 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
 
             // Set character position
             if (this.type === "snorlax") {
-                this.service.coolguy.x = 60 * 32;
-                this.service.coolguy.y = 32 * 32;
+                this.service.coolguy.x = 50 * 32;
+                this.service.coolguy.y = 42 * 32;
             }
             
             this.service.coolguy.direction = 3;
@@ -474,11 +473,15 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
         if (this.type === "gyarados") {
             this.service.save.gyaradosDefeated = true;
 
+            // Remove gyarados
+            let gyaradosTile = this.service.map.tiles.find(x => x.name === "gyarados");
+            gyaradosTile.alpha = 0;
+
             // Remove gyarados battle events
-            this.service.map.collisionMap[21][75] = function() {this.service.coolguy.setState("walking")};
-            this.service.map.collisionMap[21][76] = function() {this.service.coolguy.setState("walking")};
-            this.service.map.collisionMap[22][75] = function() {this.service.coolguy.setState("walking")};
-            this.service.map.collisionMap[22][76] = function() {this.service.coolguy.setState("walking")};
+            this.service.map.collisionMap[21][75] = function() {this.service.coolguy.setState("water")};
+            this.service.map.collisionMap[21][76] = function() {this.service.coolguy.setState("water")};
+            this.service.map.collisionMap[22][75] = function() {this.service.coolguy.setState("water")};
+            this.service.map.collisionMap[22][76] = function() {this.service.coolguy.setState("water")};
         }
 
         this.conversation.enqueue("+", function() {
@@ -830,7 +833,6 @@ function Conversation(service, settings) {
     } else {
         this.backgroundTile = this.service.resources.getTile("conversationBg", 2, 768 - 185, 1022, 179);
     }
-    console.log(this.backgroundTile);
 
     this.arrowTile = this.service.resources.getTile("conversationArrow", 880, 768 - 192 + 50, 56, 80);
     this.arrowTile.alpha = 0;
@@ -902,6 +904,10 @@ Conversation.prototype._updateText = function() {
 }
 
 Conversation.prototype.update = function() {
+    if (this.texts[0] === "+") {
+        return;
+    }
+
     this.nextable = true;
 
     this._updateText();
@@ -938,12 +944,14 @@ Conversation.prototype.render = function(context) {
 
     context.save();
 
+    context.beginPath();
+
     context.font = "30px 'ConversationFont'";
     context.fillStyle = "rgba(0,0,0,0.7)";
     context.shadowColor = "rgba(0,0,0,0.2)";
     context.shadowOffsetX = 5;
     context.shadowOffsetY = 3;
-    context.shadowBlur = 3;
+    // context.shadowBlur = 3;
 
     context.fillText(this.line1, 70, 662);
 
@@ -1878,8 +1886,8 @@ function MapManager(service, {}) {
             this.service.conversation.enqueue("An angry SNORLAX+blocks the way!", function() {this.service.coolguy.stop = true;}.bind(this));
             this.service.conversation.enqueue("Snorlax is very angry!!+", undefined);
             this.service.conversation.enqueue("SNORLAX: AAAARGGGGGHHHH!!+", function() {
-                this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/monsterroar.mp3").volume = 0.2;
-                this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/monsterroar.mp3").play();
+                // this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/monsterroar.mp3").volume = 0.2;
+                // this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/monsterroar.mp3").play();
             }.bind(this));
             this.service.conversation.enqueue("+", function() {
                 let monsterLevel = 10;
@@ -2131,9 +2139,9 @@ MapManager.prototype.createStartMap = function() {
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ];
 
-    let layer1Tile = this.service.resources.getTile("map1layer1", 0, 0, 3200, 3520);
+    let layer1Tile = this.service.resources.getTile("map1_layer1", 0, 0, 3200, 3520);
 
-    let layer2Tile = this.service.resources.getTile("map1layer2", 0, 0, 3200, 3520);
+    let layer2Tile = this.service.resources.getTile("map1_layer2", 0, 0, 3200, 3520);
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
@@ -2337,7 +2345,7 @@ MapManager.prototype.createStartMap = function() {
             // Conversation!
             if (collisionMap[y][x] === 22) {
                 map.attachEvent(x, y, function() {
-                    this.service.conversation.enqueue("Welcome!+", function() {this.service.coolguy.stop = true;}.bind(this));
+                    this.service.conversation.enqueue("Home sweet home!+", function() {this.service.coolguy.stop = true;}.bind(this));
                     this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
                     this.service.conversation.next();
                 });
@@ -2985,14 +2993,14 @@ Tile.prototype.render = function(context, rX, rY) {
 
     context.drawImage(
         this.image,
-        xInImage,
-        yInImage,
-        this.tileWidth,
-        this.tileHeight,
-        rX + this.renderX,
-        rY + this.renderY,
-        this.renderWidth,
-        this.renderHeight
+        Math.floor(xInImage),
+        Math.floor(yInImage),
+        Math.floor(this.tileWidth),
+        Math.floor(this.tileHeight),
+        Math.floor(rX + this.renderX),
+        Math.floor(rY + this.renderY),
+        Math.floor(this.renderWidth),
+        Math.floor(this.renderHeight)
     );
 
     context.restore();
@@ -3305,13 +3313,13 @@ module.exports=[
 },{}],16:[function(require,module,exports){
 module.exports=[
     {
-        "name": "map1layer1",
+        "name": "map1_layer1",
         "src": "img/maps/map1_layer1.png",
         "tileWidth": 3200,
         "tileHeight": 3520
     },
     {
-        "name": "map1layer2",
+        "name": "map1_layer2",
         "src": "img/maps/map1_layer2.png",
         "tileWidth": 3200,
         "tileHeight": 3520

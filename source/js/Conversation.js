@@ -8,7 +8,6 @@ function Conversation(service, settings) {
     } else {
         this.backgroundTile = this.service.resources.getTile("conversationBg", 2, 768 - 185, 1022, 179);
     }
-    console.log(this.backgroundTile);
 
     this.arrowTile = this.service.resources.getTile("conversationArrow", 880, 768 - 192 + 50, 56, 80);
     this.arrowTile.alpha = 0;
@@ -80,6 +79,10 @@ Conversation.prototype._updateText = function() {
 }
 
 Conversation.prototype.update = function() {
+    if (this.texts[0] === "+") {
+        return;
+    }
+
     this.nextable = true;
 
     this._updateText();
@@ -116,12 +119,14 @@ Conversation.prototype.render = function(context) {
 
     context.save();
 
+    context.beginPath();
+
     context.font = "30px 'ConversationFont'";
     context.fillStyle = "rgba(0,0,0,0.7)";
     context.shadowColor = "rgba(0,0,0,0.2)";
     context.shadowOffsetX = 5;
     context.shadowOffsetY = 3;
-    context.shadowBlur = 3;
+    // context.shadowBlur = 3;
 
     context.fillText(this.line1, 70, 662);
 

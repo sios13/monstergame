@@ -17,8 +17,8 @@ function MapManager(service, {}) {
             this.service.conversation.enqueue("An angry SNORLAX+blocks the way!", function() {this.service.coolguy.stop = true;}.bind(this));
             this.service.conversation.enqueue("Snorlax is very angry!!+", undefined);
             this.service.conversation.enqueue("SNORLAX: AAAARGGGGGHHHH!!+", function() {
-                this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/monsterroar.mp3").volume = 0.2;
-                this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/monsterroar.mp3").play();
+                // this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/monsterroar.mp3").volume = 0.2;
+                // this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/monsterroar.mp3").play();
             }.bind(this));
             this.service.conversation.enqueue("+", function() {
                 let monsterLevel = 10;
@@ -270,9 +270,9 @@ MapManager.prototype.createStartMap = function() {
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ];
 
-    let layer1Tile = this.service.resources.getTile("map1layer1", 0, 0, 3200, 3520);
+    let layer1Tile = this.service.resources.getTile("map1_layer1", 0, 0, 3200, 3520);
 
-    let layer2Tile = this.service.resources.getTile("map1layer2", 0, 0, 3200, 3520);
+    let layer2Tile = this.service.resources.getTile("map1_layer2", 0, 0, 3200, 3520);
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
@@ -476,7 +476,7 @@ MapManager.prototype.createStartMap = function() {
             // Conversation!
             if (collisionMap[y][x] === 22) {
                 map.attachEvent(x, y, function() {
-                    this.service.conversation.enqueue("Welcome!+", function() {this.service.coolguy.stop = true;}.bind(this));
+                    this.service.conversation.enqueue("Home sweet home!+", function() {this.service.coolguy.stop = true;}.bind(this));
                     this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
                     this.service.conversation.next();
                 });

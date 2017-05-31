@@ -361,12 +361,11 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
 
     if (tick === 30) {
         // Game over :(
-        this.conversation.enqueue("Noooooooooo!!+" + this.playerMonster.name + " is now lvl " + (this.playerMonster.level - 1) + ".", function() {            
-            // Update player monster level and maxhp (for visual!)
-            if (this.playerMonster.level > 1) {
-                this.playerMonster.level -= 1;
-            }
-
+        // Update player monster level and maxhp (for visual!)
+        if (this.playerMonster.level > 1) {
+            this.playerMonster.level -= 1;
+        }
+        this.conversation.enqueue("Noooooooooo!!+" + this.playerMonster.name + " is now lvl " + this.playerMonster.level + ".", function() {            
             this.playerMonster.maxHP = this.playerMonster.baseHP;
             for (let i = 0; i < this.playerMonster.level - 1; i++) {
                 this.playerMonster.maxHP += 1 + 0.10 * this.playerMonster.baseHP;
@@ -382,8 +381,8 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
 
             // Set character position
             if (this.type === "snorlax") {
-                this.service.coolguy.x = 60 * 32;
-                this.service.coolguy.y = 32 * 32;
+                this.service.coolguy.x = 50 * 32;
+                this.service.coolguy.y = 42 * 32;
             }
             
             this.service.coolguy.direction = 3;
@@ -473,11 +472,15 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
         if (this.type === "gyarados") {
             this.service.save.gyaradosDefeated = true;
 
+            // Remove gyarados
+            let gyaradosTile = this.service.map.tiles.find(x => x.name === "gyarados");
+            gyaradosTile.alpha = 0;
+
             // Remove gyarados battle events
-            this.service.map.collisionMap[21][75] = function() {this.service.coolguy.setState("walking")};
-            this.service.map.collisionMap[21][76] = function() {this.service.coolguy.setState("walking")};
-            this.service.map.collisionMap[22][75] = function() {this.service.coolguy.setState("walking")};
-            this.service.map.collisionMap[22][76] = function() {this.service.coolguy.setState("walking")};
+            this.service.map.collisionMap[21][75] = function() {this.service.coolguy.setState("water")};
+            this.service.map.collisionMap[21][76] = function() {this.service.coolguy.setState("water")};
+            this.service.map.collisionMap[22][75] = function() {this.service.coolguy.setState("water")};
+            this.service.map.collisionMap[22][76] = function() {this.service.coolguy.setState("water")};
         }
 
         this.conversation.enqueue("+", function() {

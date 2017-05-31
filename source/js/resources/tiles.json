@@ -1,12 +1,12 @@
 [
     {
-        "name": "map1layer1",
+        "name": "map1_layer1",
         "src": "img/maps/map1_layer1.png",
         "tileWidth": 3200,
         "tileHeight": 3520
     },
     {
-        "name": "map1layer2",
+        "name": "map1_layer2",
         "src": "img/maps/map1_layer2.png",
         "tileWidth": 3200,
         "tileHeight": 3520
