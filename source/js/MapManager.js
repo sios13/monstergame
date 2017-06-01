@@ -76,7 +76,7 @@ function MapManager(service, {}) {
                 } else if (type === "hard") {
                     monsterLevel = 7;
                 } else if (type === "very hard") {
-                    monsterLevel = 13;
+                    monsterLevel = 12;
                 }
 
                 // Create the battle
@@ -553,7 +553,7 @@ MapManager.prototype.createStartMap = function() {
             // Conversation!
             if (collisionMap[y][x] === 29) {
                 map.attachEvent(x, y, function() {
-                    this.service.conversation.enqueue("Thanks for playing the game!+", function() {this.service.coolguy.stop = true;}.bind(this));
+                    this.service.conversation.enqueue("Thanks for+playing the game!", function() {this.service.coolguy.stop = true;}.bind(this));
                     this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
                     this.service.conversation.next();
                 });
@@ -669,7 +669,7 @@ MapManager.prototype.createPokecenterMap = function() {
             // Heal!
             if (collisionMap[y][x] === 3) {
                 map.attachEvent(x, y, function() {
-                    this.service.conversation.enqueue("Welcome to our MONSTER CENTER!+", function() {
+                    this.service.conversation.enqueue("Welcome to+our MONSTER CENTER!", function() {
                         this.service.coolguy.stop = true;
                     }.bind(this));
                     this.service.conversation.enqueue("We've restored your+MONSTERS to full health.", function() {

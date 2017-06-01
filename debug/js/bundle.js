@@ -363,11 +363,12 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
 
     if (tick === 30) {
         // Game over :(
-        // Update player monster level and maxhp (for visual!)
-        if (this.playerMonster.level > 1) {
-            this.playerMonster.level -= 1;
-        }
-        this.conversation.enqueue("Noooooooooo!!+" + this.playerMonster.name + " is now lvl " + this.playerMonster.level + ".", function() {            
+        let lvl = (this.playerMonster.level - 1) < 1 ? 1 : this.playerMonster.level - 1;
+        this.conversation.enqueue("Noooooooooo!!+" + this.playerMonster.name + " is now lvl " + lvl + ".", function() {
+            // Update player monster level and maxhp (for visual!)
+            if (this.playerMonster.level > 1) {
+                this.playerMonster.level -= 1;
+            }
             this.playerMonster.maxHP = this.playerMonster.baseHP;
             for (let i = 0; i < this.playerMonster.level - 1; i++) {
                 this.playerMonster.maxHP += 1 + 0.10 * this.playerMonster.baseHP;
@@ -381,12 +382,11 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
             // Player decrease sound!
             this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/decrease.wav").play();
 
-            // // Set character position
-            // if (this.type === "snorlax") {
-            //     console.log("hej!");
-            //     this.service.coolguy.x = 40 * 32;
-            //     this.service.coolguy.y = 52 * 32;
-            // }
+            // Set character position
+            if (this.type === "snorlax") {
+                this.service.coolguy.x = 46 * 32;
+                this.service.coolguy.y = 49 * 32;
+            }
             
             this.service.coolguy.direction = 3;
         }.bind(this));
@@ -438,13 +438,16 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
 
                 // Update player monster (for visual)
                 this.playerMonster.level += 1;
-                this.playerMonster.HP += Math.floor(1 + 0.10 * this.playerMonster.baseHP);
-                this.playerMonster.maxHP += Math.floor(1 + 0.10 * this.playerMonster.baseHP);
+                this.playerMonster.maxHP = this.playerMonster.baseHP;
+                for (let i = 0; i < this.playerMonster.level - 1; i++) {
+                    this.playerMonster.maxHP += 1 + 0.10 * this.playerMonster.baseHP;
+                }
+                this.playerMonster.maxHP = Math.floor(this.playerMonster.maxHP);
 
                 // Update save file according to player monster
                 this.service.save.monsters[0].level = this.playerMonster.level;
                 this.service.save.monsters[0].HP = this.playerMonster.HP;
-                this.service.save.monsters[0].maxHP = this.playerMonster.maxHP;
+                // this.service.save.monsters[0].maxHP = this.playerMonster.maxHP;
             }.bind(this));
         } else {
             this.conversation.enqueue("No experience gained! :(+", undefined);
@@ -1966,7 +1969,7 @@ function MapManager(service, {}) {
                 } else if (type === "hard") {
                     monsterLevel = 7;
                 } else if (type === "very hard") {
-                    monsterLevel = 13;
+                    monsterLevel = 12;
                 }
 
                 // Create the battle
@@ -2443,7 +2446,7 @@ MapManager.prototype.createStartMap = function() {
             // Conversation!
             if (collisionMap[y][x] === 29) {
                 map.attachEvent(x, y, function() {
-                    this.service.conversation.enqueue("Thanks for playing the game!+", function() {this.service.coolguy.stop = true;}.bind(this));
+                    this.service.conversation.enqueue("Thanks for+playing the game!", function() {this.service.coolguy.stop = true;}.bind(this));
                     this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
                     this.service.conversation.next();
                 });
@@ -2559,7 +2562,7 @@ MapManager.prototype.createPokecenterMap = function() {
             // Heal!
             if (collisionMap[y][x] === 3) {
                 map.attachEvent(x, y, function() {
-                    this.service.conversation.enqueue("Welcome to our MONSTER CENTER!+", function() {
+                    this.service.conversation.enqueue("Welcome to+our MONSTER CENTER!", function() {
                         this.service.coolguy.stop = true;
                     }.bind(this));
                     this.service.conversation.enqueue("We've restored your+MONSTERS to full health.", function() {
@@ -3135,9 +3138,9 @@ module.exports=[
             "src": "img/monsters/002_ivysaur_front.png",
             "tileWidth": 58,
             "tileHeight": 58,
-            "renderY": 100,
-            "renderWidth": 200,
-            "renderHeight": 200,
+            "renderY": 120,
+            "renderWidth": 300,
+            "renderHeight": 300,
             "numberOfFrames": 111,
             "updateFrequency": 1,
             "loop": false,
@@ -3154,7 +3157,7 @@ module.exports=[
             "loop": false,
             "pause": true
         },
-        "crySrc": "audio/monster/001Cry.wav"
+        "crySrc": "audio/monster/002Cry.wav"
     },
     {
         "id": 25,
@@ -3281,13 +3284,13 @@ module.exports=[
 },{}],14:[function(require,module,exports){
 module.exports={
     "characterStartPositionX": 50,
-    "characterStartPositionY": 82,
+    "characterStartPositionY": 42,
     "snorlaxDefeated": false,
     "gyaradosDefeated": false,
     "monsters": [
         {
             "name": "PIKACHU",
-            "level": 1
+            "level": 7
         }
     ]
 }

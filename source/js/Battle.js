@@ -362,11 +362,12 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
 
     if (tick === 30) {
         // Game over :(
-        // Update player monster level and maxhp (for visual!)
-        if (this.playerMonster.level > 1) {
-            this.playerMonster.level -= 1;
-        }
-        this.conversation.enqueue("Noooooooooo!!+" + this.playerMonster.name + " is now lvl " + this.playerMonster.level + ".", function() {            
+        let lvl = (this.playerMonster.level - 1) < 1 ? 1 : this.playerMonster.level - 1;
+        this.conversation.enqueue("Noooooooooo!!+" + this.playerMonster.name + " is now lvl " + lvl + ".", function() {
+            // Update player monster level and maxhp (for visual!)
+            if (this.playerMonster.level > 1) {
+                this.playerMonster.level -= 1;
+            }
             this.playerMonster.maxHP = this.playerMonster.baseHP;
             for (let i = 0; i < this.playerMonster.level - 1; i++) {
                 this.playerMonster.maxHP += 1 + 0.10 * this.playerMonster.baseHP;
@@ -380,12 +381,11 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
             // Player decrease sound!
             this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/decrease.wav").play();
 
-            // // Set character position
-            // if (this.type === "snorlax") {
-            //     console.log("hej!");
-            //     this.service.coolguy.x = 40 * 32;
-            //     this.service.coolguy.y = 52 * 32;
-            // }
+            // Set character position
+            if (this.type === "snorlax") {
+                this.service.coolguy.x = 46 * 32;
+                this.service.coolguy.y = 49 * 32;
+            }
             
             this.service.coolguy.direction = 3;
         }.bind(this));
@@ -437,13 +437,16 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
 
                 // Update player monster (for visual)
                 this.playerMonster.level += 1;
-                this.playerMonster.HP += Math.floor(1 + 0.10 * this.playerMonster.baseHP);
-                this.playerMonster.maxHP += Math.floor(1 + 0.10 * this.playerMonster.baseHP);
+                this.playerMonster.maxHP = this.playerMonster.baseHP;
+                for (let i = 0; i < this.playerMonster.level - 1; i++) {
+                    this.playerMonster.maxHP += 1 + 0.10 * this.playerMonster.baseHP;
+                }
+                this.playerMonster.maxHP = Math.floor(this.playerMonster.maxHP);
 
                 // Update save file according to player monster
                 this.service.save.monsters[0].level = this.playerMonster.level;
                 this.service.save.monsters[0].HP = this.playerMonster.HP;
-                this.service.save.monsters[0].maxHP = this.playerMonster.maxHP;
+                // this.service.save.monsters[0].maxHP = this.playerMonster.maxHP;
             }.bind(this));
         } else {
             this.conversation.enqueue("No experience gained! :(+", undefined);
