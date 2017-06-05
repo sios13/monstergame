@@ -7,7 +7,7 @@
         "spriteWidth": 32,
         "spriteHeight": 192,
         "numberOfFrames": 4,
-        "updateFrequency": 7
+        "updateFrequency": 5
     },
     {
         "name": "playerWater",
@@ -17,7 +17,7 @@
         "spriteWidth": 64,
         "spriteHeight": 256,
         "numberOfFrames": 4,
-        "updateFrequency": 7
+        "updateFrequency": 5
     },
     {
         "name": "playerGrass",
@@ -27,7 +27,7 @@
         "spriteWidth": 32,
         "spriteHeight": 192,
         "numberOfFrames": 4,
-        "updateFrequency": 7
+        "updateFrequency": 5
     },
     {
         "name": "sea",
@@ -56,5 +56,38 @@
         "spriteWidth": 192,
         "spriteHeight": 874,
         "numberOfFrames": 2
+    },
+    {
+        "name": "npc10",
+        "src": "img/NPC10.png",
+        "tileWidth": 32,
+        "tileHeight": 48,
+        "spriteWidth": 32,
+        "spriteHeight": 192,
+        "numberOfFrames": 4,
+        "updateFrequency": 7,
+        "pause": true
+    },
+    {
+        "name": "npc25",
+        "src": "img/NPC25.png",
+        "tileWidth": 32,
+        "tileHeight": 48,
+        "spriteWidth": 32,
+        "spriteHeight": 192,
+        "numberOfFrames": 4,
+        "updateFrequency": 7,
+        "pause": true
+    },
+    {
+        "name": "npc23",
+        "src": "img/NPC23.png",
+        "tileWidth": 32,
+        "tileHeight": 48,
+        "spriteWidth": 32,
+        "spriteHeight": 192,
+        "numberOfFrames": 4,
+        "updateFrequency": 7,
+        "pause": true
     }
 ]

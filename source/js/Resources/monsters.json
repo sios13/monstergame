@@ -38,7 +38,7 @@
             "src": "img/monsters/002_ivysaur_front.png",
             "tileWidth": 58,
             "tileHeight": 58,
-            "renderY": 120,
+            "renderY": 90,
             "renderWidth": 300,
             "renderHeight": 300,
             "numberOfFrames": 111,

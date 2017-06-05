@@ -1908,7 +1908,6 @@ function MapManager(service, {}) {
     this.grassEvent = function(type) {
         if (type === "snorlax") {
             this.service.conversation.enqueue("An angry SNORLAX+blocks the way!", function() {this.service.coolguy.stop = true;}.bind(this));
-            this.service.conversation.enqueue("Snorlax is very angry!!+", undefined);
             this.service.conversation.enqueue("SNORLAX: AAAARGGGGGHHHH!!+", function() {
                 // this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/monsterroar.mp3").volume = 0.2;
                 // this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/monsterroar.mp3").play();
@@ -2091,13 +2090,13 @@ MapManager.prototype.createStartMap = function() {
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,7,7,7,2,2,2,2,2,2,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,7,7,2,2,2,2,2,2,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,1,13,1,1,0,1,1,1,1,27,27,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,1,8,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,29,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,26,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,29,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,25,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,30,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,14,1,1,0,0,0,0,0,1,9,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -2169,9 +2168,6 @@ MapManager.prototype.createStartMap = function() {
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
-    let gyaradosTile = this.service.resources.getTile("gyarados", 75*32, 21*32, 64, 64);
-    let snorlaxTile = this.service.resources.getTile("snorlax", 38*32, 41*32, 96, 96);
-
     let tiles = [
         this.service.resources.getTile("sea(0,2)", 48*32, 92*32, 32, 32),
         this.service.resources.getTile("sea(1,2)", 49*32, 92*32, 32, 32),
@@ -2238,8 +2234,12 @@ MapManager.prototype.createStartMap = function() {
         this.service.resources.getTile("flower1", 22*32, 37*32, 32, 32),
         this.service.resources.getTile("flower1", 23*32, 38*32, 32, 32),
 
-        gyaradosTile,
-        snorlaxTile
+        this.service.resources.getTile("npc10(0,0)", 54*32, 85*32, 32, 48),
+
+        this.service.resources.getTile("npc25(0,0)", 51*32, 45*32, 32, 48),
+
+        this.service.resources.getTile("gyarados", 75*32, 21*32, 64, 64),
+        this.service.resources.getTile("snorlax", 38*32, 41*32, 96, 96)
     ];
 
     if (this.service.save.gyaradosDefeated === true) {
@@ -2260,8 +2260,8 @@ MapManager.prototype.createStartMap = function() {
         snorlaxTile.renderHeight = 32;
 
         // Remove snorlax battle events
-        collisionMap[42][30] = 0;
-        collisionMap[43][30] = 0;
+        collisionMap[42][40] = 0;
+        collisionMap[43][40] = 0;
     }
 
     let map = new Map(this.service, {
@@ -2397,42 +2397,42 @@ MapManager.prototype.createStartMap = function() {
             // Conversation!
             if (collisionMap[y][x] === 25) {
                 map.attachEvent(x, y, function() {
-                    this.service.conversation.enqueue("This town seems+completely abandoned.", function() {this.service.coolguy.stop = true;}.bind(this));
-                    this.service.conversation.enqueue("I wonder why...+", function() {this.service.coolguy.stop = true;}.bind(this));
+                    this.service.conversation.enqueue("Remember to eat+your vegetables!", function() {this.service.coolguy.stop = true;}.bind(this));
+                    this.service.conversation.enqueue("Every day!+", function() {this.service.coolguy.stop = true;}.bind(this));
                     this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
                     this.service.conversation.next();
                 });
             }
 
-            // Conversation!
-            if (collisionMap[y][x] === 26) {
-                map.attachEvent(x, y, function() {
-                    this.service.conversation.enqueue("A dusty old book lay+on the ground:", function() {this.service.coolguy.stop = true;}.bind(this));
-                    this.service.conversation.enqueue("\"He has taken the bridge...\"+", undefined);
-                    this.service.conversation.enqueue("\"and the second hall.\"+", undefined);
-                    this.service.conversation.enqueue("\"We have+barred the gates...\"", undefined);
-                    this.service.conversation.enqueue("\"but cannot hold+him for long.\"", undefined);
-                    this.service.conversation.enqueue("\"The ground shakes.\"+", undefined);
-                    this.service.conversation.enqueue("\"Drums...+Drums... in the deep.\"", undefined);
-                    this.service.conversation.enqueue("\"We cannot get out.\"+", undefined);
-                    this.service.conversation.enqueue("\"A shadow+moves in the dark.\"", undefined);
-                    this.service.conversation.enqueue("\"We cannot get out...\"+", undefined);
-                    this.service.conversation.enqueue("\"He is coming!\"+", undefined);
-                    this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
-                    this.service.conversation.next();
-                });
-            }
+            // // Conversation!
+            // if (collisionMap[y][x] === 26) {
+            //     map.attachEvent(x, y, function() {
+            //         this.service.conversation.enqueue("A dusty old book lay+on the ground:", function() {this.service.coolguy.stop = true;}.bind(this));
+            //         this.service.conversation.enqueue("\"He has+taken the bridge...\"", undefined);
+            //         this.service.conversation.enqueue("\"and the second hall.\"+", undefined);
+            //         this.service.conversation.enqueue("\"We have+barred the gates...\"", undefined);
+            //         this.service.conversation.enqueue("\"but cannot hold+him for long.\"", undefined);
+            //         this.service.conversation.enqueue("\"The ground shakes.\"+", undefined);
+            //         this.service.conversation.enqueue("\"Drums...+Drums... in the deep.\"", undefined);
+            //         this.service.conversation.enqueue("\"We cannot get out.\"+", undefined);
+            //         this.service.conversation.enqueue("\"A shadow+moves in the dark.\"", undefined);
+            //         this.service.conversation.enqueue("\"We cannot get out...\"+", undefined);
+            //         this.service.conversation.enqueue("\"He is coming!\"+", undefined);
+            //         this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
+            //         this.service.conversation.next();
+            //     });
+            // }
 
-            // Conversation!
-            if (collisionMap[y][x] === 27) {
-                map.attachEvent(x, y, function() {
-                    this.service.conversation.enqueue("\"Here lies the entire+population of the world.\"", function() {this.service.coolguy.stop = true;}.bind(this));
-                    this.service.conversation.enqueue("\"Murdered by SNORLAX.\"+", undefined);
-                    this.service.conversation.enqueue("\"Rest in peace.\"+", undefined);
-                    this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
-                    this.service.conversation.next();
-                });
-            }
+            // // Conversation!
+            // if (collisionMap[y][x] === 27) {
+            //     map.attachEvent(x, y, function() {
+            //         this.service.conversation.enqueue("\"Here lies the entire+population of the world.\"", function() {this.service.coolguy.stop = true;}.bind(this));
+            //         this.service.conversation.enqueue("\"Murdered by SNORLAX.\"+", undefined);
+            //         this.service.conversation.enqueue("\"Rest in peace.\"+", undefined);
+            //         this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
+            //         this.service.conversation.next();
+            //     });
+            // }
 
             // Conversation!
             if (collisionMap[y][x] === 28) {
@@ -2447,6 +2447,16 @@ MapManager.prototype.createStartMap = function() {
             if (collisionMap[y][x] === 29) {
                 map.attachEvent(x, y, function() {
                     this.service.conversation.enqueue("Thanks for+playing the game!", function() {this.service.coolguy.stop = true;}.bind(this));
+                    this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
+                    this.service.conversation.next();
+                });
+            }
+
+            // Conversation!
+            if (collisionMap[y][x] === 30) {
+                map.attachEvent(x, y, function() {
+                    this.service.conversation.enqueue("Please help!+", function() {this.service.coolguy.stop = true;}.bind(this));
+                    this.service.conversation.enqueue("Snorlax is very angry!+", undefined);
                     this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
                     this.service.conversation.next();
                 });
@@ -2522,7 +2532,7 @@ MapManager.prototype.createPokecenterMap = function() {
         [1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,3,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,0,0,0,0,0,0,0,0,0,1,1,0,1],
+        [1,1,1,0,4,0,0,0,0,0,0,0,1,1,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1],
@@ -2535,7 +2545,9 @@ MapManager.prototype.createPokecenterMap = function() {
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/pokecenter.ogg");
 
-    let tiles = [];
+    let tiles = [
+        this.service.resources.getTile("npc23(0,0)", 8*32, 2*32, 32, 48)
+    ];
 
     let map = new Map(this.service, {
         x: 0,
@@ -2565,14 +2577,16 @@ MapManager.prototype.createPokecenterMap = function() {
                     this.service.conversation.enqueue("Welcome to+our MONSTER CENTER!", function() {
                         this.service.coolguy.stop = true;
                     }.bind(this));
-                    this.service.conversation.enqueue("We've restored your+MONSTERS to full health.", function() {
+                    this.service.conversation.enqueue("I'll take your MONSTERS+for a few seconds.", function() {
                         this.service.save.monsters[0].HP = this.service.save.monsters[0].maxHP;
 
                         this.service.pauseAudio(this.service.map.audio);
                         setTimeout(function() {
                             this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/pokecenter_heal.ogg").play();
                         }.bind(this), 200);
-                        setTimeout(function() {                            
+                        setTimeout(function() {
+                            this.service.conversation.enqueue("We've restored your+MONSTERS to full health.", undefined);
+                            this.service.conversation.enqueue("We hope to see you again!+", undefined);
                             this.service.conversation.enqueue("+", function() {
                                 this.service.coolguy.stop = false;
                                 this.service.map.audio.volume = 0;
@@ -2580,6 +2594,25 @@ MapManager.prototype.createPokecenterMap = function() {
                             }.bind(this));
                         }.bind(this), 3000);
                     }.bind(this));
+                    this.service.conversation.next();
+                });
+            }
+
+            // Conversation!
+            if (collisionMap[y][x] === 4) {
+                map.attachEvent(x, y, function() {
+                    this.service.conversation.enqueue("A dusty old book lay+on the ground:", function() {this.service.coolguy.stop = true;}.bind(this));
+                    this.service.conversation.enqueue("\"He has+taken the bridge...\"", undefined);
+                    this.service.conversation.enqueue("\"and the second hall.\"+", undefined);
+                    this.service.conversation.enqueue("\"We have+barred the gates...\"", undefined);
+                    this.service.conversation.enqueue("\"but cannot hold+him for long.\"", undefined);
+                    this.service.conversation.enqueue("\"The ground shakes.\"+", undefined);
+                    this.service.conversation.enqueue("\"Drums...+Drums... in the deep.\"", undefined);
+                    this.service.conversation.enqueue("\"We cannot get out.\"+", undefined);
+                    this.service.conversation.enqueue("\"A shadow+moves in the dark.\"", undefined);
+                    this.service.conversation.enqueue("\"We cannot get out...\"+", undefined);
+                    this.service.conversation.enqueue("\"He is coming!\"+", undefined);
+                    this.service.conversation.enqueue("+", function() {this.service.coolguy.stop = false;}.bind(this));
                     this.service.conversation.next();
                 });
             }
@@ -3053,6 +3086,10 @@ function addListeners(service) {
     service.listeners = {};
 
     let clickEvent = function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+
         event.preventDefault();
 
         service.listeners.click = true;
@@ -3060,8 +3097,13 @@ function addListeners(service) {
 
     service.worldCanvas.addEventListener("click", clickEvent);
     service.battleCanvas.addEventListener("click", clickEvent);
+    service.loadCanvas.addEventListener("click", clickEvent);
 
     let mousedownEvent = function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+
         service.listeners.mousedown = true;
 
         let canvasRect = service.worldCanvas.getBoundingClientRect();
@@ -3072,6 +3114,7 @@ function addListeners(service) {
 
     service.worldCanvas.addEventListener("mousedown", mousedownEvent);
     service.battleCanvas.addEventListener("mousedown", mousedownEvent);
+    service.loadCanvas.addEventListener("click", mousedownEvent);
 
     let mousemoveEvent = function(event) {
         event.preventDefault();
@@ -3086,6 +3129,7 @@ function addListeners(service) {
 
     service.worldCanvas.addEventListener("mousemove", mousemoveEvent);
     service.battleCanvas.addEventListener("mousemove", mousemoveEvent);
+    service.loadCanvas.addEventListener("click", mousemoveEvent);
 
     window.addEventListener("mouseup", function(event) {
         service.listeners.mousedown = false;
@@ -3138,7 +3182,7 @@ module.exports=[
             "src": "img/monsters/002_ivysaur_front.png",
             "tileWidth": 58,
             "tileHeight": 58,
-            "renderY": 120,
+            "renderY": 90,
             "renderWidth": 300,
             "renderHeight": 300,
             "numberOfFrames": 111,
@@ -3284,13 +3328,13 @@ module.exports=[
 },{}],14:[function(require,module,exports){
 module.exports={
     "characterStartPositionX": 50,
-    "characterStartPositionY": 82,
+    "characterStartPositionY": 42,
     "snorlaxDefeated": false,
     "gyaradosDefeated": false,
     "monsters": [
         {
             "name": "PIKACHU",
-            "level": 1
+            "level": 100
         }
     ]
 }
@@ -3305,7 +3349,7 @@ module.exports=[
         "spriteWidth": 32,
         "spriteHeight": 192,
         "numberOfFrames": 4,
-        "updateFrequency": 7
+        "updateFrequency": 5
     },
     {
         "name": "playerWater",
@@ -3315,7 +3359,7 @@ module.exports=[
         "spriteWidth": 64,
         "spriteHeight": 256,
         "numberOfFrames": 4,
-        "updateFrequency": 7
+        "updateFrequency": 5
     },
     {
         "name": "playerGrass",
@@ -3325,7 +3369,7 @@ module.exports=[
         "spriteWidth": 32,
         "spriteHeight": 192,
         "numberOfFrames": 4,
-        "updateFrequency": 7
+        "updateFrequency": 5
     },
     {
         "name": "sea",
@@ -3354,6 +3398,39 @@ module.exports=[
         "spriteWidth": 192,
         "spriteHeight": 874,
         "numberOfFrames": 2
+    },
+    {
+        "name": "npc10",
+        "src": "img/NPC10.png",
+        "tileWidth": 32,
+        "tileHeight": 48,
+        "spriteWidth": 32,
+        "spriteHeight": 192,
+        "numberOfFrames": 4,
+        "updateFrequency": 7,
+        "pause": true
+    },
+    {
+        "name": "npc25",
+        "src": "img/NPC25.png",
+        "tileWidth": 32,
+        "tileHeight": 48,
+        "spriteWidth": 32,
+        "spriteHeight": 192,
+        "numberOfFrames": 4,
+        "updateFrequency": 7,
+        "pause": true
+    },
+    {
+        "name": "npc23",
+        "src": "img/NPC23.png",
+        "tileWidth": 32,
+        "tileHeight": 48,
+        "spriteWidth": 32,
+        "spriteHeight": 192,
+        "numberOfFrames": 4,
+        "updateFrequency": 7,
+        "pause": true
     }
 ]
 
