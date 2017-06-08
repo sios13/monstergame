@@ -104,8 +104,8 @@ function MapManager(service, {}) {
             function() {
                 this.service.map = this.service.mapManager.getMap(newMapName);
 
-                this.service.coolguy.x = newX * 32;
-                this.service.coolguy.y = newY * 32;
+                this.service.coolguy.x = newX * this.service.gridSize;
+                this.service.coolguy.y = newY * this.service.gridSize;
             },
             function() {
                 this.service.map.audio.volume = 0;
@@ -275,78 +275,80 @@ MapManager.prototype.createStartMap = function() {
 
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/music1.mp3");
 
+    let gs = this.service.gridSize;
+
     let tiles = [
-        this.service.resources.getTile("sea(0,2)", 48*32, 92*32, 32, 32),
-        this.service.resources.getTile("sea(1,2)", 49*32, 92*32, 32, 32),
-        this.service.resources.getTile("sea(2,2)", 50*32, 92*32, 32, 32),
-        this.service.resources.getTile("sea(3,2)", 51*32, 92*32, 32, 32),
-        this.service.resources.getTile("sea(4,2)", 52*32, 92*32, 32, 32),
-        this.service.resources.getTile("sea(5,2)", 53*32, 92*32, 32, 32),
-        this.service.resources.getTile("sea(0,3)", 48*32, 93*32, 32, 32),
-        this.service.resources.getTile("sea(1,3)", 49*32, 93*32, 32, 32),
-        this.service.resources.getTile("sea(2,3)", 50*32, 93*32, 32, 32),
-        this.service.resources.getTile("sea(3,3)", 51*32, 93*32, 32, 32),
-        this.service.resources.getTile("sea(4,3)", 52*32, 93*32, 32, 32),
-        this.service.resources.getTile("sea(5,3)", 53*32, 93*32, 32, 32),
-        this.service.resources.getTile("sea(0,4)", 48*32, 94*32, 32, 32),
-        this.service.resources.getTile("sea(1,4)", 49*32, 94*32, 32, 32),
-        this.service.resources.getTile("sea(2,4)", 50*32, 94*32, 32, 32),
-        this.service.resources.getTile("sea(3,4)", 51*32, 94*32, 32, 32),
-        this.service.resources.getTile("sea(4,4)", 52*32, 94*32, 32, 32),
-        this.service.resources.getTile("sea(5,4)", 53*32, 94*32, 32, 32),
-        this.service.resources.getTile("sea(0,5)", 48*32, 95*32, 32, 32),
-        this.service.resources.getTile("sea(1,5)", 49*32, 95*32, 32, 32),
-        this.service.resources.getTile("sea(2,5)", 50*32, 95*32, 32, 32),
-        this.service.resources.getTile("sea(3,5)", 51*32, 95*32, 32, 32),
-        this.service.resources.getTile("sea(4,5)", 52*32, 95*32, 32, 32),
-        this.service.resources.getTile("sea(5,5)", 53*32, 95*32, 32, 32),
-        this.service.resources.getTile("sea(0,6)", 48*32, 96*32, 32, 32),
-        this.service.resources.getTile("sea(1,6)", 49*32, 96*32, 32, 32),
-        this.service.resources.getTile("sea(2,6)", 50*32, 96*32, 32, 32),
-        this.service.resources.getTile("sea(3,6)", 51*32, 96*32, 32, 32),
-        this.service.resources.getTile("sea(4,6)", 52*32, 96*32, 32, 32),
-        this.service.resources.getTile("sea(5,6)", 53*32, 96*32, 32, 32),
-        this.service.resources.getTile("sea(0,7)", 48*32, 97*32, 32, 32),
-        this.service.resources.getTile("sea(1,7)", 49*32, 97*32, 32, 32),
-        this.service.resources.getTile("sea(2,7)", 50*32, 97*32, 32, 32),
-        this.service.resources.getTile("sea(3,7)", 51*32, 97*32, 32, 32),
-        this.service.resources.getTile("sea(4,7)", 52*32, 97*32, 32, 32),
-        this.service.resources.getTile("sea(5,7)", 53*32, 97*32, 32, 32),
+        this.service.resources.getTile("sea(0,2)", 48*gs, 92*gs, gs, gs),
+        this.service.resources.getTile("sea(1,2)", 49*gs, 92*gs, gs, gs),
+        this.service.resources.getTile("sea(2,2)", 50*gs, 92*gs, gs, gs),
+        this.service.resources.getTile("sea(3,2)", 51*gs, 92*gs, gs, gs),
+        this.service.resources.getTile("sea(4,2)", 52*gs, 92*gs, gs, gs),
+        this.service.resources.getTile("sea(5,2)", 53*gs, 92*gs, gs, gs),
+        this.service.resources.getTile("sea(0,3)", 48*gs, 93*gs, gs, gs),
+        this.service.resources.getTile("sea(1,3)", 49*gs, 93*gs, gs, gs),
+        this.service.resources.getTile("sea(2,3)", 50*gs, 93*gs, gs, gs),
+        this.service.resources.getTile("sea(3,3)", 51*gs, 93*gs, gs, gs),
+        this.service.resources.getTile("sea(4,3)", 52*gs, 93*gs, gs, gs),
+        this.service.resources.getTile("sea(5,3)", 53*gs, 93*gs, gs, gs),
+        this.service.resources.getTile("sea(0,4)", 48*gs, 94*gs, gs, gs),
+        this.service.resources.getTile("sea(1,4)", 49*gs, 94*gs, gs, gs),
+        this.service.resources.getTile("sea(2,4)", 50*gs, 94*gs, gs, gs),
+        this.service.resources.getTile("sea(3,4)", 51*gs, 94*gs, gs, gs),
+        this.service.resources.getTile("sea(4,4)", 52*gs, 94*gs, gs, gs),
+        this.service.resources.getTile("sea(5,4)", 53*gs, 94*gs, gs, gs),
+        this.service.resources.getTile("sea(0,5)", 48*gs, 95*gs, gs, gs),
+        this.service.resources.getTile("sea(1,5)", 49*gs, 95*gs, gs, gs),
+        this.service.resources.getTile("sea(2,5)", 50*gs, 95*gs, gs, gs),
+        this.service.resources.getTile("sea(3,5)", 51*gs, 95*gs, gs, gs),
+        this.service.resources.getTile("sea(4,5)", 52*gs, 95*gs, gs, gs),
+        this.service.resources.getTile("sea(5,5)", 53*gs, 95*gs, gs, gs),
+        this.service.resources.getTile("sea(0,6)", 48*gs, 96*gs, gs, gs),
+        this.service.resources.getTile("sea(1,6)", 49*gs, 96*gs, gs, gs),
+        this.service.resources.getTile("sea(2,6)", 50*gs, 96*gs, gs, gs),
+        this.service.resources.getTile("sea(3,6)", 51*gs, 96*gs, gs, gs),
+        this.service.resources.getTile("sea(4,6)", 52*gs, 96*gs, gs, gs),
+        this.service.resources.getTile("sea(5,6)", 53*gs, 96*gs, gs, gs),
+        this.service.resources.getTile("sea(0,7)", 48*gs, 97*gs, gs, gs),
+        this.service.resources.getTile("sea(1,7)", 49*gs, 97*gs, gs, gs),
+        this.service.resources.getTile("sea(2,7)", 50*gs, 97*gs, gs, gs),
+        this.service.resources.getTile("sea(3,7)", 51*gs, 97*gs, gs, gs),
+        this.service.resources.getTile("sea(4,7)", 52*gs, 97*gs, gs, gs),
+        this.service.resources.getTile("sea(5,7)", 53*gs, 97*gs, gs, gs),
 
-        this.service.resources.getTile("flower1", 40*32, 80*32, 32, 32),
-        this.service.resources.getTile("flower1", 41*32, 81*32, 32, 32),
-        this.service.resources.getTile("flower1", 40*32, 82*32, 32, 32),
-        this.service.resources.getTile("flower1", 43*32, 82*32, 32, 32),
-        this.service.resources.getTile("flower1", 43*32, 89*32, 32, 32),
-        this.service.resources.getTile("flower1", 44*32, 89*32, 32, 32),
-        this.service.resources.getTile("flower1", 45*32, 89*32, 32, 32),
-        this.service.resources.getTile("flower1", 43*32, 90*32, 32, 32),
-        this.service.resources.getTile("flower1", 44*32, 90*32, 32, 32),
-        this.service.resources.getTile("flower1", 45*32, 90*32, 32, 32),
-        this.service.resources.getTile("flower1", 59*32, 79*32, 32, 32),
-        this.service.resources.getTile("flower1", 58*32, 80*32, 32, 32),
-        this.service.resources.getTile("flower1", 59*32, 81*32, 32, 32),
-        this.service.resources.getTile("flower1", 58*32, 82*32, 32, 32),
-        this.service.resources.getTile("flower1", 56*32, 82*32, 32, 32),
+        this.service.resources.getTile("flower1", 40*gs, 80*gs, gs, gs),
+        this.service.resources.getTile("flower1", 41*gs, 81*gs, gs, gs),
+        this.service.resources.getTile("flower1", 40*gs, 82*gs, gs, gs),
+        this.service.resources.getTile("flower1", 43*gs, 82*gs, gs, gs),
+        this.service.resources.getTile("flower1", 43*gs, 89*gs, gs, gs),
+        this.service.resources.getTile("flower1", 44*gs, 89*gs, gs, gs),
+        this.service.resources.getTile("flower1", 45*gs, 89*gs, gs, gs),
+        this.service.resources.getTile("flower1", 43*gs, 90*gs, gs, gs),
+        this.service.resources.getTile("flower1", 44*gs, 90*gs, gs, gs),
+        this.service.resources.getTile("flower1", 45*gs, 90*gs, gs, gs),
+        this.service.resources.getTile("flower1", 59*gs, 79*gs, gs, gs),
+        this.service.resources.getTile("flower1", 58*gs, 80*gs, gs, gs),
+        this.service.resources.getTile("flower1", 59*gs, 81*gs, gs, gs),
+        this.service.resources.getTile("flower1", 58*gs, 82*gs, gs, gs),
+        this.service.resources.getTile("flower1", 56*gs, 82*gs, gs, gs),
 
-        this.service.resources.getTile("flower1", 50*32, 42*32, 32, 32),
-        this.service.resources.getTile("flower1", 49*32, 41*32, 32, 32),
-        this.service.resources.getTile("flower1", 51*32, 40*32, 32, 32),
-        this.service.resources.getTile("flower1", 42*32, 40*32, 32, 32),
-        this.service.resources.getTile("flower1", 43*32, 39*32, 32, 32),
-        this.service.resources.getTile("flower1", 42*32, 38*32, 32, 32),
-        this.service.resources.getTile("flower1", 43*32, 37*32, 32, 32),
+        this.service.resources.getTile("flower1", 50*gs, 42*gs, gs, gs),
+        this.service.resources.getTile("flower1", 49*gs, 41*gs, gs, gs),
+        this.service.resources.getTile("flower1", 51*gs, 40*gs, gs, gs),
+        this.service.resources.getTile("flower1", 42*gs, 40*gs, gs, gs),
+        this.service.resources.getTile("flower1", 43*gs, 39*gs, gs, gs),
+        this.service.resources.getTile("flower1", 42*gs, 38*gs, gs, gs),
+        this.service.resources.getTile("flower1", 43*gs, 37*gs, gs, gs),
 
-        this.service.resources.getTile("flower1", 23*32, 36*32, 32, 32),
-        this.service.resources.getTile("flower1", 22*32, 37*32, 32, 32),
-        this.service.resources.getTile("flower1", 23*32, 38*32, 32, 32),
+        this.service.resources.getTile("flower1", 23*gs, 36*gs, gs, gs),
+        this.service.resources.getTile("flower1", 22*gs, 37*gs, gs, gs),
+        this.service.resources.getTile("flower1", 23*gs, 38*gs, gs, gs),
 
-        this.service.resources.getTile("npc10(0,0)", 54*32, 85*32, 32, 48),
+        this.service.resources.getTile("npc10(0,0)", 54*gs, 85*gs, gs, 48),
 
-        this.service.resources.getTile("npc25(0,0)", 51*32, 45*32, 32, 48),
+        this.service.resources.getTile("npc25(0,0)", 51*gs, 45*gs, gs, 48),
 
-        this.service.resources.getTile("gyarados", 75*32, 21*32, 64, 64),
-        this.service.resources.getTile("snorlax", 38*32, 41*32, 96, 96)
+        this.service.resources.getTile("gyarados", 75*gs, 21*gs, 64, 64),
+        this.service.resources.getTile("snorlax", 38*gs, 41*gs, 96, 96)
     ];
 
     if (this.service.save.gyaradosDefeated === true) {
@@ -361,10 +363,10 @@ MapManager.prototype.createStartMap = function() {
         // Move snorlax
         // let snorlaxTile = tiles[tiles.length-1];
         let snorlaxTile = tiles.find(x => x.name === "snorlax");
-        snorlaxTile.renderX = 32*32;
-        snorlaxTile.renderY = 36*32;
-        snorlaxTile.renderWidth = 32;
-        snorlaxTile.renderHeight = 32;
+        snorlaxTile.renderX = 32*gs;
+        snorlaxTile.renderY = 36*gs;
+        snorlaxTile.renderWidth = gs;
+        snorlaxTile.renderHeight = gs;
 
         // Remove snorlax battle events
         collisionMap[42][40] = 0;
@@ -653,7 +655,7 @@ MapManager.prototype.createPokecenterMap = function() {
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/pokecenter.ogg");
 
     let tiles = [
-        this.service.resources.getTile("npc23(0,0)", 8*32, 2*32, 32, 48)
+        this.service.resources.getTile("npc23(0,0)", 8*gs, 2*gs, 32, 48)
     ];
 
     let map = new Map(this.service, {

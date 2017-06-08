@@ -6,11 +6,8 @@ function Entity(service, settings) {
         return;
     }
 
-    // this.x = 60*32;
-    // this.y = 72*32;
-
-    this.x = this.service.save.characterStartPositionX * 32;
-    this.y = this.service.save.characterStartPositionY * 32;
+    this.x = this.service.save.characterStartPositionX * this.service.gridSize;
+    this.y = this.service.save.characterStartPositionY * this.service.gridSize;
 
     this.collisionSquare = 20;
 
@@ -20,8 +17,8 @@ function Entity(service, settings) {
 
     this.state = "walking";
 
-    this.col = Math.floor(this.x / 32);
-    this.row = Math.floor(this.y / 32);
+    this.col = Math.floor(this.x / this.service.gridSize);
+    this.row = Math.floor(this.y / this.service.gridSize);
 
     this.speedX = 0;
     this.speedY = 0;
@@ -106,10 +103,10 @@ Entity.prototype._detectCollision = function() {
         [x+squareSize, y],              // Top right
         [x, y+squareSize],              // Bottom left
         [x+squareSize, y+squareSize],   // Bottom right
-        [x+squareSize/2, y],            // Top
-        [x+squareSize, y+squareSize/2], // Right
-        [x+squareSize/2, y+squareSize], // Bottom
-        [x, y+squareSize/2]             // Left
+        //[x+squareSize/2, y],            // Top
+        //[x+squareSize, y+squareSize/2], // Right
+        //[x+squareSize/2, y+squareSize], // Bottom
+        //[x, y+squareSize/2]             // Left
     ];
 
     // Iterate the collision points
@@ -117,11 +114,11 @@ Entity.prototype._detectCollision = function() {
         let pointX = collisionPoints[i][0];
         let pointY = collisionPoints[i][1];
 
-        let oldColumn = Math.floor(pointX / this.service.map.gridSize);
-        let oldRow = Math.floor(pointY / this.service.map.gridSize);
+        let oldColumn = Math.floor(pointX / this.service.gridSize);
+        let oldRow = Math.floor(pointY / this.service.gridSize);
 
-        let newColumn = Math.floor((pointX+this.speedX) / this.service.map.gridSize);
-        let newRow = Math.floor((pointY+this.speedY) / this.service.map.gridSize);
+        let newColumn = Math.floor((pointX+this.speedX) / this.service.gridSize);
+        let newRow = Math.floor((pointY+this.speedY) / this.service.gridSize);
 
         // If collision point is trying to enter a disallowed grid
         if (this.service.map.collisionMap[newRow][newColumn] === 1) {
@@ -193,8 +190,8 @@ Entity.prototype.update = function() {
         let oldCol = this.col;
         let oldRow = this.row;
 
-        this.col = Math.floor((this.x + this.collisionSquare / 2 + this.speedX) / this.service.map.gridSize);
-        this.row = Math.floor((this.y + this.collisionSquare / 2 + this.speedY) / this.service.map.gridSize);
+        this.col = Math.floor((this.x + this.collisionSquare / 2 + this.speedX) / this.service.gridSize);
+        this.row = Math.floor((this.y + this.collisionSquare / 2 + this.speedY) / this.service.gridSize);
 
         // If entering a new grid -> push the new grid event to service.events
         if (this.col !== oldCol || this.row !== oldRow) {

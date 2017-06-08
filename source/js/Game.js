@@ -26,6 +26,8 @@ function Game() {
     // Load save file
     this.service.save = require("./resources/savefile.json");
 
+    this.service.gridSize = 32;
+
     this.service.tick = 0;
 
     this.service.state = "";
@@ -34,6 +36,7 @@ function Game() {
 
     // Load resources to service.resouces
     this.loader = new Loader(this.service, {});
+
     // Initialize world state
     this.service.events.push(function() {
         this.loader.load(

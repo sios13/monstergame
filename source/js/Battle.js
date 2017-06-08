@@ -383,8 +383,8 @@ Battle.prototype._scenarioPlayerMonsterFaint = function(tick) {
 
             // Set character position
             if (this.type === "snorlax") {
-                this.service.coolguy.x = 46 * 32;
-                this.service.coolguy.y = 49 * 32;
+                this.service.coolguy.x = 46 * this.service.gridSize;
+                this.service.coolguy.y = 49 * this.service.gridSize;
             }
             
             this.service.coolguy.direction = 3;
@@ -457,10 +457,10 @@ Battle.prototype._scenarioOpponentMonsterFaint = function(tick) {
 
             // Move snorlax
             let snorlaxTile = this.service.map.tiles.find(x => x.name === "snorlax");
-            snorlaxTile.renderX = 32*32;
-            snorlaxTile.renderY = 36*32;
-            snorlaxTile.renderWidth = 32;
-            snorlaxTile.renderHeight = 32;
+            snorlaxTile.renderX = 32*this.service.gridSize;
+            snorlaxTile.renderY = 36*this.service.gridSize;
+            snorlaxTile.renderWidth = this.service.gridSize;
+            snorlaxTile.renderHeight = this.service.gridSize;
 
             // Remove snorlax battle events
             this.service.map.collisionMap[42][40] = function() {this.service.coolguy.setState("walking")};
@@ -605,8 +605,8 @@ Battle.prototype._commandState = function() {
                 }.bind(this));
             } else {
                 if (this.type === "snorlax") {
-                    this.service.coolguy.x = 50 * 32;
-                    this.service.coolguy.y = 42 * 32;
+                    this.service.coolguy.x = 50 * this.service.gridSize;
+                    this.service.coolguy.y = 42 * this.service.gridSize;
 
                     this.service.coolguy.direction = 3;
                 }

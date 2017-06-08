@@ -6,8 +6,6 @@ function Map(service, settings) {
 
     this.collisionMap = settings.collisionMap;
 
-    this.gridSize = settings.gridSize ? settings.gridSize : 32;
-
     this.layer1Tile = settings.layer1Tile;
 
     this.layer2Tile = settings.layer2Tile;
