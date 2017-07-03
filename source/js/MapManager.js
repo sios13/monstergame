@@ -655,7 +655,7 @@ MapManager.prototype.createPokecenterMap = function() {
     let audio = this.service.resources.audios.find(audio => audio.getAttribute("src") === "audio/pokecenter.ogg");
 
     let tiles = [
-        this.service.resources.getTile("npc23(0,0)", 8*gs, 2*gs, 32, 48)
+        this.service.resources.getTile("npc23(0,0)", 8*32, 2*32, 32, 48)
     ];
 
     let map = new Map(this.service, {
