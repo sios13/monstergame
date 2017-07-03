@@ -3328,7 +3328,7 @@ module.exports=[
 },{}],14:[function(require,module,exports){
 module.exports={
     "characterStartPositionX": 50,
-    "characterStartPositionY": 42,
+    "characterStartPositionY": 82,
     "snorlaxDefeated": false,
     "gyaradosDefeated": false,
     "monsters": [
