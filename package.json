@@ -4,7 +4,8 @@
   "description": "Awesome game!",
   "main": "app.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "build": "browserify source/js/app.js -o debug/js/bundle.js"
   },
   "repository": {
     "type": "git",
